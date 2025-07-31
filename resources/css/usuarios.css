@@ -1,0 +1,216 @@
+:root {
+  --verde-fundo: #deece7;
+  --branco-principal: #ffffff;
+  --verde-principal: #5fb13b;
+  --azul-principal: #0169b4;
+  --verde-secundario: #313a22;
+  --vermelho-erro: #d9534f;
+  --cinza-claro: #f7f7f7;
+  --cinza-escuro: #888888;
+  --texto-principal: #333333;
+  --texto-secundario: #555555;
+  --sombra: rgba(0, 0, 0, 0.1);
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--verde-fundo);
+  margin: 0;
+  color: var(--texto-principal);
+}
+
+.main-content {
+  margin-left: 240px;
+  padding: 30px 40px;
+  min-height: 100vh;
+  background-color: var(--branco-principal);
+}
+
+.header-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.header-section h1 {
+  font-size: 2rem;
+  color: var(--azul-principal);
+  margin-bottom: 8px;
+}
+.header-section .subtitle {
+  font-size: 1rem;
+  color: var(--texto-secundario);
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: var(--verde-principal);
+  color: var(--branco-principal);
+  text-decoration: none;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+.btn-primary:hover {
+  background-color: var(--verde-secundario);
+  transform: translateY(-1px);
+}
+
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 20px auto;
+  max-width: 900px;
+}
+.filter-bar input,
+.filter-bar select {
+  padding: 8px 12px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  color: var(--texto-principal);
+}
+.filter-bar .btn-search {
+  padding: 8px 16px;
+  background-color: var(--azul-principal);
+  color: var(--branco-principal);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.filter-bar .btn-search:hover {
+  background-color: var(--verde-principal);
+}
+
+.usuarios-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--branco-principal);
+  box-shadow: 0 4px 12px var(--sombra);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 auto 40px;
+  max-width: 900px;
+  font-size: 14px;
+}
+
+.usuarios-table thead {
+  background-color: var(--azul-principal);
+}
+
+.usuarios-table th {
+  color: var(--branco-principal);
+  padding: 12px 16px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.usuarios-table tbody tr:nth-child(even) {
+  background-color: var(--cinza-claro);
+}
+
+.usuarios-table tbody tr:hover {
+  background-color: rgba(91, 177, 59, 0.1);
+  transition: background 0.2s;
+}
+
+.usuarios-table td {
+  padding: 12px 16px;
+  vertical-align: middle;
+  color: var(--texto-secundario);
+}
+
+.acao-cell {
+  text-align: center;
+}
+
+.status-pendente {
+  background-color: var(--amarelo-aviso, #ffc107);
+  color: #333;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.status-aprovado {
+  background-color: var(--verde-principal);
+  color: var(--branco-principal);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.btn-approve,
+.btn-reject,
+.btn-edit,
+.btn-delete {
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin: 0 2px;
+  display: inline-block;
+  transition: background 0.2s, transform 0.1s;
+  cursor: pointer;
+}
+
+.btn-approve {
+  background-color: var(--verde-principal);
+  color: var(--branco-principal);
+}
+.btn-approve:hover {
+  background-color: var(--verde-secundario);
+  transform: translateY(-1px);
+}
+
+.btn-reject {
+  background-color: var(--vermelho-erro);
+  color: var(--branco-principal);
+}
+.btn-reject:hover {
+  background-color: #c9302c;
+  transform: translateY(-1px);
+}
+
+.btn-edit {
+  background-color: var(--azul-principal);
+  color: var(--branco-principal);
+}
+.btn-edit:hover {
+  background-color: var(--verde-principal);
+  transform: translateY(-1px);
+}
+
+.btn-delete {
+  background-color: var(--vermelho-erro);
+  color: var(--branco-principal);
+}
+.btn-delete:hover {
+  background-color: #c9302c;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .usuarios-table th,
+  .usuarios-table td {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .btn-approve,
+  .btn-reject,
+  .btn-edit,
+  .btn-delete {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+}
