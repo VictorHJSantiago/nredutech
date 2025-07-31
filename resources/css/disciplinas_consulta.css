@@ -1,0 +1,154 @@
+:root {
+  --verde-fundo: #deece7;
+  --branco-principal: #ffffff;
+  --verde-principal: #5fb13b;
+  --azul-principal: #0169b4;
+  --verde-secundario: #313a22;
+  --preto-titulo: #000000;
+  --cinza-claro: #f7f7f7;
+  --cinza-escuro: #888888;
+  --sombra: rgba(0, 0, 0, 0.1);
+  --texto-secundario: #555555;
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: var(--verde-principal);
+  color: var(--branco-principal);
+  text-decoration: none;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+.btn-primary:hover {
+  background-color: var(--verde-secundario);
+  transform: translateY(-1px);
+}
+
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 20px auto;
+  max-width: 900px;
+}
+
+.filter-bar input,
+.filter-bar select {
+  padding: 8px 12px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.filter-bar .btn-search {
+  padding: 8px 16px;
+  background-color: var(--azul-principal);
+  color: var(--branco-principal);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.filter-bar .btn-search:hover {
+  background-color: var(--verde-principal);
+}
+
+.disciplinas-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--branco-principal);
+  box-shadow: 0 4px 12px var(--sombra);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 auto 40px;
+  max-width: 900px;
+  font-size: 14px;
+}
+
+.disciplinas-table thead {
+  background-color: var(--azul-principal);
+}
+
+.disciplinas-table th {
+  color: var(--branco-principal);
+  padding: 12px 16px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.disciplinas-table tbody tr:nth-child(even) {
+  background-color: var(--cinza-claro);
+}
+
+.disciplinas-table tbody tr:hover {
+  background-color: rgba(91, 177, 59, 0.1);
+  transition: background 0.2s;
+}
+
+.disciplinas-table td {
+  padding: 12px 16px;
+  vertical-align: middle;
+  color: var(--texto-secundario);
+}
+
+.btn-edit,
+.btn-delete,
+.btn-detail {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-right: 4px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.2s;
+}
+
+.btn-edit {
+  background-color: var(--azul-principal);
+  color: var(--branco-principal);
+}
+.btn-edit:hover {
+  background-color: var(--verde-principal);
+}
+
+.btn-delete {
+  background-color: #d9534f;
+  color: var(--branco-principal);
+}
+.btn-delete:hover {
+  background-color: #c9302c;
+}
+
+.btn-detail {
+  background-color: var(--verde-principal);
+  color: var(--branco-principal);
+}
+.btn-detail:hover {
+  background-color: var(--verde-secundario);
+}
+
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .disciplinas-table th,
+  .disciplinas-table td {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .btn-edit,
+  .btn-delete,
+  .btn-detail {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}

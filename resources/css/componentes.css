@@ -1,0 +1,83 @@
+
+.table-section {
+  overflow-x: auto;       
+  margin-top: 20px;
+}
+
+.componentes-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--branco-principal);
+  box-shadow: 0 4px 12px var(--sombra);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+.componentes-table thead {
+  background-color: var(--azul-principal);
+}
+
+.componentes-table th {
+  color: var(--branco-principal);
+  padding: 12px 16px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.componentes-table tbody tr:nth-child(even) {
+  background-color: var(--cinza-claro);
+}
+
+.componentes-table tbody tr:hover {
+  background-color: rgba(91, 177, 59, 0.1);
+  transition: background 0.2s;
+}
+
+.componentes-table td {
+  padding: 12px 16px;
+  vertical-align: middle;
+  color: var(--texto-secundario);
+}
+
+.btn-edit,
+.btn-delete {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-right: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-edit {
+  background-color: var(--azul-principal);
+  color: var(--branco-principal);
+}
+
+.btn-edit:hover {
+  background-color: var(--verde-principal);
+}
+
+.btn-delete {
+  background-color: #d9534f; 
+  color: var(--branco-principal);
+}
+
+.btn-delete:hover {
+  background-color: #c9302c; 
+}
+
+@media (max-width: 768px) {
+  .componentes-table th,
+  .componentes-table td {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .btn-edit,
+  .btn-delete {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}
