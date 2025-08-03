@@ -4,25 +4,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Aqui é onde você registra as rotas web para sua aplicação.
-|
-*/
-
-// Rota para exibir o formulário de login
+// Rota para exibir o formulário de login (acessível em /login)
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 
-// Rota para processar o envio do formulário de login
+// Rota para processar o envio do formulário
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
 // Rota para a página de cadastro
 Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
 
-// Você pode adicionar outras rotas aqui...
+// Rota raiz (/) agora redireciona para a rota de login. Esta é a melhor prática.
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
