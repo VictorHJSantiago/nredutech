@@ -1,17 +1,12 @@
-{{-- Usa o esqueleto definido no layout 'guest' --}}
 @extends('layouts.guest')
 
-{{-- Define o título da página --}}
 @section('title', 'Cadastro')
 
-{{-- Define o conteúdo que será injetado no layout --}}
 @section('content')
 <div class="box register-box">
   <h2>Cadastrar</h2>
 
-  {{-- Formulário adaptado para o padrão Laravel --}}
   <form method="POST" action="{{ route('register') }}" class="register-form">
-    {{-- Token de segurança CSRF, obrigatório em formulários --}}
     @csrf
 
     <div class="form-grid">
