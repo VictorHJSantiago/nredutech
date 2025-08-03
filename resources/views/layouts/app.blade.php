@@ -1,36 +1,35 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@yield('title', 'NREduTech')</title>
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            @include('layouts.navigation')
-
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
-
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">📚</div>
+            <span class="logo-text">NREduTech</span>
         </div>
-    </body>
+        <nav class="sidebar-nav">
+            <a href="{{ route('dashboard') }}" class="nav-item">🏠 Início</a>
+            <a href="{{ route('disciplines.index') }}" class="nav-item">📂 Disciplinas</a>
+            <a href="{{ route('professors.index') }}" class="nav-item">👩‍🏫 Professores</a>
+            <a href="{{ route('resources.index') }}" class="nav-item">📖 Recursos</a>
+            <a href="{{ route('users.index') }}" class="nav-item">👥 Usuários</a>
+            <a href="{{ route('reports.index') }}" class="nav-item">📊 Relatórios</a>
+            <a href="{{ route('laboratories.index') }}" class="nav-item">🔬 Laboratórios</a>
+            <a href="{{ route('settings') }}" class="nav-item">⚙️ Configurações</a>
+            <a href="#" class="nav-item logout">🔒 Sair</a> {{-- A ação de sair geralmente é um formulário POST --}}
+        </nav>
+    </div>
+
+    <div class="main-content">
+        @yield('content')
+    </div>
+</body>
 </html>
