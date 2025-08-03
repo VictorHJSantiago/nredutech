@@ -3,5 +3,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/*Autenticação*/
 @import url('./login.css');
-@import url('./cadastro.css')
+@import url('./register.css');
+
+/*Layouts e componentes gerais*/
+@import url('./index.css');
+@import url('./components.css');
+@import url('./settings.css');
+
+/*Seções do sistema*/
+@import url('./disciplines.css');
+@import url('./disciplines-list.css');
+@import url('./professors.css');
+@import url('./professors-create.css');
+@import url('./users.css');
+@import url('./users-create.css');
+@import url('./resources.css');
+@import url('./resources-create.css');
+@import url('./laboratories.css');
+@import url('./reports.css');
+@import url('./notifications.css');
