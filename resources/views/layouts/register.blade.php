@@ -6,7 +6,7 @@
 <div class="box register-box">
     <h2>Cadastrar</h2>
 
-    <form method="POST" action="{{ route('register.store') }}" class="register-form">
+    <form method="POST" action="" class="register-form">
         @csrf
 
         <div class="form-grid">

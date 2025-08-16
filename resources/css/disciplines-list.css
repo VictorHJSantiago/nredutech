@@ -98,42 +98,11 @@
   color: var(--texto-secundario);
 }
 
-.btn-edit,
-.btn-delete,
-.btn-detail {
-  border: none;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  margin-right: 4px;
-  text-decoration: none;
-  display: inline-block;
-  transition: background 0.2s;
-}
-
-.btn-edit {
-  background-color: var(--azul-principal);
-  color: var(--branco-principal);
-}
-.btn-edit:hover {
-  background-color: var(--verde-principal);
-}
-
-.btn-delete {
-  background-color: #d9534f;
-  color: var(--branco-principal);
-}
-.btn-delete:hover {
-  background-color: #c9302c;
-}
-
-.btn-detail {
-  background-color: var(--verde-principal);
-  color: var(--branco-principal);
-}
-.btn-detail:hover {
-  background-color: var(--verde-secundario);
-}
+.actions-cell { display: flex; gap: 5px; }
+        .btn-edit, .btn-detail, .btn-delete { padding: 5px 10px; text-decoration: none; border-radius: 5px; color: white; border: none; cursor: pointer; }
+        .btn-edit { background-color: #ffc107; }
+        .btn-detail { background-color: #17a2b8; }
+        .btn-delete { background-color: #dc3545; }
 
 @media (max-width: 768px) {
   .filter-bar {

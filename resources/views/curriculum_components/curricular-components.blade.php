@@ -22,28 +22,20 @@
                 </tr>
             </thead>
             <tbody>
-                {{-- 
-                    Em um projeto real, os dados da tabela viriam de um Controller
-                    e seriam exibidos com um loop @foreach, como no exemplo abaixo:
-                --}}
-                {{-- @foreach ($componentes as $componente) --}}
                     <tr>
-                        <td>1 {{-- {{ $componente->id }} --}}</td>
-                        <td>Turma 101 – Manhã {{-- {{ $componente->turma }} --}}</td>
-                        <td>João Silva {{-- {{ $componente->professor->nome }} --}}</td>
-                        <td>Matemática {{-- {{ $componente->materia->nome }} --}}</td>
+                        <td>1 </td>
+                        <td>Turma 101 – Manhã</td>
+                        <td>João Silva</td>
+                        <td>Matemática</td>
                         <td>
-                            <a href="{{-- route('components.edit', $componente->id) --}}" class="btn-edit">✏️ Editar</a>
-                            <form action="{{-- route('components.destroy', $componente->id) --}}" method="POST" style="display:inline;">
+                            <a href="" class="btn-edit">✏️ Editar</a>
+                            <form action="" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-delete">🗑️ Excluir</button>
                             </form>
                         </td>
                     </tr>
-                {{-- @endforeach --}}
-
-                {{-- Dados estáticos para visualização --}}
                 <tr>
                     <td>2</td>
                     <td>Turma 102 – Tarde</td>

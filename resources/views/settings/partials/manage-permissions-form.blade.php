@@ -7,7 +7,6 @@
             <label for="selecaoUsuario">Selecione Usuário</label>
             <select id="selecaoUsuario" name="user_id">
                 <option value="">Escolha um usuário</option>
-                {{-- Em um projeto real, estes dados viriam de um loop @foreach --}}
                 <option value="usuario1">victorhenriquedejesussantiago@gmail.com</option>
                 <option value="usuario2">thalitascharrrodriguespimenta@escola.pr.gov.br</option>
             </select>

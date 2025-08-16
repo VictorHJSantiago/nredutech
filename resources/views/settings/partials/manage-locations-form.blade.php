@@ -1,4 +1,4 @@
-div class="config-group">
+<div class="config-group">
     <h2>Cadastro de Municípios/Instituições</h2>
     <form class="config-form" method="POST" action="{{-- route('settings.locations.store') --}}">
         @csrf

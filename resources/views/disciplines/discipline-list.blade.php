@@ -8,27 +8,24 @@
         <p class="subtitle">Busque, filtre e visualize disciplinas cadastradas</p>
     </header>
 
-    <div class="form-actions" style="text-align: right; margin-bottom: 20px;">
-        <a href="{{ route('disciplines.create') }}" class="btn-primary">+ Cadastrar Nova Disciplina</a>
+    <div class="form-actions">
+        <a href="#" class="btn-primary">+ Cadastrar Nova Disciplina</a>
     </div>
 
-    <form method="GET" action="{{ route('disciplines.index') }}" class="filter-bar">
-        <input type="text" name="search" placeholder="Buscar por nome..." value="{{ request('search') }}">
+    <form method="GET" action="#" class="filter-bar">
+        <input type="text" name="search" placeholder="Buscar por nome...">
         
         <select name="institution">
             <option value="">Todas as instituições</option>
-            @foreach ($institutions as $institution)
-                <option value="{{ $institution->id }}" {{ request('institution') == $institution->id ? 'selected' : '' }}>
-                    {{ $institution->name }}
-                </option>
-            @endforeach
+            <option value="1">Instituição A</option>
+            <option value="2">Instituição B</option>
         </select>
         
         <select name="shift">
             <option value="">Todos os turnos</option>
-            <option value="manha" {{ request('shift') == 'manha' ? 'selected' : '' }}>Manhã</option>
-            <option value="tarde" {{ request('shift') == 'tarde' ? 'selected' : '' }}>Tarde</option>
-            <option value="noite" {{ request('shift') == 'noite' ? 'selected' : '' }}>Noite</option>
+            <option value="manha">Manhã</option>
+            <option value="tarde">Tarde</option>
+            <option value="noite">Noite</option>
         </select>
 
         <button type="submit" class="btn-search">🔍 Buscar</button>
@@ -48,29 +45,39 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($disciplines as $discipline)
-                    <tr>
-                        <td>{{ $discipline->id }}</td>
-                        <td>{{ $discipline->name }}</td>
-                        <td>{{ $discipline->turma->name ?? 'N/A' }}</td>
-                        <td>{{ $discipline->institution->name ?? 'N/A' }}</td>
-                        <td>{{ ucfirst($discipline->shift) }}</td>
-                        <td>{{ $discipline->created_at->format('d/m/Y') }}</td>
-                        <td class="actions-cell">
-                            <a href="{{ route('disciplines.edit', $discipline) }}" class="btn-edit">✏️ Editar</a>
-                            <a href="{{ route('disciplines.show', $discipline) }}" class="btn-detail">🔍 Detalhar</a>
-                            <form action="{{ route('disciplines.destroy', $discipline) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-delete">🗑️ Excluir</button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="7">Nenhuma disciplina encontrada.</td>
-                    </tr>
-                @endforelse
+                <tr>
+                    <td>1</td>
+                    <td>Cálculo I</td>
+                    <td>T-01</td>
+                    <td>Universidade Federal</td>
+                    <td>Manhã</td>
+                    <td>10/08/2024</td>
+                    <td class="actions-cell">
+                        <a href="#" class="btn-edit">✏️ Editar</a>
+                        <a href="#" class="btn-detail">🔍 Detalhar</a>
+                        <form action="#" method="POST">
+                            <button type="submit" class="btn-delete">🗑️ Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Programação Orientada a Objetos</td>
+                    <td>T-02</td>
+                    <td>Instituto de Tecnologia</td>
+                    <td>Noite</td>
+                    <td>11/08/2024</td>
+                    <td class="actions-cell">
+                        <a href="#" class="btn-edit">✏️ Editar</a>
+                        <a href="#" class="btn-detail">🔍 Detalhar</a>
+                        <form action="#" method="POST">
+                            <button type="submit" class="btn-delete">🗑️ Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7">Nenhuma disciplina encontrada.</td>
+                </tr>
             </tbody>
         </table>
     </section>
