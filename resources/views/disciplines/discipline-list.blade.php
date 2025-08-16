@@ -9,7 +9,8 @@
     </header>
 
     <div class="form-actions">
-        <a href="#" class="btn-primary">+ Cadastrar Nova Disciplina</a>
+        {{-- CORREÇÃO APLICADA AQUI --}}
+        <a href="/disciplines/create" class="btn-primary">+ Cadastrar Nova Disciplina</a>
     </div>
 
     <form method="GET" action="#" class="filter-bar">
