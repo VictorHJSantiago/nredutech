@@ -6,20 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('usuario_preferencias', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->foreignId('id_usuario')->primary()->constrained('usuarios', 'id_usuario')->onDelete('cascade');
+            
+            $table->boolean('notif_email')->default(true);
+            $table->boolean('notif_popup')->default(true);
+            $table->enum('tema', ['claro', 'escuro'])->default('claro');
+            $table->enum('tamanho_fonte', ['padrao', 'medio', 'grande'])->default('padrao');
+            $table->timestamps(); 
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    
     public function down(): void
     {
         Schema::dropIfExists('usuario_preferencias');

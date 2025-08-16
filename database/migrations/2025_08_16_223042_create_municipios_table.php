@@ -6,20 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('municipios', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_municipio');
+            $table->string('nome', 255);
+            $table->enum('tipo', ['urbano', 'rural']);
+            $table->timestamps(); // Opcional, boa prática no Laravel
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('municipios');

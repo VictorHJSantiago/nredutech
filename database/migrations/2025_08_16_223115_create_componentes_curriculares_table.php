@@ -6,20 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('componentes_curriculares', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_componente');
+            $table->string('nome', 255);
+            $table->text('descricao')->nullable();
+            $table->string('carga_horaria');
+            $table->enum('status', ['pendente', 'aprovado', 'reprovado'])->default('pendente');
+            $table->timestamps(); 
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('componentes_curriculares');

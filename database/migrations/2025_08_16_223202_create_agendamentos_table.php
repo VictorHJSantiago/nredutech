@@ -6,20 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('agendamentos', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_agendamento');
+            $table->dateTime('data_hora_inicio');
+            $table->dateTime('data_hora_fim');
+            $table->enum('status', ['agendado', 'livre'])->default('livre');
+            $table->foreignId('id_recurso')->constrained('recursos_didaticos', 'id_recurso');
+            $table->foreignId('id_oferta')->constrained('oferta_componentes', 'id_oferta');
+            $table->timestamps(); 
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('agendamentos');
