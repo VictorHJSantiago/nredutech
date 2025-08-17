@@ -6,23 +6,19 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreTurmaRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'serie' => 'required|string|max:50',
+            'turno' => 'required|in:manha,tarde,noite',
+            'ano_letivo' => 'required|integer|digits:4',
+            'nivel_escolaridade' => 'required|in:fundamental_1,fundamental_2,medio',
+            'id_escola' => 'required|exists:escolas,id_escola',
         ];
     }
 }

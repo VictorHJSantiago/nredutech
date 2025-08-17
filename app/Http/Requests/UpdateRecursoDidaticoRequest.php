@@ -3,26 +3,27 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateRecursoDidaticoRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
+        $recursoId = $this->route('recursos_didatico')->id_recurso;
+
         return [
-            //
+            'nome' => 'sometimes|required|string|max:255',
+            'marca' => 'nullable|string|max:100',
+            'numero_serie' => ['nullable', 'string', 'max:100', Rule::unique('recursos_didaticos')->ignore($recursoId, 'id_recurso')],
+            'quantidade' => 'sometimes|required|integer|min:1',
+            'observacoes' => 'nullable|string',
+            'data_ultima_limpeza' => 'nullable|date_format:Y-m-d',
+            'status' => 'sometimes|required|in:funcionando,em_manutencao,quebrado,descartado',
         ];
     }
 }

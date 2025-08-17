@@ -6,23 +6,19 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreNotificacaoRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'titulo' => 'required|string|max:255',
+            'mensagem' => 'required|string',
+            'status_mensagem' => 'required|in:enviada,lida',
+            'id_usuario' => 'required|exists:usuarios,id_usuario',
+            'id_agendamento' => 'nullable|exists:agendamentos,id_agendamento',
         ];
     }
 }
