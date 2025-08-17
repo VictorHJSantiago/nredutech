@@ -2,48 +2,47 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMunicipioRequest;
+use App\Http\Requests\UpdateMunicipioRequest;
+use App\Http\Resources\MunicipioResource;
 use App\Models\Municipio;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MunicipioController extends Controller
 {
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
-        return response()->json(Municipio::with('escolas')->get());
+        $municipios = Municipio::with('escolas')->paginate(15);
+
+        return MunicipioResource::collection($municipios);
     }
 
-    public function store(Request $request)
+    public function store(StoreMunicipioRequest $request): MunicipioResource
     {
-        $validatedData = $request->validate([
-            'nome' => 'required|string|max:255',
-            'tipo' => 'required|in:urbano,rural',
-        ]);
+        $municipio = Municipio::create($request->validated());
 
-        $municipio = Municipio::create($validatedData);
-
-        return response()->json($municipio, 201);
+        return new MunicipioResource($municipio);
     }
 
-    public function show(Municipio $municipio)
+    public function show(Municipio $municipio): MunicipioResource
     {
-        return response()->json($municipio->load('escolas'));
+        $municipio->load('escolas');
+
+        return new MunicipioResource($municipio);
     }
 
-    public function update(Request $request, Municipio $municipio)
+    public function update(UpdateMunicipioRequest $request, Municipio $municipio): MunicipioResource
     {
-        $validatedData = $request->validate([
-            'nome' => 'sometimes|required|string|max:255',
-            'tipo' => 'sometimes|required|in:urbano,rural',
-        ]);
+        $municipio->update($request->validated());
 
-        $municipio->update($validatedData);
-
-        return response()->json($municipio);
+        return new MunicipioResource($municipio->fresh());
     }
 
-    public function destroy(Municipio $municipio)
+    public function destroy(Municipio $municipio): JsonResponse
     {
         $municipio->delete();
+
         return response()->json(null, 204);
     }
 }

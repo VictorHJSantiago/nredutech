@@ -2,61 +2,64 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUsuarioRequest;
+use App\Http\Requests\UpdateUsuarioRequest;
+use App\Http\Resources\UsuarioResource;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class UsuarioController extends Controller
 {
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return response()->json(Usuario::with(['escola', 'preferencias'])->get());
+        $query = Usuario::query()->with(['escola', 'preferencias']);
+
+        $query->when($request->query('status'), function ($q, $status) {
+            return $q->where('status_aprovacao', $status);
+        });
+
+        $query->when($request->query('search'), function ($q, $search) {
+            return $q->where(function ($subQ) use ($search) {
+                $subQ->where('nome_completo', 'like', "%{$search}%")
+                     ->orWhere('email', 'like', "%{$search}%");
+            });
+        });
+        
+        $usuarios = $query->paginate($request->query('per_page', 15));
+
+        return UsuarioResource::collection($usuarios);
     }
 
-    public function store(Request $request)
+    public function store(StoreUsuarioRequest $request): UsuarioResource
     {
-        $validatedData = $request->validate([
-            'nome_completo' => 'required|string|max:255',
-            'username' => 'required|string|max:80|unique:usuarios,username',
-            'email' => 'required|email|max:255|unique:usuarios,email',
-            'data_nascimento' => 'nullable|date',
-            'cpf' => 'nullable|string|max:14|unique:usuarios,cpf',
-            'status_aprovacao' => 'required|in:ativo,pendente,bloqueado',
-            'tipo_usuario' => 'required|in:administrador,diretor,professor',
-            'id_escola' => 'nullable|exists:escolas,id_escola',
-        ]);
-        
+        $validatedData = $request->validated();
         $validatedData['data_registro'] = now();
-
+        
         $usuario = Usuario::create($validatedData);
 
-        return response()->json($usuario, 201);
+        return new UsuarioResource($usuario->load('escola'));
     }
 
-    public function show(Usuario $usuario)
+    public function show(Usuario $usuario): UsuarioResource
     {
-        return response()->json($usuario->load(['escola', 'preferencias', 'notificacoes']));
+        $usuario->load(['escola', 'preferencias', 'notificacoes']);
+        
+        return new UsuarioResource($usuario);
     }
 
-    public function update(Request $request, Usuario $usuario)
+    public function update(UpdateUsuarioRequest $request, Usuario $usuario): UsuarioResource
     {
-        $validatedData = $request->validate([
-            'nome_completo' => 'sometimes|required|string|max:255',
-            'username' => ['sometimes', 'required', 'string', 'max:80', Rule::unique('usuarios')->ignore($usuario->id_usuario, 'id_usuario')],
-            'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('usuarios')->ignore($usuario->id_usuario, 'id_usuario')],
-            'status_aprovacao' => 'sometimes|required|in:ativo,pendente,bloqueado',
-            'tipo_usuario' => 'sometimes|required|in:administrador,diretor,professor',
-            'id_escola' => 'nullable|exists:escolas,id_escola',
-        ]);
+        $usuario->update($request->validated());
 
-        $usuario->update($validatedData);
-
-        return response()->json($usuario);
+        return new UsuarioResource($usuario->fresh()->load('escola'));
     }
 
-    public function destroy(Usuario $usuario)
+    public function destroy(Usuario $usuario): JsonResponse
     {
         $usuario->delete();
+
         return response()->json(null, 204);
     }
 }

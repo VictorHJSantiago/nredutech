@@ -2,46 +2,58 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreOfertaComponenteRequest;
+use App\Http\Requests\UpdateOfertaComponenteRequest;
+use App\Http\Resources\OfertaComponenteResource;
 use App\Models\OfertaComponente;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class OfertaComponenteController extends Controller
 {
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return response()->json(OfertaComponente::with(['turma', 'professor', 'componente'])->get());
+        $query = OfertaComponente::query()->with(['turma', 'professor', 'componente']);
+
+        $query->when($request->query('turma_id'), function ($q, $turmaId) {
+            return $q->where('id_turma', $turmaId);
+        });
+
+        $query->when($request->query('professor_id'), function ($q, $professorId) {
+            return $q->where('id_professor', $professorId);
+        });
+
+        $ofertas = $query->paginate(15);
+
+        return OfertaComponenteResource::collection($ofertas);
     }
 
-    public function store(Request $request)
+    public function store(StoreOfertaComponenteRequest $request): OfertaComponenteResource
     {
-        $validatedData = $request->validate([
-            'id_turma' => 'required|exists:turmas,id_turma',
-            'id_professor' => 'required|exists:usuarios,id_usuario',
-            'id_componente' => 'required|exists:componentes_curriculares,id_componente',
-        ]);
+        $oferta = OfertaComponente::create($request->validated());
 
-        $oferta = OfertaComponente::create($validatedData);
-        return response()->json($oferta, 201);
+        return new OfertaComponenteResource($oferta->load(['turma', 'professor', 'componente']));
     }
 
-    public function show(OfertaComponente $oferta_componente)
+    public function show(OfertaComponente $ofertaComponente): OfertaComponenteResource
     {
-        return response()->json($oferta_componente->load(['turma', 'professor', 'componente']));
+        $ofertaComponente->load(['turma', 'professor', 'componente', 'agendamentos']);
+        
+        return new OfertaComponenteResource($ofertaComponente);
     }
 
-    public function update(Request $request, OfertaComponente $oferta_componente)
+    public function update(UpdateOfertaComponenteRequest $request, OfertaComponente $ofertaComponente): OfertaComponenteResource
     {
-        $validatedData = $request->validate([
-            'id_professor' => 'sometimes|required|exists:usuarios,id_usuario',
-        ]);
+        $ofertaComponente->update($request->validated());
 
-        $oferta_componente->update($validatedData);
-        return response()->json($oferta_componente);
+        return new OfertaComponenteResource($ofertaComponente->fresh()->load(['turma', 'professor', 'componente']));
     }
 
-    public function destroy(OfertaComponente $oferta_componente)
+    public function destroy(OfertaComponente $ofertaComponente): JsonResponse
     {
-        $oferta_componente->delete();
+        $ofertaComponente->delete();
+
         return response()->json(null, 204);
     }
 }

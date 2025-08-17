@@ -2,50 +2,68 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAgendamentoRequest;
+use App\Http\Requests\UpdateAgendamentoRequest;
+use App\Http\Resources\AgendamentoResource;
 use App\Models\Agendamento;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AgendamentoController extends Controller
 {
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return response()->json(Agendamento::with(['recurso', 'oferta'])->get());
-    }
-
-    public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'data_hora_inicio' => 'required|date',
-            'data_hora_fim' => 'required|date|after:data_hora_inicio',
-            'status' => 'required|in:agendado,livre',
-            'id_recurso' => 'required|exists:recursos_didaticos,id_recurso',
-            'id_oferta' => 'required|exists:oferta_componentes,id_oferta',
+        $request->validate([
+            'data_inicio' => 'nullable|date',
+            'data_fim' => 'nullable|date|after_or_equal:data_inicio',
+            'recurso_id' => 'nullable|integer|exists:recursos_didaticos,id_recurso',
         ]);
+
+        $query = Agendamento::query()->with(['recurso', 'oferta.turma']);
+
+        $query->when($request->data_inicio, function ($q, $data) {
+            $q->where('data_hora_inicio', '>=', $data);
+        });
         
-        $agendamento = Agendamento::create($validatedData);
-        return response()->json($agendamento, 201);
+        $query->when($request->data_fim, function ($q, $data) {
+            $q->where('data_hora_fim', '<=', $data);
+        });
+
+        $query->when($request->recurso_id, function ($q, $recursoId) {
+            $q->where('id_recurso', $recursoId);
+        });
+
+        $agendamentos = $query->latest('data_hora_inicio')->paginate(20);
+
+        return AgendamentoResource::collection($agendamentos);
     }
 
-    public function show(Agendamento $agendamento)
+    public function store(StoreAgendamentoRequest $request): AgendamentoResource
     {
-        return response()->json($agendamento->load(['recurso', 'oferta']));
+        $agendamento = Agendamento::create($request->validated());
+
+        return new AgendamentoResource($agendamento->load(['recurso', 'oferta']));
     }
 
-    public function update(Request $request, Agendamento $agendamento)
+    public function show(Agendamento $agendamento): AgendamentoResource
     {
-        $validatedData = $request->validate([
-            'data_hora_inicio' => 'sometimes|required|date',
-            'data_hora_fim' => 'sometimes|required|date|after:data_hora_inicio',
-            'status' => 'sometimes|required|in:agendado,livre',
-        ]);
-
-        $agendamento->update($validatedData);
-        return response()->json($agendamento);
+        $agendamento->load(['recurso', 'oferta.turma', 'oferta.professor']);
+        
+        return new AgendamentoResource($agendamento);
     }
 
-    public function destroy(Agendamento $agendamento)
+    public function update(UpdateAgendamentoRequest $request, Agendamento $agendamento): AgendamentoResource
+    {
+        $agendamento->update($request->validated());
+
+        return new AgendamentoResource($agendamento->fresh()->load(['recurso', 'oferta']));
+    }
+
+    public function destroy(Agendamento $agendamento): JsonResponse
     {
         $agendamento->delete();
+
         return response()->json(null, 204);
     }
 }

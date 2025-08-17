@@ -2,50 +2,56 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreRecursoDidaticoRequest;
+use App\Http\Requests\UpdateRecursoDidaticoRequest;
+use App\Http\Resources\RecursoDidaticoResource;
 use App\Models\RecursoDidatico;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class RecursoDidaticoController extends Controller
 {
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return response()->json(RecursoDidatico::all());
+        $query = RecursoDidatico::query();
+
+        $query->when($request->query('status'), function ($q, $status) {
+            return $q->where('status', $status);
+        });
+
+        $recursos = $query->paginate(15);
+
+        return RecursoDidaticoResource::collection($recursos);
     }
 
-    public function store(Request $request)
+    public function store(StoreRecursoDidaticoRequest $request): RecursoDidaticoResource
     {
-        $validatedData = $request->validate([
-            'nome' => 'required|string|max:255',
-            'marca' => 'nullable|string|max:100',
-            'numero_serie' => 'nullable|string|max:100|unique:recursos_didaticos,numero_serie',
-            'quantidade' => 'required|integer|min:0',
-            'status' => 'required|in:funcionando,em_manutencao,quebrado,descartado',
-        ]);
+        $recurso = RecursoDidatico::create($request->validated());
 
-        $recurso = RecursoDidatico::create($validatedData);
-        return response()->json($recurso, 201);
+        return new RecursoDidaticoResource($recurso);
     }
 
-    public function show(RecursoDidatico $recursos_didatico)
+    public function show(RecursoDidatico $recursoDidatico): RecursoDidaticoResource
     {
-        return response()->json($recursos_didatico);
+        $recursoDidatico->load(['agendamentos' => function ($query) {
+            $query->where('data_hora_inicio', '>=', now())->orderBy('data_hora_inicio');
+        }]);
+        
+        return new RecursoDidaticoResource($recursoDidatico);
     }
 
-    public function update(Request $request, RecursoDidatico $recursos_didatico)
+    public function update(UpdateRecursoDidaticoRequest $request, RecursoDidatico $recursoDidatico): RecursoDidaticoResource
     {
-         $validatedData = $request->validate([
-            'nome' => 'sometimes|required|string|max:255',
-            'quantidade' => 'sometimes|required|integer|min:0',
-            'status' => 'sometimes|required|in:funcionando,em_manutencao,quebrado,descartado',
-        ]);
+        $recursoDidatico->update($request->validated());
 
-        $recursos_didatico->update($validatedData);
-        return response()->json($recursos_didatico);
+        return new RecursoDidaticoResource($recursoDidatico->fresh());
     }
 
-    public function destroy(RecursoDidatico $recursos_didatico)
+    public function destroy(RecursoDidatico $recursoDidatico): JsonResponse
     {
-        $recursos_didatico->delete();
+        $recursoDidatico->delete();
+
         return response()->json(null, 204);
     }
 }

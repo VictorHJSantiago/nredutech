@@ -2,59 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UsuarioPreferencia;
+use App\Http\Requests\SaveUsuarioPreferenciaRequest;
+use App\Http\Resources\UsuarioPreferenciaResource;
 use App\Models\Usuario;
-use Illuminate\Http\Request;
+use App\Models\UsuarioPreferencia;
+use Illuminate\Http\JsonResponse;
 
 class UsuarioPreferenciaController extends Controller
 {
-    public function store(Request $request)
-    {
-    
-        // $id_usuario = auth()->id();
-        
-        $validatedData = $request->validate([
-            'id_usuario' => 'required|exists:usuarios,id_usuario',
-            'notif_email' => 'required|boolean',
-            'notif_popup' => 'required|boolean',
-            'tema' => 'required|in:claro,escuro',
-            'tamanho_fonte' => 'required|in:padrao,medio,grande',
-        ]);
-
-        $preferencias = UsuarioPreferencia::updateOrCreate(
-            ['id_usuario' => $validatedData['id_usuario']],
-            $validatedData
-        );
-        
-        return response()->json($preferencias, 200);
-    }
-
-    public function show(Usuario $usuario) 
+    /**
+     * Rota: GET /api/usuarios/{usuario}/preferencias
+     */
+    public function show(Usuario $usuario): UsuarioPreferenciaResource
     {
         $preferencias = UsuarioPreferencia::firstOrNew(['id_usuario' => $usuario->id_usuario]);
-        return response()->json($preferencias);
+
+        return new UsuarioPreferenciaResource($preferencias);
     }
 
-    public function update(Request $request, Usuario $usuario)
+    /**
+     * Rota: PUT ou PATCH /api/usuarios/{usuario}/preferencias
+     */
+    public function update(SaveUsuarioPreferenciaRequest $request, Usuario $usuario): UsuarioPreferenciaResource
     {
-        $validatedData = $request->validate([
-            'notif_email' => 'sometimes|required|boolean',
-            'notif_popup' => 'sometimes|required|boolean',
-            'tema' => 'sometimes|required|in:claro,escuro',
-            'tamanho_fonte' => 'sometimes|required|in:padrao,medio,grande',
-        ]);
+    
+        // Ex: return $this->user()->can('update', $this->route('usuario')->preferencias);
         
         $preferencias = UsuarioPreferencia::updateOrCreate(
-            ['id_usuario' => $usuario->id_usuario],
-            $validatedData
+            ['id_usuario' => $usuario->id_usuario], 
+            $request->validated() 
         );
-        
-        return response()->json($preferencias);
+
+        return new UsuarioPreferenciaResource($preferencias);
     }
 
-    public function destroy(UsuarioPreferencia $usuarioPreferencia)
+    public function destroy(Usuario $usuario): JsonResponse
     {
-        $usuarioPreferencia->delete();
+        $usuario->preferencias()->delete();
+
         return response()->json(null, 204);
     }
 }

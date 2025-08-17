@@ -2,50 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreComponenteCurricularRequest;
+use App\Http\Requests\UpdateComponenteCurricularRequest;
+use App\Http\Resources\ComponenteCurricularResource;
 use App\Models\ComponenteCurricular;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ComponenteCurricularController extends Controller
 {
-    public function index()
+    /**
+     * Exibe uma lista paginada de componentes curriculares.
+     */
+    public function index(): AnonymousResourceCollection
     {
-        return response()->json(ComponenteCurricular::all());
+        // Usa paginate() para otimizar a performance em vez de all()
+        $componentes = ComponenteCurricular::paginate(15);
+
+        return ComponenteCurricularResource::collection($componentes);
     }
 
-    public function store(Request $request)
+    public function store(StoreComponenteCurricularRequest $request): ComponenteCurricularResource
     {
-        $validatedData = $request->validate([
-            'nome' => 'required|string|max:255',
-            'descricao' => 'nullable|string',
-            'carga_horaria' => 'required|string',
-            'status' => 'required|in:pendente,aprovado,reprovado',
-        ]);
+        $componente = ComponenteCurricular::create($request->validated());
 
-        $componente = ComponenteCurricular::create($validatedData);
-        return response()->json($componente, 201);
+        return new ComponenteCurricularResource($componente);
     }
 
-    public function show(ComponenteCurricular $componentes_curriculare)
+    public function show(ComponenteCurricular $componenteCurricular): ComponenteCurricularResource
     {
-        return response()->json($componentes_curriculare);
+        return new ComponenteCurricularResource($componenteCurricular);
     }
 
-    public function update(Request $request, ComponenteCurricular $componentes_curriculare)
+    public function update(UpdateComponenteCurricularRequest $request, ComponenteCurricular $componenteCurricular): ComponenteCurricularResource
     {
-        $validatedData = $request->validate([
-            'nome' => 'sometimes|required|string|max:255',
-            'descricao' => 'nullable|string',
-            'carga_horaria' => 'sometimes|required|string',
-            'status' => 'sometimes|required|in:pendente,aprovado,reprovado',
-        ]);
+        $componenteCurricular->update($request->validated());
 
-        $componentes_curriculare->update($validatedData);
-        return response()->json($componentes_curriculare);
+        return new ComponenteCurricularResource($componenteCurricular->fresh());
     }
 
-    public function destroy(ComponenteCurricular $componentes_curriculare)
+    public function destroy(ComponenteCurricular $componenteCurricular): JsonResponse
     {
-        $componentes_curriculare->delete();
+        $componenteCurricular->delete();
+
         return response()->json(null, 204);
     }
 }

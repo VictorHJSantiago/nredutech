@@ -2,51 +2,59 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreEscolaRequest;
+use App\Http\Requests\UpdateEscolaRequest;
+use App\Http\Resources\EscolaResource;
 use App\Models\Escola;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class EscolaController extends Controller
 {
-    public function index()
+
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return response()->json(Escola::with(['municipio', 'diretor'])->get());
+        $query = Escola::query()->with(['municipio', 'diretor']);
+
+        $query->when($request->query('tipo'), function ($q, $tipo) {
+            return $q->where('tipo', $tipo);
+        });
+
+        $query->when($request->query('municipio_id'), function ($q, $municipioId) {
+            return $q->where('id_municipio', $municipioId);
+        });
+
+        $escolas = $query->paginate(15);
+
+        return EscolaResource::collection($escolas);
     }
 
-    public function store(Request $request)
+    public function store(StoreEscolaRequest $request): EscolaResource
     {
-        $validatedData = $request->validate([
-            'nome' => 'required|string|max:255',
-            'endereco' => 'nullable|string|max:255',
-            'id_municipio' => 'required|exists:municipios,id_municipio',
-            'id_diretor_responsavel' => 'nullable|exists:usuarios,id_usuario',
-            'tipo' => 'required|in:colegio_estadual,escola_tecnica,escola_municipal',
-        ]);
+        $escola = Escola::create($request->validated());
 
-        $escola = Escola::create($validatedData);
-        return response()->json($escola, 201);
+        return new EscolaResource($escola->load(['municipio', 'diretor']));
     }
 
-    public function show(Escola $escola)
+    public function show(Escola $escola): EscolaResource
     {
-        return response()->json($escola->load(['municipio', 'diretor', 'turmas', 'usuarios']));
+        $escola->load(['municipio', 'diretor', 'turmas', 'usuarios']);
+        
+        return new EscolaResource($escola);
     }
 
-    public function update(Request $request, Escola $escola)
+    public function update(UpdateEscolaRequest $request, Escola $escola): EscolaResource
     {
-        $validatedData = $request->validate([
-            'nome' => 'sometimes|required|string|max:255',
-            'id_municipio' => 'sometimes|required|exists:municipios,id_municipio',
-            'id_diretor_responsavel' => 'nullable|exists:usuarios,id_usuario',
-            'tipo' => 'sometimes|required|in:colegio_estadual,escola_tecnica,escola_municipal',
-        ]);
+        $escola->update($request->validated());
 
-        $escola->update($validatedData);
-        return response()->json($escola);
+        return new EscolaResource($escola->fresh()->load(['municipio', 'diretor']));
     }
 
-    public function destroy(Escola $escola)
+    public function destroy(Escola $escola): JsonResponse
     {
         $escola->delete();
+
         return response()->json(null, 204);
     }
 }
