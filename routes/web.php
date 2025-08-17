@@ -6,11 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User; 
 use Illuminate\Support\Str;
+
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PageController;
+
 
 use App\Http\Controllers\AgendamentoController;
 use App\Http\Controllers\ComponenteCurricularController;
@@ -22,8 +23,6 @@ use App\Http\Controllers\RecursoDidaticoController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\UsuarioPreferenciaController;
-
-
 
 // --- ROTAS PÚBLICAS (PARA VISITANTES) ---
 Route::middleware('guest')->group(function () {
@@ -54,47 +53,35 @@ Route::middleware('guest')->group(function () {
     });
 });
 
-
-// --- ROTAS PROTEGIDAS (PARA USUÁRIOS LOGADOS) ---
-Route::middleware(['auth'])->group(function () {
-
-    Route::get('/', fn() => view('index'))->name('index');
-
-    Route::get('/dashboard', fn() => redirect()->route('index'))->name('dashboard');
-Route::middleware('guest')->group(function () {
-    
-    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store']);
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-    Route::post('magic-login', [AuthenticatedSessionController::class, 'magicLinkStore'])->name('magic.login');
-});
-
-
-// --- 3. ROTAS PROTEGIDAS (PARA USUÁRIOS LOGADOS) ---
+// --- ROTAS PROTEGIDAS (Acessíveis apenas por usuários logados) ---
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('index');
+    Route::get('/dashboard', fn() => redirect()->route('index'))->name('dashboard');
+
     Route::get('/reports', [PageController::class, 'reports'])->name('reports');
     Route::get('/settings', [PageController::class, 'settings'])->name('settings');
 
+    
     Route::resource('municipios', MunicipioController::class);
     Route::resource('escolas', EscolaController::class);
     Route::resource('turmas', TurmaController::class);
     Route::resource('users', UsuarioController::class)->names(['index' => 'user-list']);
-    Route::get('users/{usuario}/preferences', [UsuarioPreferenciaController::class, 'show'])->name('users.preferences.show');
-    Route::put('users/{usuario}/preferences', [UsuarioPreferenciaController::class, 'update'])->name('users.preferences.update');
-    Route::delete('users/{usuario}/preferences', [UsuarioPreferenciaController::class, 'destroy'])->name('users.preferences.destroy');
     Route::resource('disciplines', ComponenteCurricularController::class)->names(['index' => 'discipline-list']);
     Route::resource('oferta-componentes', OfertaComponenteController::class);
     Route::resource('resources', RecursoDidaticoController::class)->names(['index' => 'resource-list']);
-    Route::get('/laboratories', fn() => redirect()->route('resource-list'))->name('laboratory-list');
     Route::resource('agendamentos', AgendamentoController::class);
     Route::resource('notificacoes', NotificacaoController::class);
-    Route::patch('notificacoes/{notificacao}/marcar-como-lida', [NotificacaoController::class, 'marcarComoLida'])->name('notificacoes.marcar-como-lida'); 
+
     Route::get('/professors', [UsuarioController::class, 'index'])->name('professor-list');
+    Route::get('/laboratories', fn() => redirect()->route('resource-list'))->name('laboratory-list');
+    Route::patch('notificacoes/{notificacao}/marcar-como-lida', [NotificacaoController::class, 'marcarComoLida'])->name('notificacoes.marcar-como-lida'); 
+    
+    Route::get('users/{usuario}/preferences', [UsuarioPreferenciaController::class, 'show'])->name('users.preferences.show');
+    Route::put('users/{usuario}/preferences', [UsuarioPreferenciaController::class, 'update'])->name('users.preferences.update');
+    Route::delete('users/{usuario}/preferences', [UsuarioPreferenciaController::class, 'destroy'])->name('users.preferences.destroy');
+
 
     // --- LOGOUT ---
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-});
 });
