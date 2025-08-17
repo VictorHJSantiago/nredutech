@@ -7,13 +7,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class NotificacaoResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id_notificacao,
+            'titulo' => $this->titulo,
+            'mensagem' => $this->mensagem,
+            'dataEnvio' => $this->data_envio,
+            'status' => $this->status_mensagem,
+            'usuario' => new UsuarioResource($this->whenLoaded('usuario')),
+            'agendamento' => new AgendamentoResource($this->whenLoaded('agendamento')),
+        ];
     }
 }

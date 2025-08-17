@@ -7,13 +7,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UsuarioPreferenciaResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'usuarioId' => $this->id_usuario,
+            'notificacaoEmail' => (bool) $this->notif_email,
+            'notificacaoPopup' => (bool) $this->notif_popup,
+            'tema' => $this->tema,
+            'tamanhoFonte' => $this->tamanho_fonte,
+        ];
     }
 }

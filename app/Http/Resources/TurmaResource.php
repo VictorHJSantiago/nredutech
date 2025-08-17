@@ -7,13 +7,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class TurmaResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id_turma,
+            'serie' => $this->serie,
+            'turno' => $this->turno,
+            'anoLetivo' => $this->ano_letivo,
+            'nivelEscolaridade' => $this->nivel_escolaridade,
+            'escola' => new EscolaResource($this->whenLoaded('escola')),
+            'ofertasComponentes' => OfertaComponenteResource::collection($this->whenLoaded('ofertasComponentes')),
+        ];
     }
 }

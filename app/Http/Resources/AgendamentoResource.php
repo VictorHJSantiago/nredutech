@@ -7,13 +7,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class AgendamentoResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id_agendamento,
+            'dataHoraInicio' => $this->data_hora_inicio,
+            'dataHoraFim' => $this->data_hora_fim,
+            'status' => $this->status,
+            'recurso' => new RecursoDidaticoResource($this->whenLoaded('recurso')),
+            'oferta' => new OfertaComponenteResource($this->whenLoaded('oferta')),
+            'notificacao' => new NotificacaoResource($this->whenLoaded('notificacao')),
+        ];
     }
 }
