@@ -7,59 +7,45 @@ use Illuminate\Http\Request;
 
 class AgendamentoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Agendamento::with(['recurso', 'oferta'])->get());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'data_hora_inicio' => 'required|date',
+            'data_hora_fim' => 'required|date|after:data_hora_inicio',
+            'status' => 'required|in:agendado,livre',
+            'id_recurso' => 'required|exists:recursos_didaticos,id_recurso',
+            'id_oferta' => 'required|exists:oferta_componentes,id_oferta',
+        ]);
+        
+        $agendamento = Agendamento::create($validatedData);
+        return response()->json($agendamento, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Agendamento $agendamento)
     {
-        //
+        return response()->json($agendamento->load(['recurso', 'oferta']));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Agendamento $agendamento)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Agendamento $agendamento)
     {
-        //
+        $validatedData = $request->validate([
+            'data_hora_inicio' => 'sometimes|required|date',
+            'data_hora_fim' => 'sometimes|required|date|after:data_hora_inicio',
+            'status' => 'sometimes|required|in:agendado,livre',
+        ]);
+
+        $agendamento->update($validatedData);
+        return response()->json($agendamento);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Agendamento $agendamento)
     {
-        //
+        $agendamento->delete();
+        return response()->json(null, 204);
     }
 }

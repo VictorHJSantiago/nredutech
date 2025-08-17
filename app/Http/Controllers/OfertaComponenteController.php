@@ -7,59 +7,41 @@ use Illuminate\Http\Request;
 
 class OfertaComponenteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(OfertaComponente::with(['turma', 'professor', 'componente'])->get());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'id_turma' => 'required|exists:turmas,id_turma',
+            'id_professor' => 'required|exists:usuarios,id_usuario',
+            'id_componente' => 'required|exists:componentes_curriculares,id_componente',
+        ]);
+
+        $oferta = OfertaComponente::create($validatedData);
+        return response()->json($oferta, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(OfertaComponente $ofertaComponente)
+    public function show(OfertaComponente $oferta_componente)
     {
-        //
+        return response()->json($oferta_componente->load(['turma', 'professor', 'componente']));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(OfertaComponente $ofertaComponente)
+    public function update(Request $request, OfertaComponente $oferta_componente)
     {
-        //
+        $validatedData = $request->validate([
+            'id_professor' => 'sometimes|required|exists:usuarios,id_usuario',
+        ]);
+
+        $oferta_componente->update($validatedData);
+        return response()->json($oferta_componente);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, OfertaComponente $ofertaComponente)
+    public function destroy(OfertaComponente $oferta_componente)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(OfertaComponente $ofertaComponente)
-    {
-        //
+        $oferta_componente->delete();
+        return response()->json(null, 204);
     }
 }

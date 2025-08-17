@@ -3,63 +3,58 @@
 namespace App\Http\Controllers;
 
 use App\Models\UsuarioPreferencia;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 
 class UsuarioPreferenciaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+    
+        // $id_usuario = auth()->id();
+        
+        $validatedData = $request->validate([
+            'id_usuario' => 'required|exists:usuarios,id_usuario',
+            'notif_email' => 'required|boolean',
+            'notif_popup' => 'required|boolean',
+            'tema' => 'required|in:claro,escuro',
+            'tamanho_fonte' => 'required|in:padrao,medio,grande',
+        ]);
+
+        $preferencias = UsuarioPreferencia::updateOrCreate(
+            ['id_usuario' => $validatedData['id_usuario']],
+            $validatedData
+        );
+        
+        return response()->json($preferencias, 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(UsuarioPreferencia $usuarioPreferencia)
+    public function show(Usuario $usuario) 
     {
-        //
+        $preferencias = UsuarioPreferencia::firstOrNew(['id_usuario' => $usuario->id_usuario]);
+        return response()->json($preferencias);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(UsuarioPreferencia $usuarioPreferencia)
+    public function update(Request $request, Usuario $usuario)
     {
-        //
+        $validatedData = $request->validate([
+            'notif_email' => 'sometimes|required|boolean',
+            'notif_popup' => 'sometimes|required|boolean',
+            'tema' => 'sometimes|required|in:claro,escuro',
+            'tamanho_fonte' => 'sometimes|required|in:padrao,medio,grande',
+        ]);
+        
+        $preferencias = UsuarioPreferencia::updateOrCreate(
+            ['id_usuario' => $usuario->id_usuario],
+            $validatedData
+        );
+        
+        return response()->json($preferencias);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, UsuarioPreferencia $usuarioPreferencia)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(UsuarioPreferencia $usuarioPreferencia)
     {
-        //
+        $usuarioPreferencia->delete();
+        return response()->json(null, 204);
     }
 }

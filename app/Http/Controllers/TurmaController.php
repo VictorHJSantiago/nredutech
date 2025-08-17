@@ -7,59 +7,44 @@ use Illuminate\Http\Request;
 
 class TurmaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Turma::with('escola')->get());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'serie' => 'required|string|max:50',
+            'turno' => 'required|in:manha,tarde,noite',
+            'ano_letivo' => 'required|integer|digits:4',
+            'nivel_escolaridade' => 'required|in:fundamental_1,fundamental_2,medio',
+            'id_escola' => 'required|exists:escolas,id_escola',
+        ]);
+
+        $turma = Turma::create($validatedData);
+        return response()->json($turma, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Turma $turma)
     {
-        //
+        return response()->json($turma->load('escola', 'ofertasComponentes'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Turma $turma)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Turma $turma)
     {
-        //
+        $validatedData = $request->validate([
+             'serie' => 'sometimes|required|string|max:50',
+             'turno' => 'sometimes|required|in:manha,tarde,noite',
+        ]);
+        
+        $turma->update($validatedData);
+        return response()->json($turma);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Turma $turma)
     {
-        //
+        $turma->delete();
+        return response()->json(null, 204);
     }
 }

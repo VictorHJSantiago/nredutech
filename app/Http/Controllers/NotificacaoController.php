@@ -7,59 +7,45 @@ use Illuminate\Http\Request;
 
 class NotificacaoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        // Notificacao::where('id_usuario', auth()->id())->get()
+        return response()->json(Notificacao::with('usuario')->get());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'titulo' => 'required|string|max:255',
+            'mensagem' => 'required|string',
+            'status_mensagem' => 'required|in:enviada,lida',
+            'id_usuario' => 'required|exists:usuarios,id_usuario',
+            'id_agendamento' => 'nullable|exists:agendamentos,id_agendamento',
+        ]);
+
+        $validatedData['data_envio'] = now();
+        $notificacao = Notificacao::create($validatedData);
+        return response()->json($notificacao, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Notificacao $notificacao)
     {
-        //
+        return response()->json($notificacao);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Notificacao $notificacao)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Notificacao $notificacao)
     {
-        //
+        $validatedData = $request->validate([
+            'status_mensagem' => 'sometimes|required|in:enviada,lida',
+        ]);
+
+        $notificacao->update($validatedData);
+        return response()->json($notificacao);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Notificacao $notificacao)
     {
-        //
+        $notificacao->delete();
+        return response()->json(null, 204);
     }
 }
