@@ -23,6 +23,8 @@ return new class extends Migration
             $table->dateTime('data_registro');
             $table->enum('status_aprovacao', ['ativo', 'pendente', 'bloqueado'])->default('pendente');
             $table->enum('tipo_usuario', ['administrador', 'diretor', 'professor']);
+            $table->timestamps(); 
+            $table->softDeletes();
         });
     }
 
