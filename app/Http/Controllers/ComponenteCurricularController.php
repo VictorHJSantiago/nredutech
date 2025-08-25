@@ -11,15 +11,21 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ComponenteCurricularController extends Controller
 {
-    /**
-     * Exibe uma lista paginada de componentes curriculares.
-     */
-    public function index(): AnonymousResourceCollection
+    public function index() 
     {
-        // Usa paginate() para otimizar a performance em vez de all()
         $componentes = ComponenteCurricular::paginate(15);
 
-        return ComponenteCurricularResource::collection($componentes);
+        return view('disciplines.index', ['componentes' => $componentes]);
+    }
+
+    public function create()
+    {
+        return view('disciplines.create');
+    }
+
+    public function edit(ComponenteCurricular $discipline) 
+    {
+        return view('disciplines.edit', ['componenteCurricular' => $discipline]);
     }
 
     public function store(StoreComponenteCurricularRequest $request): ComponenteCurricularResource

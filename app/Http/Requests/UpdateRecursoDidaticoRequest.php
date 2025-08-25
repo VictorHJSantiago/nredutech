@@ -14,8 +14,8 @@ class UpdateRecursoDidaticoRequest extends FormRequest
 
     public function rules(): array
     {
-        $recursoId = $this->route('recursos_didatico')->id_recurso;
 
+        $recursoId = $this->route('recurso_didatico')->id_recurso;
         return [
             'nome' => 'sometimes|required|string|max:255',
             'marca' => 'nullable|string|max:100',

@@ -62,19 +62,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports', [PageController::class, 'reports'])->name('reports');
     Route::get('/settings', [PageController::class, 'settings'])->name('settings');
 
-    
+    Route::resource('componentes', controller: ComponenteCurricularController::class);
     Route::resource('municipios', MunicipioController::class);
     Route::resource('escolas', EscolaController::class);
     Route::resource('turmas', TurmaController::class);
     Route::resource('users', UsuarioController::class)->names(['index' => 'user-list']);
     Route::resource('disciplines', ComponenteCurricularController::class)->names(['index' => 'discipline-list']);
     Route::resource('oferta-componentes', OfertaComponenteController::class);
-    Route::resource('resources', RecursoDidaticoController::class)->names(['index' => 'resource-list']);
-    Route::resource('agendamentos', AgendamentoController::class);
+    Route::resource('recursos-didaticos', RecursoDidaticoController::class)
+        ->parameter('recursos-didaticos', 'recurso_didatico') 
+        ->names('resources');
     Route::resource('notificacoes', NotificacaoController::class);
 
     Route::get('/professors', [UsuarioController::class, 'index'])->name('professor-list');
-    Route::get('/laboratories', fn() => redirect()->route('resource-list'))->name('laboratory-list');
+    Route::get('/laboratories', fn() => redirect()->route('laboratory-list'))->name('laboratory-list');
     Route::patch('notificacoes/{notificacao}/marcar-como-lida', [NotificacaoController::class, 'marcarComoLida'])->name('notificacoes.marcar-como-lida'); 
     
     Route::get('users/{usuario}/preferences', [UsuarioPreferenciaController::class, 'show'])->name('users.preferences.show');
