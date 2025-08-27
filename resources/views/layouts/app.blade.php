@@ -22,7 +22,6 @@
       <nav class="sidebar-nav">
         <a href="{{ route('index') }}" class="nav-item {{ request()->routeIs('index') ? 'active' : '' }}">🏠 Início</a>
         <a href="{{ route('discipline-list') }}" class="nav-item {{ request()->routeIs('discipline.*') ? 'active' : '' }}">📂 Disciplinas</a>
-        <a href="{{ route('professor-list') }}" class="nav-item {{ request()->routeIs('professor.*') ? 'active' : '' }}">👩‍🏫 Professores</a>
         <a href="{{ route('resources.index') }}" class="nav-item {{ request()->routeIs('resources.*') ? 'active' : '' }}">📖 Recursos</a>        <a href="{{ route('user-list') }}" class="nav-item {{ request()->routeIs('user.*') ? 'active' : '' }}">👥 Usuários</a>
         <a href="{{ route('reports') }}" class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">📊 Relatórios</a>
         <a href="{{ route('laboratory-list') }}" class="nav-item {{ request()->routeIs('laboratory.*') ? 'active' : '' }}">🔬 Laboratórios</a>

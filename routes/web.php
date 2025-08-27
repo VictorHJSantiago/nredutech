@@ -73,7 +73,8 @@ Route::middleware(['auth'])->group(function () {
         ->parameter('recursos-didaticos', 'recurso_didatico') 
         ->names('resources');
     Route::resource('notificacoes', NotificacaoController::class);
-
+    Route::resource('usuarios', UsuarioController::class);
+    
     Route::get('/professors', [UsuarioController::class, 'index'])->name('professor-list');
     Route::get('/laboratories', fn() => redirect()->route('laboratory-list'))->name('laboratory-list');
     Route::patch('notificacoes/{notificacao}/marcar-como-lida', [NotificacaoController::class, 'marcarComoLida'])->name('notificacoes.marcar-como-lida'); 
