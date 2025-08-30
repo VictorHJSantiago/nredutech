@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
   @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+  @stack('styles')
 </head>
 <body>
   <div class="container">
@@ -21,10 +21,11 @@
       
       <nav class="sidebar-nav">
         <a href="{{ route('index') }}" class="nav-item {{ request()->routeIs('index') ? 'active' : '' }}">🏠 Início</a>
-        <a href="{{ route('discipline-list') }}" class="nav-item {{ request()->routeIs('discipline.*') ? 'active' : '' }}">📂 Disciplinas</a>
-        <a href="{{ route('resources.index') }}" class="nav-item {{ request()->routeIs('resources.*') ? 'active' : '' }}">📖 Recursos</a>        <a href="{{ route('user-list') }}" class="nav-item {{ request()->routeIs('user.*') ? 'active' : '' }}">👥 Usuários</a>
-        <a href="{{ route('reports') }}" class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">📊 Relatórios</a>
-        <a href="{{ route('laboratory-list') }}" class="nav-item {{ request()->routeIs('laboratory.*') ? 'active' : '' }}">🔬 Laboratórios</a>
+        <a href="{{ route('discipline-list') }}" class="nav-item {{ request()->routeIs('componentes.*') ? 'active' : '' }}">📂 Disciplinas</a>
+        <a href="{{ route('resources.index') }}" class="nav-item {{ request()->routeIs('resources.*') ? 'active' : '' }}">📖 Recursos</a>
+        <a href="{{ route('user-list') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">👥 Usuários</a>
+        <a href="{{ route('reports') }}" class="nav-item {{ request()->routeIs('reports') ? 'active' : '' }}">📊 Relatórios</a>
+        <a href="{{ route('agendamentos.index') }}" class="nav-item {{ request()->routeIs('agendamentos.*') ? 'active' : '' }}">🔬 Agendamentos</a>
         <a href="{{ route('settings') }}" class="nav-item {{ request()->routeIs('settings') ? 'active' : '' }}">⚙️ Configurações</a>
         
         <form method="POST" action="{{ route('logout') }}">
@@ -42,5 +43,6 @@
       @yield('content')
     </main>
   </div>
+  @stack('scripts')
 </body>
 </html>

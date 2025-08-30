@@ -62,6 +62,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports', [PageController::class, 'reports'])->name('reports');
     Route::get('/settings', [PageController::class, 'settings'])->name('settings');
 
+    Route::resource('agendamentos', AgendamentoController::class);
     Route::resource('componentes', controller: ComponenteCurricularController::class);
     Route::resource('municipios', MunicipioController::class);
     Route::resource('escolas', EscolaController::class);
