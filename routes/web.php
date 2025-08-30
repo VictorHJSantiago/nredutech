@@ -23,6 +23,8 @@ use App\Http\Controllers\RecursoDidaticoController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\UsuarioPreferenciaController;
+use App\Http\Controllers\ConfiguracoesController; 
+use App\Http\Controllers\ProfileController;
 
 // --- ROTAS PÚBLICAS (PARA VISITANTES) ---
 Route::middleware('guest')->group(function () {
@@ -53,38 +55,30 @@ Route::middleware('guest')->group(function () {
     });
 });
 
+
 // --- ROTAS PROTEGIDAS (Acessíveis apenas por usuários logados) ---
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::get('/dashboard', fn() => redirect()->route('index'))->name('dashboard');
 
-    Route::get('/reports', [PageController::class, 'reports'])->name('reports');
-    Route::get('/settings', [PageController::class, 'settings'])->name('settings');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    Route::get('/settings', [ConfiguracoesController::class, 'index'])->name('settings');
+    Route::patch('/settings/preferences', [ConfiguracoesController::class, 'updatePreferences'])->name('settings.preferences.update');
+    Route::post('/settings/backup', [ConfiguracoesController::class, 'runBackup'])->name('settings.backup.run');
 
     Route::resource('agendamentos', AgendamentoController::class);
-    Route::resource('componentes', controller: ComponenteCurricularController::class);
+    Route::resource('componentes', ComponenteCurricularController::class);
     Route::resource('municipios', MunicipioController::class);
     Route::resource('escolas', EscolaController::class);
     Route::resource('turmas', TurmaController::class);
-    Route::resource('users', UsuarioController::class)->names(['index' => 'user-list']);
-    Route::resource('disciplines', ComponenteCurricularController::class)->names(['index' => 'discipline-list']);
-    Route::resource('oferta-componentes', OfertaComponenteController::class);
-    Route::resource('recursos-didaticos', RecursoDidaticoController::class)
-        ->parameter('recursos-didaticos', 'recurso_didatico') 
-        ->names('resources');
-    Route::resource('notificacoes', NotificacaoController::class);
+    Route::resource('recursos-didaticos', RecursoDidaticoController::class)->names('resources');
     Route::resource('usuarios', UsuarioController::class);
     
-    Route::get('/professors', [UsuarioController::class, 'index'])->name('professor-list');
-    Route::get('/laboratories', fn() => redirect()->route('laboratory-list'))->name('laboratory-list');
-    Route::patch('notificacoes/{notificacao}/marcar-como-lida', [NotificacaoController::class, 'marcarComoLida'])->name('notificacoes.marcar-como-lida'); 
-    
-    Route::get('users/{usuario}/preferences', [UsuarioPreferenciaController::class, 'show'])->name('users.preferences.show');
-    Route::put('users/{usuario}/preferences', [UsuarioPreferenciaController::class, 'update'])->name('users.preferences.update');
-    Route::delete('users/{usuario}/preferences', [UsuarioPreferenciaController::class, 'destroy'])->name('users.preferences.destroy');
-
-
     // --- LOGOUT ---
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
+

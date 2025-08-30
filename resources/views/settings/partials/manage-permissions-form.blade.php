@@ -1,32 +1,32 @@
 <div class="config-group">
     <h2>Gerenciar Permissões de Usuários</h2>
-    <form class="config-form" method="POST" action="{{-- route('settings.permissions.update') --}}">
+    <form class="config-form" method="POST" action=""> 
         @csrf
-        @method('PATCH')
+        @method('PUT')
         <div class="form-group full-width">
-            <label for="selecaoUsuario">Selecione Usuário</label>
-            <select id="selecaoUsuario" name="user_id">
-                <option value="">Escolha um usuário</option>
-                <option value="usuario1">victorhenriquedejesussantiago@gmail.com</option>
-                <option value="usuario2">thalitascharrrodriguespimenta@escola.pr.gov.br</option>
+            <label for="selecaoUsuario">Selecione um Usuário</label>
+            <select id="selecaoUsuario" name="user_id" onchange="this.form.action = '/usuarios/' + this.value">
+                <option value="">Escolha um usuário para editar</option>
+                @foreach($usuarios as $user)
+                    <option value="{{ $user->id_usuario }}">{{ $user->nome_completo }} ({{ $user->email }})</option>
+                @endforeach
             </select>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label for="permissaoRole">Permissão (Role)</label>
-                <select id="permissaoRole" name="role">
-                    <option value="">Selecione</option>
-                    <option value="admin">Administrador</option>
-                    <option value="gestor">Gestor</option>
+                <label for="permissaoRole">Tipo de Usuário (Permissão)</label>
+                <select id="permissaoRole" name="tipo_usuario">
+                    <option value="">Selecione para alterar</option>
+                    <option value="administrador">Administrador</option>
+                    <option value="diretor">Diretor</option>
                     <option value="professor">Professor</option>
-                    <option value="aluno">Aluno</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="statusUsuario">Status de Acesso</label>
-                <select id="statusUsuario" name="status">
-                    <option value="">Selecione</option>
+                <select id="statusUsuario" name="status_aprovacao">
+                    <option value="">Selecione para alterar</option>
                     <option value="ativo">Ativo</option>
                     <option value="bloqueado">Bloqueado</option>
                     <option value="pendente">Pendente</option>
@@ -38,3 +38,13 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.getElementById('selecaoUsuario').addEventListener('change', function() {
+        if (this.value) {
+            this.form.action = `{{ url('usuarios') }}/${this.value}`;
+        } else {
+            this.form.action = '';
+        }
+    });
+</script>
