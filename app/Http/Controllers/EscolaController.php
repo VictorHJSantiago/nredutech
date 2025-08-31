@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Municipio;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use App\Http\Requests\StoreEscolaRequest;
 use App\Http\Requests\UpdateEscolaRequest;
 use App\Http\Resources\EscolaResource;
@@ -13,28 +16,17 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class EscolaController extends Controller
 {
 
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(): View
     {
-        $query = Escola::query()->with(['municipio', 'diretor']);
-
-        $query->when($request->query('tipo'), function ($q, $tipo) {
-            return $q->where('tipo', $tipo);
-        });
-
-        $query->when($request->query('municipio_id'), function ($q, $municipioId) {
-            return $q->where('id_municipio', $municipioId);
-        });
-
-        $escolas = $query->paginate(15);
-
-        return EscolaResource::collection($escolas);
+        $escolas = Escola::with('municipio')->orderBy('nome')->get();
+        $municipios = Municipio::orderBy('nome')->get();
+        return view('schools.index', compact('escolas', 'municipios'));
     }
 
-    public function store(StoreEscolaRequest $request): EscolaResource
+    public function store(StoreEscolaRequest $request): RedirectResponse
     {
-        $escola = Escola::create($request->validated());
-
-        return new EscolaResource($escola->load(['municipio', 'diretor']));
+        Escola::create($request->validated());
+        return redirect()->route('escolas.index')->with('success', 'Escola adicionada com sucesso!');
     }
 
     public function show(Escola $escola): EscolaResource

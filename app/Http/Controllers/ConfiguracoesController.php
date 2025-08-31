@@ -17,18 +17,15 @@ class ConfiguracoesController extends Controller
 {
     public function index(): View
     {
-        $authUser = Auth::user();
-        $usuario = Usuario::where('email', $authUser->email)->firstOrFail();
-
-        $preferencias = UsuarioPreferencia::firstOrCreate(
-            ['id_usuario' => $usuario->id_usuario]
+        $usuario = Usuario::firstOrCreate(
+            ['email' => Auth::user()->email],
+            ['nome_completo' => Auth::user()->name]
         );
+        $preferencias = UsuarioPreferencia::firstOrCreate(['id_usuario' => $usuario->id_usuario]);
         
-        $municipios = Municipio::orderBy('nome')->get();
-        $escolas = Escola::orderBy('nome')->get();
         $usuarios = Usuario::orderBy('nome_completo')->get();
 
-        return view('settings', compact('usuario', 'preferencias', 'municipios', 'escolas', 'usuarios'));
+        return view('settings', compact('usuario', 'preferencias', 'usuarios'));
     }
 
     public function updatePreferences(Request $request): RedirectResponse
