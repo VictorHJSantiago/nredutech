@@ -137,5 +137,7 @@ select.form-control {
     cursor: pointer;
     font-size: 1.1rem;
     padding: 0.25rem 0.5rem;
+    
+    position: relative; 
+    z-index: 2; 
 }
-

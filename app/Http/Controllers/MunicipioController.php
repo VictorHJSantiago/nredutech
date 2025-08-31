@@ -8,6 +8,8 @@ use App\Http\Resources\MunicipioResource;
 use App\Models\Municipio;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class MunicipioController extends Controller
 {
@@ -18,11 +20,10 @@ class MunicipioController extends Controller
         return MunicipioResource::collection($municipios);
     }
 
-    public function store(StoreMunicipioRequest $request): MunicipioResource
+    public function store(StoreMunicipioRequest $request): RedirectResponse
     {
-        $municipio = Municipio::create($request->validated());
-
-        return new MunicipioResource($municipio);
+        Municipio::create($request->validated());
+        return redirect()->route('escolas.index')->with('success', 'Município adicionado com sucesso!');
     }
 
     public function show(Municipio $municipio): MunicipioResource
@@ -32,17 +33,26 @@ class MunicipioController extends Controller
         return new MunicipioResource($municipio);
     }
 
-    public function update(UpdateMunicipioRequest $request, Municipio $municipio): MunicipioResource
+    public function edit(Municipio $municipio): View
+    {
+        return view('cities.edit', compact('municipio'));
+    }
+
+    public function update(UpdateMunicipioRequest $request, Municipio $municipio): RedirectResponse
     {
         $municipio->update($request->validated());
 
-        return new MunicipioResource($municipio->fresh());
+        return redirect()->route('escolas.index')->with('success', 'Município atualizado com sucesso!');
     }
 
-    public function destroy(Municipio $municipio): JsonResponse
+    public function destroy(Municipio $municipio): RedirectResponse
     {
+        if ($municipio->escolas()->exists()) {
+            return redirect()->route('escolas.index')->with('error', 'Não é possível excluir um município que possui escolas associadas.');
+        }
+
         $municipio->delete();
 
-        return response()->json(null, 204);
+        return redirect()->route('escolas.index')->with('success', 'Município excluído com sucesso!');
     }
 }

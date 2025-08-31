@@ -14,7 +14,6 @@ class Municipio extends Model
 
     protected $fillable = [
         'nome',
-        'tipo',
     ];
 
     public function escolas()

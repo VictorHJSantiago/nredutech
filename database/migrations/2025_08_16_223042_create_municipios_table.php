@@ -11,8 +11,7 @@ return new class extends Migration
         Schema::create('municipios', function (Blueprint $table) {
             $table->id('id_municipio');
             $table->string('nome', 255);
-            $table->enum('tipo', ['urbano', 'rural']);
-            $table->timestamps(); // Opcional, boa prática no Laravel
+            $table->timestamps();
         });
     }
 

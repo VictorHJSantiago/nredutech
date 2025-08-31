@@ -16,7 +16,6 @@ class StoreMunicipioRequest extends FormRequest
     {
         return [
             'nome' => 'required|string|max:255',
-            'tipo' => 'required|in:urbano,rural',
         ];
     }
 }

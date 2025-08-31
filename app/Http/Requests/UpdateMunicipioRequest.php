@@ -15,7 +15,6 @@ class UpdateMunicipioRequest extends FormRequest
     {
         return [
             'nome' => 'sometimes|required|string|max:255',
-            'tipo' => 'sometimes|required|in:urbano,rural',
         ];
     }
 }

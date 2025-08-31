@@ -36,17 +36,26 @@ class EscolaController extends Controller
         return new EscolaResource($escola);
     }
 
-    public function update(UpdateEscolaRequest $request, Escola $escola): EscolaResource
+    /**
+     * Mostra o formulário para editar a escola.
+     */
+    public function edit(Escola $escola): View
+    {
+        $municipios = Municipio::orderBy('nome')->get();
+        return view('schools.edit', compact('escola', 'municipios'));
+    }
+
+    public function update(UpdateEscolaRequest $request, Escola $escola): RedirectResponse
     {
         $escola->update($request->validated());
 
-        return new EscolaResource($escola->fresh()->load(['municipio', 'diretor']));
+        return redirect()->route('escolas.index')->with('success', 'Escola atualizada com sucesso!');
     }
 
-    public function destroy(Escola $escola): JsonResponse
+    public function destroy(Escola $escola): RedirectResponse
     {
         $escola->delete();
 
-        return response()->json(null, 204);
+        return redirect()->route('escolas.index')->with('success', 'Escola excluída com sucesso!');
     }
 }
