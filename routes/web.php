@@ -34,7 +34,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', function (Request $request) {
         $request->validate(['email' => ['required', 'email']]);
 
-        // 1. Cria ou encontra o usuário para AUTENTICAÇÃO na tabela 'users'
         $user = User::firstOrCreate(
             ['email' => $request->email],
             [
@@ -43,7 +42,6 @@ Route::middleware('guest')->group(function () {
             ]
         );
 
-        // 2. Garante que o PERFIL correspondente exista na tabela 'usuarios'
         Usuario::firstOrCreate(
             ['email' => $user->email],
             ['nome_completo' => $user->name, 'senha' => $user->password]
@@ -63,14 +61,12 @@ Route::middleware('guest')->group(function () {
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        // 1. Cria o usuário para AUTENTICAÇÃO na tabela 'users'
         $user = User::create($request->only('name', 'email', 'password'));
 
-        // 2. Cria o PERFIL correspondente na tabela 'usuarios'
         Usuario::create([
             'nome_completo' => $user->name,
             'email' => $user->email,
-            'senha' => $user->password, // Salva a mesma senha criptografada
+            'senha' => $user->password, 
         ]);
 
         Auth::login($user);

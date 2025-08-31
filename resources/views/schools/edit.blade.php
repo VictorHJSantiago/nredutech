@@ -3,6 +3,7 @@
 @section('title', 'Editar Escola')
 
 @push('styles')
+    {{-- Os estilos para esta página são importados através do app.css --}}
 @endpush
 
 @section('content')
@@ -35,11 +36,18 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="escola_tipo">Tipo de Escola</label>
+                        <label for="escola_nivel_ensino">Nível de Ensino</label>
+                        <select id="escola_nivel_ensino" name="nivel_ensino" class="form-control" required>
+                            <option value="colegio_estadual" {{ old('nivel_ensino', $escola->nivel_ensino) == 'colegio_estadual' ? 'selected' : '' }}>Colégio Estadual</option>
+                            <option value="escola_tecnica" {{ old('nivel_ensino', $escola->nivel_ensino) == 'escola_tecnica' ? 'selected' : '' }}>Escola Técnica</option>
+                            <option value="escola_municipal" {{ old('nivel_ensino', $escola->nivel_ensino) == 'escola_municipal' ? 'selected' : '' }}>Escola Municipal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="escola_tipo">Tipo de Localização</label>
                         <select id="escola_tipo" name="tipo" class="form-control" required>
-                            <option value="colegio_estadual" {{ old('tipo', $escola->tipo) == 'colegio_estadual' ? 'selected' : '' }}>Colégio Estadual</option>
-                            <option value="escola_tecnica" {{ old('tipo', $escola->tipo) == 'escola_tecnica' ? 'selected' : '' }}>Escola Técnica</option>
-                            <option value="escola_municipal" {{ old('tipo', $escola->tipo) == 'escola_municipal' ? 'selected' : '' }}>Escola Municipal</option>
+                            <option value="urbana" {{ old('tipo', $escola->tipo) == 'urbana' ? 'selected' : '' }}>Urbana</option>
+                            <option value="rural" {{ old('tipo', $escola->tipo) == 'rural' ? 'selected' : '' }}>Rural</option>
                         </select>
                     </div>
                     <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">

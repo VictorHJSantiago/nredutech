@@ -17,7 +17,8 @@ class Escola extends Model
         'endereco',
         'id_municipio',
         'id_diretor_responsavel',
-        'tipo',
+        'nivel_ensino',
+        'tipo', 
     ];
 
     public function municipio()

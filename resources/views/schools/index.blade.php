@@ -66,11 +66,18 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="escola_tipo">Tipo de Escola</label>
-                            <select id="escola_tipo" name="tipo" class="form-control" required>
+                            <label for="escola_nivel_ensino">Nível de Ensino</label>
+                            <select id="escola_nivel_ensino" name="nivel_ensino" class="form-control" required>
                                 <option value="colegio_estadual">Colégio Estadual</option>
                                 <option value="escola_tecnica">Escola Técnica</option>
                                 <option value="escola_municipal">Escola Municipal</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="escola_tipo">Tipo de Localização</label>
+                            <select id="escola_tipo" name="tipo" class="form-control" required>
+                                <option value="urbana">Urbana</option>
+                                <option value="rural">Rural</option>
                             </select>
                         </div>
                         <button type="submit" class="button button-primary">Salvar Escola</button>
@@ -97,11 +104,11 @@
                                 <tr>
                                     <td>{{ $municipio->nome }}</td>
                                     <td class="actions">
-                                        <a href="{{ route('municipios.edit', $municipio->id_municipio) }}" class="button-icon" title="Editar">✏️</a>
+                                        <a href="{{ route('municipios.edit', $municipio->id_municipio) }}" class="button-icon btn-edit" title="Editar">✏️</a>
                                         <form action="{{ route('municipios.destroy', $municipio->id_municipio) }}" method="POST" onsubmit="return confirm('Tem certeza?');" style="display: inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="button-icon" title="Excluir">🗑️</button>
+                                            <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -123,6 +130,7 @@
                             <tr>
                                 <th>Nome da Escola</th>
                                 <th>Município</th>
+                                <th>Nível de Ensino</th>
                                 <th>Tipo</th>
                                 <th class="actions-header">Ações</th>
                             </tr>
@@ -132,18 +140,19 @@
                                 <tr>
                                     <td>{{ $escola->nome }}</td>
                                     <td>{{ $escola->municipio->nome ?? 'N/A' }}</td>
-                                    <td>{{ ucfirst(str_replace('_', ' ', $escola->tipo)) }}</td>
+                                    <td>{{ ucfirst(str_replace('_', ' ', $escola->nivel_ensino)) }}</td>
+                                    <td>{{ ucfirst($escola->tipo) }}</td>
                                     <td class="actions">
-                                       <a href="{{ route('escolas.edit', $escola->id_escola) }}" class="button-icon" title="Editar">✏️</a>
+                                       <a href="{{ route('escolas.edit', $escola->id_escola) }}" class="button-icon btn-edit" title="Editar">✏️</a>
                                         <form action="{{ route('escolas.destroy', $escola->id_escola) }}" method="POST" onsubmit="return confirm('Tem certeza?');" style="display: inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="button-icon" title="Excluir">🗑️</button>
+                                            <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
                                         </form>
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="4">Nenhuma escola cadastrada.</td></tr>
+                                <tr><td colspan="5">Nenhuma escola cadastrada.</td></tr>
                             @endforelse
                         </tbody>
                     </table>

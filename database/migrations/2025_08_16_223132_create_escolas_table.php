@@ -14,7 +14,8 @@ return new class extends Migration
             $table->string('endereco', 255)->nullable();
             $table->foreignId('id_municipio')->constrained('municipios', 'id_municipio');
             $table->foreignId('id_diretor_responsavel')->nullable()->constrained('usuarios', 'id_usuario');
-            $table->enum('tipo', ['colegio_estadual', 'escola_tecnica', 'escola_municipal']);
+            $table->enum('nivel_ensino', ['colegio_estadual', 'escola_tecnica', 'escola_municipal']);
+            $table->enum('tipo', ['urbana', 'rural']); 
             $table->timestamps(); 
         });
         
