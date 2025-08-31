@@ -1,13 +1,10 @@
-/*Autenticação*/
 @import url('./login.css');
 @import url('./register.css');
 
-/*Layouts e componentes gerais*/
 @import url('./index.css');
 @import url('./components.css');
 @import url('./settings.css');
 
-/*Seções do sistema*/
 @import url('./disciplines.css');
 @import url('./disciplines-list.css');
 @import url('./professors.css');

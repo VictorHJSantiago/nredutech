@@ -12,8 +12,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class TurmaController extends Controller
 {
-    /** /api/turmas?escola_id=1&turno=manha&ano_letivo=2025
-     */
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Turma::query()->with('escola');

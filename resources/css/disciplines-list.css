@@ -100,10 +100,10 @@
 }
 
 .disciplinas-table .description-cell {
-    max-width: 300px; /* Define uma largura máxima para a célula */
-    white-space: normal; /* Permite que o texto quebre a linha */
-    word-wrap: break-word; /* Força a quebra de palavras longas */
-    vertical-align: top; /* Alinha o texto ao topo, caso haja múltiplas linhas */
+    max-width: 300px; 
+    white-space: normal; 
+    word-wrap: break-word; 
+    vertical-align: top; 
 }
 
 .actions-cell {

@@ -47,38 +47,38 @@ class RecursoDidaticoController extends Controller
                          ->with('success', 'Recurso didático cadastrado com sucesso!');
     }
 
-    public function show(Request $request, RecursoDidatico $recursoDidatico)
+    public function show(Request $request, RecursoDidatico $recursos_didatico)
     {
         if ($request->wantsJson()) {
-            $recursoDidatico->load(['agendamentos' => function ($query) {
+            $recursos_didatico->load(['agendamentos' => function ($query) {
                 $query->where('data_hora_inicio', '>=', now())->orderBy('data_hora_inicio');
             }]);
-            return new RecursoDidaticoResource($recursoDidatico);
+            return new RecursoDidaticoResource($recursos_didatico);
         }
         
-        return redirect()->route('resources.edit', $recursoDidatico->id_recurso);
+        return redirect()->route('resources.edit', $recursos_didatico->id_recurso);
     }
     
-    public function edit(RecursoDidatico $recursoDidatico): View 
+    public function edit(RecursoDidatico $recursos_didatico): View 
     {
-        return view('resources.edit', ['recursoDidatico' => $recursoDidatico]);
+        return view('resources.edit', ['recursoDidatico' => $recursos_didatico]);
     }
 
-    public function update(UpdateRecursoDidaticoRequest $request, RecursoDidatico $recursoDidatico)
+    public function update(UpdateRecursoDidaticoRequest $request, RecursoDidatico $recursos_didatico)
     {
-        $recursoDidatico->update($request->validated());
+        $recursos_didatico->update($request->validated());
 
         if ($request->wantsJson()) {
-            return new RecursoDidaticoResource($recursoDidatico->fresh());
+            return new RecursoDidaticoResource($recursos_didatico->fresh());
         }
 
         return redirect()->route('resources.index')
                          ->with('success', 'Recurso didático atualizado com sucesso!');
     }
 
-    public function destroy(Request $request, RecursoDidatico $recursoDidatico)
+    public function destroy(Request $request, RecursoDidatico $recursos_didatico)
     {
-        $recursoDidatico->delete();
+        $recursos_didatico->delete();
 
         if ($request->wantsJson()) {
             return response()->json(null, 204); 

@@ -10,9 +10,6 @@ use Illuminate\Http\JsonResponse;
 
 class UsuarioPreferenciaController extends Controller
 {
-    /**
-     * Rota: GET /api/usuarios/{usuario}/preferencias
-     */
     public function show(Usuario $usuario): UsuarioPreferenciaResource
     {
         $preferencias = UsuarioPreferencia::firstOrNew(['id_usuario' => $usuario->id_usuario]);
@@ -20,14 +17,9 @@ class UsuarioPreferenciaController extends Controller
         return new UsuarioPreferenciaResource($preferencias);
     }
 
-    /**
-     * Rota: PUT ou PATCH /api/usuarios/{usuario}/preferencias
-     */
     public function update(SaveUsuarioPreferenciaRequest $request, Usuario $usuario): UsuarioPreferenciaResource
     {
     
-        // Ex: return $this->user()->can('update', $this->route('usuario')->preferencias);
-        
         $preferencias = UsuarioPreferencia::updateOrCreate(
             ['id_usuario' => $usuario->id_usuario], 
             $request->validated() 
