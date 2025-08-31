@@ -6,34 +6,9 @@
   --verde-secundario: #313a22;
   --vermelho-erro: #d9534f;
   --cinza-claro: #f7f7f7;
-  --cinza-escuro: #888888;
   --texto-secundario: #555555;
   --sombra: rgba(0, 0, 0, 0.1);
-}
-
-.btn-primary {
-  display: inline-block;
-  padding: 8px 16px;
-  background-color: var(--verde-principal);
-  color: var(--branco-principal);
-  text-decoration: none;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
-}
-.btn-primary:hover {
-  background-color: var(--verde-secundario);
-  transform: translateY(-1px);
-}
-
-body {
-  font-family: 'Roboto', sans-serif;
-  background-color: var(--verde-fundo);
-  margin: 0;
-  color: var(--texto-secundario);
+  --amarelo-aviso: #ffc107;
 }
 
 .main-content {
@@ -43,15 +18,43 @@ body {
   background-color: var(--branco-principal);
 }
 
+.header-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
 .header-section h1 {
   font-size: 2rem;
   color: var(--azul-principal);
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.5rem;
 }
+
 .header-section .subtitle {
   font-size: 1rem;
-  color: #666;
-  margin-bottom: 20px;
+  color: var(--texto-secundario);
+}
+
+.form-actions {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: var(--verde-principal);
+  color: var(--branco-principal);
+  text-decoration: none;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+.btn-primary:hover {
+  background-color: var(--verde-secundario);
+  transform: translateY(-1px);
 }
 
 .table-section {
@@ -96,62 +99,65 @@ body {
   color: var(--texto-secundario);
 }
 
-.disciplinas-table .status-aprovado {
-  color: green;
-  font-weight: bold;
+.disciplinas-table .description-cell {
+    max-width: 300px; /* Define uma largura máxima para a célula */
+    white-space: normal; /* Permite que o texto quebre a linha */
+    word-wrap: break-word; /* Força a quebra de palavras longas */
+    vertical-align: top; /* Alinha o texto ao topo, caso haja múltiplas linhas */
 }
-.disciplinas-table .status-pendente {
-  color: #ffc107;
-  font-weight: bold;
-}
-.disciplinas-table .status-reprovado {
-  color: var(--vermelho-erro);
-  font-weight: bold;
+
+.actions-cell {
+    display: flex;
+    gap: 6px;
+    align-items: center;
 }
 
 .btn-edit,
 .btn-delete {
   border: none;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 4px;
   font-size: 12px;
-  margin-right: 4px;
+  text-decoration: none;
   display: inline-block;
   transition: background 0.2s;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.btn-edit {
-  background-color: var(--azul-principal);
   color: var(--branco-principal);
-}
-.btn-edit:hover {
-  background-color: var(--verde-principal);
+  cursor: pointer;
 }
 
-.btn-delete {
+.btn-edit { background-color: var(--azul-principal); }
+.btn-edit:hover { background-color: var(--verde-principal); }
+
+.btn-delete { background-color: var(--vermelho-erro); }
+.btn-delete:hover { background-color: #c9302c; }
+
+.status-aprovado {
+  background-color: var(--verde-principal);
+  color: var(--branco-principal);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.status-pendente {
+  background-color: var(--amarelo-aviso);
+  color: #333;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.status-reprovado {
   background-color: var(--vermelho-erro);
   color: var(--branco-principal);
-}
-.btn-delete:hover {
-  background-color: #c9302c;
-}
-
-.form-actions {
-    text-align: right;
-    margin-bottom: 20px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
-@media (max-width: 768px) {
-  .disciplinas-table th,
-  .disciplinas-table td {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-  .btn-edit,
-  .btn-delete {
-    padding: 4px 8px;
-    font-size: 11px;
-  }
+.pagination-links {
+    margin-top: 20px;
+    text-align: center;
 }
+

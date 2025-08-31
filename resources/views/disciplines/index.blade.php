@@ -25,6 +25,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
+                        <th>Descrição</th>
                         <th>Carga Horária</th>
                         <th>Status</th>
                         <th>Ações</th>
@@ -35,6 +36,7 @@
                         <tr>
                             <td>{{ $componente->id_componente }}</td>
                             <td>{{ $componente->nome }}</td>
+                            <td class="description-cell">{{ $componente->descricao }}</td>
                             <td>{{ $componente->carga_horaria }}</td>
                             <td><span class="status-{{ \Illuminate\Support\Str::slug($componente->status) }}">{{ ucfirst($componente->status) }}</span></td>
                             <td class="actions-cell">
@@ -48,7 +50,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5">Nenhuma disciplina encontrada.</td>
+                            <td colspan="6">Nenhuma disciplina encontrada.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -60,3 +62,4 @@
         </section>
     </div>
 @endsection
+
