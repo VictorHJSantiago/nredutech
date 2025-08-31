@@ -9,7 +9,7 @@
     </header>
 
     <section class="form-section">
-        <form class="disciplina-form" method="POST" action="{{ route('disciplines.edit', $componenteCurricular) }}">
+        <form class="disciplina-form" method="POST" action="{{ route('componentes.update', $componenteCurricular) }}">
             @csrf
             @method('PUT')
 
@@ -51,7 +51,7 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn-primary">Salvar Alterações</button>
-                <a href="{{ route('disciplines.index') }}" class="btn-secondary">Cancelar</a>
+                <a href="{{ route('componentes.index') }}" class="btn-secondary">Cancelar</a>
             </div>
         </form>
     </section>

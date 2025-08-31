@@ -23,16 +23,16 @@ class ComponenteCurricularController extends Controller
         return view('disciplines.create');
     }
 
-    public function edit(ComponenteCurricular $discipline) 
+    public function edit(ComponenteCurricular $componente) 
     {
-        return view('disciplines.edit', ['componenteCurricular' => $discipline]);
+        return view('disciplines.edit', ['componenteCurricular' => $componente]);
     }
 
-    public function store(StoreComponenteCurricularRequest $request): ComponenteCurricularResource
+    public function store(StoreComponenteCurricularRequest $request)
     {
-        $componente = ComponenteCurricular::create($request->validated());
+        ComponenteCurricular::create($request->validated());
 
-        return new ComponenteCurricularResource($componente);
+        return redirect()->route('componentes.index')->with('success', 'Disciplina cadastrada com sucesso!');
     }
 
     public function show(ComponenteCurricular $componenteCurricular): ComponenteCurricularResource
@@ -40,16 +40,16 @@ class ComponenteCurricularController extends Controller
         return new ComponenteCurricularResource($componenteCurricular);
     }
 
-    public function update(UpdateComponenteCurricularRequest $request, ComponenteCurricular $componenteCurricular): ComponenteCurricularResource
+    public function update(UpdateComponenteCurricularRequest $request, ComponenteCurricular $componente)
     {
-        $componenteCurricular->update($request->validated());
+        $componente->update($request->validated());
 
-        return new ComponenteCurricularResource($componenteCurricular->fresh());
+        return redirect()->route('componentes.index')->with('success', 'Disciplina atualizada com sucesso!');
     }
 
-    public function destroy(ComponenteCurricular $componenteCurricular): JsonResponse
+    public function destroy(ComponenteCurricular $componente): JsonResponse
     {
-        $componenteCurricular->delete();
+        $componente->delete();
 
         return response()->json(null, 204);
     }
