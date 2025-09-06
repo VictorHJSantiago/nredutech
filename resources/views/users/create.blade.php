@@ -93,6 +93,19 @@
                     <input type="text" id="area_formacao" name="area_formacao" placeholder="Ex: Ciências Exatas" value="{{ old('area_formacao') }}" />
                     @error('area_formacao')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" placeholder="Digite a senha" required />
+                    @error('password')<span class="error-message">{{ $message }}</span>@enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="password_confirmation">Confirmar Senha</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirme a senha" required />
+                    @error('password_confirmation')<span class="error-message">{{ $message }}</span>@enderror
+                </div>
+                
             </div>
 
             <div class="form-actions">

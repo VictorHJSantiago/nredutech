@@ -11,9 +11,38 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
-    public function authorize(): bool
+    /**
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function authenticate(): void
     {
-        return true;
+        $this->ensureIsNotRateLimited();
+
+        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey()); 
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'), //
+            ]);
+        }
+        $user = Auth::user();
+
+        if ($user->status_aprovacao !== 'ativo') {
+            Auth::logout(); 
+
+            $this->session()->invalidate();
+            $this->session()->regenerateToken();
+
+            $message = $user->status_aprovacao === 'pendente'
+                ? 'Seu cadastro ainda está pendente de aprovação por um administrador.'
+                : 'Este usuário está bloqueado ou inativo.';
+
+            throw ValidationException::withMessages([
+                'email' => $message,
+            ]);
+        }
+        RateLimiter::clear($this->throttleKey());
     }
 
     /**
@@ -28,22 +57,6 @@ class LoginRequest extends FormRequest
         ];
     }
 
-    /**
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function authenticate(): void
-    {
-        $this->ensureIsNotRateLimited();
-
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'), 
-            ]);
-        }
-
-        RateLimiter::clear($this->throttleKey());
-    }
 
     /**
      *

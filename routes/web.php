@@ -1,77 +1,35 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User; 
-use App\Models\Usuario; 
-use Illuminate\Support\Str;
-
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\PageController;
-
-
 use App\Http\Controllers\AgendamentoController;
 use App\Http\Controllers\ComponenteCurricularController;
 use App\Http\Controllers\EscolaController;
 use App\Http\Controllers\MunicipioController;
-use App\Http\Controllers\NotificacaoController;
-use App\Http\Controllers\OfertaComponenteController;
 use App\Http\Controllers\RecursoDidaticoController;
-use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\UsuarioController;
-use App\Http\Controllers\UsuarioPreferenciaController;
-use App\Http\Controllers\ConfiguracoesController; 
+use App\Http\Controllers\ConfiguracoesController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TurmaController;
+
+/*
+|--------------------------------------------------------------------------
+| Rotas da Aplicação Web
+|--------------------------------------------------------------------------
+*/
 
 // --- ROTAS PÚBLICAS (PARA VISITANTES) ---
+// Estas rotas mostram as páginas de login e registro.
+// As submissões de formulário (POST) são tratadas pelo routes/auth.php.
 Route::middleware('guest')->group(function () {
-    Route::get('/login', fn() => view('auth.login'))->name('login');
+    Route::get('register', function () {
+        return view('auth.register');
+    })->name('register');
 
-    Route::post('/login', function (Request $request) {
-        $request->validate(['email' => ['required', 'email']]);
-
-        $user = User::firstOrCreate(
-            ['email' => $request->email],
-            [
-                'name' => 'Usuário ' . Str::before($request->email, '@'),
-                'password' => Hash::make(Str::random(16))
-            ]
-        );
-
-        Usuario::firstOrCreate(
-            ['email' => $user->email],
-            ['nome_completo' => $user->name, 'senha' => $user->password]
-        );
-
-        Auth::login($user, true);
-        $request->session()->regenerate();
-        return redirect()->intended('/');
-    });
-
-    Route::get('/register', fn() => view('auth.register'))->name('register');
-
-    Route::post('/register', function (Request $request) {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        $user = User::create($request->only('name', 'email', 'password'));
-
-        Usuario::create([
-            'nome_completo' => $user->name,
-            'email' => $user->email,
-            'senha' => $user->password, 
-        ]);
-
-        Auth::login($user);
-        return redirect()->route('index');
-    });
+    Route::get('login', function () {
+        return view('auth.login');
+    })->name('login');
 });
 
 
@@ -100,4 +58,7 @@ Route::middleware(['auth'])->group(function () {
     // --- LOGOUT ---
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
+
+// Importa as rotas de autenticação (POST de login/registro, etc.)
+require __DIR__.'/auth.php';
 

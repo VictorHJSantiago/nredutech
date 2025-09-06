@@ -10,20 +10,23 @@ return new class extends Migration
     {
         Schema::create('usuarios', function (Blueprint $table) {
             $table->id('id_usuario');
-            $table->string('nome_completo', 255);
-            $table->string('username', 80)->unique();
-            $table->string('email', 255)->unique();
+            $table->string('nome_completo');
+            $table->string('username')->unique();
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->string('tipo_usuario');
+            $table->string('status_aprovacao')->default('pendente');
             $table->date('data_nascimento')->nullable();
-            $table->string('cpf', 14)->unique()->nullable();
-            $table->string('rg', 20)->unique()->nullable();
-            $table->string('rco_siape', 50)->unique()->nullable();
-            $table->string('telefone', 20)->nullable();
-            $table->string('formacao', 255)->nullable();
-            $table->string('area_formacao', 255)->nullable();
-            $table->dateTime('data_registro');
-            $table->enum('status_aprovacao', ['ativo', 'pendente', 'bloqueado'])->default('pendente');
-            $table->enum('tipo_usuario', ['administrador', 'diretor', 'professor']);
-            $table->timestamps(); 
+            $table->string('cpf')->unique()->nullable();
+            $table->string('rg')->unique()->nullable();
+            $table->string('rco_siape')->nullable();
+            $table->string('telefone')->nullable();
+            $table->string('formacao')->nullable();
+            $table->string('area_formacao')->nullable();
+            $table->date('data_registro')->nullable(); 
+            $table->rememberToken();
+            $table->timestamps();
             $table->softDeletes();
         });
     }

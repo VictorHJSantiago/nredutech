@@ -1,4 +1,3 @@
-
 @extends('layouts.guest')
 
 @section('title', 'Login')
@@ -6,12 +5,20 @@
 @section('content')
 
 <div class="box">
+  @if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+  @endif
+
   <h2>Entrar</h2>
-      @error('email')
-        <div class="alert alert-danger" style="color: red; margin-bottom: 15px;">
-            {{ $message }}
-        </div>
-      @enderror
+  
+  @error('email')
+    <div class="alert alert-danger">
+        {{ $message }}
+    </div>
+  @enderror
+
   <form method="POST" action="{{ route('login') }}">
     @csrf  
 

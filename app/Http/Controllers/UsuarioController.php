@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUsuarioRequest;
 use App\Http\Requests\UpdateUsuarioRequest;
+use App\Http\Resources\UsuarioResource;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Hash; 
 
 class UsuarioController extends Controller
 {
@@ -36,20 +38,18 @@ class UsuarioController extends Controller
         return view('users.create');
     }
 
-    public function store(StoreUsuarioRequest $request): RedirectResponse
+     public function store(StoreUsuarioRequest $request)
     {
-        $validatedData = $request->validated();
-        $validatedData['data_registro'] = now();
-        
-        Usuario::create($validatedData);
-
-        return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
+        $data = $request->validated();
+        $data['password'] = Hash::make($data['password']);
+        Usuario::create($data);
+        return redirect()->route('usuarios.index')->with('success', 'Usuário criado com sucesso.');
     }
 
     public function show(Usuario $usuario): View
     {
         $usuario->load(['escola', 'preferencias', 'notificacoes']);
-        return view('users.index', compact('usuario')); // Opcional, pode-se usar a página de edição.
+        return view('users.index', compact('usuario')); 
     }
 
     public function edit(Usuario $usuario): View
