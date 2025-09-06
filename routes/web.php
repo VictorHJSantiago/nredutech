@@ -13,15 +13,9 @@ use App\Http\Controllers\ConfiguracoesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TurmaController;
 
-/*
-|--------------------------------------------------------------------------
-| Rotas da Aplicação Web
-|--------------------------------------------------------------------------
-*/
+
 
 // --- ROTAS PÚBLICAS (PARA VISITANTES) ---
-// Estas rotas mostram as páginas de login e registro.
-// As submissões de formulário (POST) são tratadas pelo routes/auth.php.
 Route::middleware('guest')->group(function () {
     Route::get('register', function () {
         return view('auth.register');
@@ -59,6 +53,5 @@ Route::middleware(['auth'])->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 
-// Importa as rotas de autenticação (POST de login/registro, etc.)
 require __DIR__.'/auth.php';
 
