@@ -14,10 +14,9 @@ class RecursoDidaticoController extends Controller
 {
     public function index(Request $request)
     {
-        $sortableColumns = ['id_recurso', 'nome', 'marca', 'numero_serie', 'quantidade', 'status'];
-
-        $sortBy = $request->query('sort_by', 'id_recurso'); 
-        $direction = $request->query('direction', 'asc');   
+        $sortableColumns = ['id_recurso', 'nome', 'marca', 'numero_serie', 'quantidade', 'tipo', 'status', 'data_aquisicao'];
+        $sortBy = $request->query('sort_by', 'id_recurso');
+        $direction = $request->query('direction', 'asc');
 
         if (!in_array(strtolower($direction), ['asc', 'desc'])) {
             $direction = 'asc';
@@ -30,6 +29,12 @@ class RecursoDidaticoController extends Controller
 
         $query->when($request->query('status'), function ($q, $status) {
             return $q->where('status', $status);
+        });
+        $query->when($request->query('search_nome'), function ($q, $search_nome) {
+            return $q->where('nome', 'LIKE', "%{$search_nome}%");
+        });
+        $query->when($request->query('search_marca'), function ($q, $search_marca) {
+            return $q->where('marca', 'LIKE', "%{$search_marca}%");
         });
 
         $query->orderBy($sortBy, $direction);
@@ -56,11 +61,11 @@ class RecursoDidaticoController extends Controller
     {
         $validatedData = $request->validated();
         $totalQuantidade = (int) $validatedData['quantidade'];
-        
         $maxSplitLimit = 50; 
+
         if ($request->input('split_quantity') === 'true' && $totalQuantidade > 1 && $totalQuantidade <= $maxSplitLimit) {
-                        
-            \Illuminate\Support\Arr::pull($validatedData, 'quantidade');
+            
+            Arr::pull($validatedData, 'quantidade');
             $validatedData['quantidade'] = 1;
 
             $baseNumeroSerie = $validatedData['numero_serie'] ?? null;
@@ -82,6 +87,7 @@ class RecursoDidaticoController extends Controller
             }
 
         } else {
+            
             $recurso = RecursoDidatico::create($validatedData);
             $successMessage = 'Lote de ' . $totalQuantidade . ' recurso(s) cadastrado com sucesso!';
 

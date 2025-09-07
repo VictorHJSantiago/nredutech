@@ -19,6 +19,29 @@
             <a href="{{ route('resources.create') }}" class="btn-primary">+ Cadastrar Item</a>
         </div>
 
+        <section class="filter-bar">
+            <form action="{{ route('resources.index') }}" method="GET" class="filter-form">
+                <input type="text" 
+                       name="search_nome" 
+                       placeholder="Buscar por nome..." 
+                       value="{{ request('search_nome') }}" 
+                       class="filter-input-text" />
+                <input type="text" 
+                       name="search_marca" 
+                       placeholder="Buscar por marca..." 
+                       value="{{ request('search_marca') }}" 
+                       class="filter-input-text" />
+                <select name="status" class="filter-select">
+                    <option value="">Todos os Status</option>
+                    <option value="funcionando"   {{ request('status') == 'funcionando' ? 'selected' : '' }}>Funcionando</option>
+                    <option value="em_manutencao" {{ request('status') == 'em_manutencao' ? 'selected' : '' }}>Em manutenção</option>
+                    <option value="quebrado"      {{ request('status') == 'quebrado' ? 'selected' : '' }}>Quebrado</option>
+                    <option value="descartado"    {{ request('status') == 'descartado' ? 'selected' : '' }}>Descartado</option>
+                </select>
+                <button type="submit" class="btn-search">🔍 Filtrar</button>
+            </form>
+        </section>
+        
         <section class="table-section">
             <table class="recursos-table">
                 <thead>
@@ -118,7 +141,8 @@
                                 @endif
                             </a>
                         </th>
-                        <th>Ações</th> </tr>
+                        <th>Ações</th> 
+                    </tr>
                 </thead>
                 <tbody>
                     @forelse ($recursos as $recurso)
