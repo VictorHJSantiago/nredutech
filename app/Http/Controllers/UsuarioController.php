@@ -38,12 +38,16 @@ class UsuarioController extends Controller
         return view('users.create');
     }
 
-     public function store(StoreUsuarioRequest $request)
+     public function store(StoreUsuarioRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-        $data['password'] = Hash::make($data['password']);
-        Usuario::create($data);
-        return redirect()->route('usuarios.index')->with('success', 'Usuário criado com sucesso.');
+        $validatedData = $request->validated();
+        
+        $validatedData['data_registro'] = now();
+        $validatedData['password'] = Hash::make($request->input('password')); 
+        
+        Usuario::create($validatedData);
+
+        return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
     }
 
     public function show(Usuario $usuario): View

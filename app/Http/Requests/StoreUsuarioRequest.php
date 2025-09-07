@@ -33,7 +33,8 @@ class StoreUsuarioRequest extends FormRequest
             'formacao' => ['nullable', 'string', 'max:255'],
             'area_formacao' => ['nullable', 'string', 'max:255'],
 
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'password' => 'required|string|min:8|confirmed',
+
         ];
     }
 }

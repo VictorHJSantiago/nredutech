@@ -11,23 +11,34 @@ use Carbon\Carbon;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Usuario;
+use App\Models\UsuarioPreferencia;
+use Illuminate\Http\RedirectResponse as HttpRedirectResponse; 
+
 class ConfiguracoesController extends Controller
 {
     private $backupDisk = 'local';  
-
     private $backupPath; 
 
     public function __construct()
     {
-        $this->backupPath = config('backup.backup.name'); //
+        $this->backupPath = config('backup.backup.name', 'laravel-backup'); 
     }
 
-    public function index()
+    public function index(): View 
     {
+        $authUser = Auth::user();
+        $usuario = Usuario::where('email', $authUser->email)->firstOrFail();
+
+        $preferencias = UsuarioPreferencia::firstOrCreate(
+            ['id_usuario' => $usuario->id_usuario]
+        );
+
         $disk = Storage::disk($this->backupDisk);
-        // $files = $disk->files(); 
-        $files = $disk->files($this->backupPath); 
+        
+        $files = $disk->exists($this->backupPath) ? $disk->files($this->backupPath) : [];
 
         $backups = collect($files)
             ->filter(function ($file) {
@@ -42,21 +53,42 @@ class ConfiguracoesController extends Controller
                     'date' => Carbon::createFromTimestamp($disk->lastModified($file))->format('d/m/Y H:i:s'),
                 ];
             })
+            ->values() 
             ->toArray();
-
-        return view('settings', compact('backups'));
+        return view('settings', compact('usuario', 'preferencias', 'backups'));
     }
 
-    /**
-     * @return string|null 
-     */
+    public function updatePreferences(Request $request): HttpRedirectResponse
+    {
+        $authUser = Auth::user();
+        $usuario = Usuario::where('email', $authUser->email)->firstOrFail();
+
+        $validatedData = $request->validate([
+            'notif_email' => 'nullable|boolean',
+            'notif_popup' => 'nullable|boolean',
+            'tema' => 'required|in:claro,escuro',
+            'tamanho_fonte' => 'required|in:padrao,medio,grande',
+        ]);
+
+        UsuarioPreferencia::updateOrCreate(
+            ['id_usuario' => $usuario->id_usuario],
+            [
+                'notif_email' => $request->has('notif_email'),
+                'notif_popup' => $request->has('notif_popup'),
+                'tema' => $validatedData['tema'],
+                'tamanho_fonte' => $validatedData['tamanho_fonte'],
+            ]
+        );
+
+        return redirect()->route('settings')->with('success', 'Preferências de notificação e tema atualizadas com sucesso!');
+    }
+
     private function findLatestBackupFile(): ?string
     {
         $disk = Storage::disk('local'); 
-
-        $backupDirectory = config('backup.backup.name');
-
-        $allBackups = $disk->files($backupDirectory);
+        $backupDirectory = $this->backupPath;
+        
+        $allBackups = $disk->exists($backupDirectory) ? $disk->files($backupDirectory) : [];
 
         if (empty($allBackups)) {
             return null;
@@ -66,20 +98,24 @@ class ConfiguracoesController extends Controller
         $latestFile = null;
 
         foreach ($allBackups as $backupPath) {
-            $timestamp = $disk->lastModified($backupPath);
-            
-            if ($timestamp > $latestTimestamp) {
-                $latestTimestamp = $timestamp;
-                $latestFile = $backupPath;
+            if (\Illuminate\Support\Str::endsWith($backupPath, '.zip')) {
+                $timestamp = $disk->lastModified($backupPath);
+                
+                if ($timestamp > $latestTimestamp) {
+                    $latestTimestamp = $timestamp;
+                    $latestFile = $backupPath;
+                }
             }
         }
-
         return $latestFile;
     }
 
-    public function runBackup(): StreamedResponse|RedirectResponse
+    public function runBackup(): StreamedResponse|HttpRedirectResponse
     {
         try {
+            // Garantir que a sessão de confirmação de senha seja esquecida
+            request()->session()->forget('auth.password_confirmed_at');
+
             Artisan::call('backup:run', ['--only-db' => true]);
 
             $latestBackupPath = $this->findLatestBackupFile();
@@ -92,8 +128,8 @@ class ConfiguracoesController extends Controller
             Log::info('Backup criado no servidor (' . $latestBackupPath . ') e download iniciado pelo usuário.');
             return Storage::disk('local')->download($latestBackupPath);
 
-
         } catch (\Exception $e) {
+            request()->session()->forget('auth.password_confirmed_at');
             $message = 'Ocorreu um erro ao tentar realizar e baixar o backup.';
             Log::error($message . ' Erro: ' . $e->getMessage());
             return redirect()->route('settings')->with('error', $message);
@@ -102,35 +138,37 @@ class ConfiguracoesController extends Controller
 
     public function downloadBackup($filename)
     {
-        $disk = Storage::disk($this->backupDisk);
-        // $path = $disk->path($filename); 
+        //request()->session()->forget(keys: 'auth.password_confirmed_at'); // Esquecer senha ao baixar
 
+        $disk = Storage::disk($this->backupDisk);
         $fullPath = $this->backupPath . '/' . $filename;
 
         if (!$disk->exists($fullPath)) {
             abort(404, 'Arquivo de backup não encontrado.');
         }
-
-        // return response()->download($path);
         return $disk->download($fullPath); 
     }
 
     public function uploadAndRestore(Request $request)
     {
+        $request->session()->forget('auth.password_confirmed_at');
+
         $request->validate([
-            'backup_file' => 'required|file|mimes:sql',
+            'backup_file' => 'required|file|mimetypes:text/plain,application/sql,application/x-sql,text/sql',
         ], [
             'backup_file.required' => 'Você precisa enviar um arquivo.',
-            'backup_file.mimes' => 'O arquivo de restauração deve ser um arquivo .sql válido. (Extraia-o do .zip de backup primeiro)',
+            'backup_file.mimetypes' => 'O arquivo de restauração deve ser um arquivo .sql válido (texto plano). Se você tiver certeza de que é um .sql, o tipo de arquivo pode estar sendo reportado incorretamente.',
         ]);
 
         $file = $request->file('backup_file');
         
-        $dbConfig = config('database.connections.mysql');
+        $dbDriver = config('database.default', 'mysql');
+        $dbConfig = config('database.connections.' . $dbDriver);
+        
         $dbHost = $dbConfig['host'];
         $dbName = $dbConfig['database'];
         $dbUser = $dbConfig['username'];
-        $dbPass = $dbConfig['password'];
+        $dbPass = $dbConfig['password'] ?? ''; 
         $filePath = $file->getRealPath();
 
         $command = sprintf(
@@ -142,6 +180,12 @@ class ConfiguracoesController extends Controller
             escapeshellarg($filePath)
         );
 
+        if ($dbDriver === 'sqlite') {
+            Log::error('Falha na restauração: A restauração por upload de SQL só está configurada para MySQL/MariaDB, mas o driver padrão é SQLite.');
+            return Redirect::route('settings')->with('error', 'Falha na restauração: O sistema está configurado para SQLite, mas a restauração tentou usar comandos do MySQL.');
+        }
+
+
         $process = Process::fromShellCommandline($command);
 
         try {
@@ -150,16 +194,19 @@ class ConfiguracoesController extends Controller
             return Redirect::route('settings')->with('success', 'Banco de dados restaurado com sucesso.');
 
         } catch (ProcessFailedException $exception) {
-            Log::error('Falha na restauração do banco de dados: ' . $exception->getMessage());
+            Log::error('Falha na restauração do banco de dados (ProcessFailedException): ' . $exception->getMessage());
             return Redirect::route('settings')->with('error', 'Falha na restauração: ' . $exception->getMessage());
+        } catch (\Exception $e) {
+             Log::error('Falha na restauração (Exception Geral): ' . $e->getMessage());
+            return Redirect::route('settings')->with('error', 'Falha na restauração: ' . $e->getMessage());
         }
     }
 
     private function formatBytes($bytes, $precision = 2)
     {
+        if ($bytes <= 0) return '0 B';
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $bytes = max($bytes, 0);
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = floor(log($bytes, 1024));
         $pow = min($pow, count($units) - 1);
         $bytes /= pow(1024, $pow);
         return round($bytes, $precision) . ' ' . $units[$pow];

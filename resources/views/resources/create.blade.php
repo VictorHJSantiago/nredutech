@@ -1,11 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Cadastrar Recurso – NREduTech')
+@section('title', 'Cadastrar Recurso ou Laboratório – NREduTech')
+
+@push('scripts')
+    @vite('resources/js/resource-create-prompt.js')
+@endpush
 
 @section('content')
     <header class="header-section">
-        <h1>Cadastrar Recurso Didático</h1>
-        <p class="subtitle">Preencha os dados para cadastrar um novo recurso</p>
+        <h1>Cadastrar Recurso ou Laboratório</h1>
+        <p class="subtitle">Preencha os dados para cadastrar um novo item</p>
     </header>
 
     <section class="form-section">
@@ -14,9 +18,18 @@
 
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="nome">Nome do Material</label>
-                    <input type="text" id="nome" name="nome" placeholder="Ex: Projetor Multimídia" value="{{ old('nome') }}" required />
+                    <label for="nome">Nome do Item</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Projetor Multimídia ou Laboratório de Química" value="{{ old('nome') }}" required />
                     @error('nome')<span class="error-message">{{ $message }}</span>@enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo">Tipo de Item</label>
+                    <select id="tipo" name="tipo" required>
+                        <option value="didatico" {{ old('tipo', 'didatico') == 'didatico' ? 'selected' : '' }}>Recurso Didático</option>
+                        <option value="laboratorio" {{ old('tipo') == 'laboratorio' ? 'selected' : '' }}>Laboratório</option>
+                    </select>
+                    @error('tipo')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
@@ -26,7 +39,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="numero_serie">N.º de Série</label>
+                    <label for="numero_serie">N.º de Série / Patrimônio</label>
                     <input type="text" id="numero_serie" name="numero_serie" placeholder="Ex: SN12345678" value="{{ old('numero_serie') }}" />
                     @error('numero_serie')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
@@ -49,14 +62,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="data_ultima_limpeza">Data da Última Limpeza</label>
-                    <input type="date" id="data_ultima_limpeza" name="data_ultima_limpeza" value="{{ old('data_ultima_limpeza') }}" />
-                    @error('data_ultima_limpeza')<span class="error-message">{{ $message }}</span>@enderror
+                    <label for="data_aquisicao">Data de Aquisição</label>
+                    <input type="date" id="data_aquisicao" name="data_aquisicao" value="{{ old('data_aquisicao') }}" />
+                    @error('data_aquisicao')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group full-width">
                     <label for="observacoes">Observações</label>
-                    <textarea id="observacoes" name="observacoes" rows="3" placeholder="Qualquer detalhe adicional sobre o recurso">{{ old('observacoes') }}</textarea>
+                    <textarea id="observacoes" name="observacoes" rows="3" placeholder="Qualquer detalhe adicional sobre o item">{{ old('observacoes') }}</textarea>
                     @error('observacoes')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
             </div>
@@ -68,3 +81,4 @@
         </form>
     </section>
 @endsection
+

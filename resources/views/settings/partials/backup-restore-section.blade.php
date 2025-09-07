@@ -29,7 +29,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route(name: 'settings.backup.run') }}">            
+        <form method="POST" action="{{ route('settings.backup.run') }}">            
             @csrf
             <p class="help-text">
                 Clique no botão abaixo para gerar um backup instantâneo <strong>apenas do banco de dados</strong>.
@@ -54,7 +54,7 @@
             </div>
 
             <button type="submit" class="btn btn-danger"
-                    onclick="return confirm('ATENÇÃO!Você tem certeza que deseja restaurar este backup?TODOS OS DADOS ATUAIS SERÃO APAGADOS E SUBSTITUÍDOS PERMANENTEMENTE. Esta ação não pode ser desfeita.')">
+                    onclick="return confirm('ATENÇÃO! Você tem certeza que deseja restaurar este backup? TODOS OS DADOS ATUAIS SERÃO APAGADOS E SUBSTITUÍDOS PERMANENTEMENTE. Esta ação não pode ser desfeita.')">
                 Restaurar Banco de Dados
             </button>
         </form>
@@ -82,7 +82,9 @@
                                     <td>{{ $backup['date'] }}</td>
                                     <td>{{ $backup['size'] }}</td>
                                     <td>
-                                        <a href="{{ route('settings.backup.download', ['filename' => $backup['name']]) }}" ...>
+                                        <a href="{{ route('settings.backup.download', ['filename' => $backup['name']]) }}" class="btn btn-secondary btn-sm">
+                                            Baixar
+                                        </a>
                                     </td>
                                 </tr>
                             @endforeach

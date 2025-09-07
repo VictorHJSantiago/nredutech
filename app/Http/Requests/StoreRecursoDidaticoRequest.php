@@ -15,11 +15,12 @@ class StoreRecursoDidaticoRequest extends FormRequest
     {
         return [
             'nome' => 'required|string|max:255',
+            'tipo' => 'required|in:didatico,laboratorio', 
             'marca' => 'nullable|string|max:100',
             'numero_serie' => 'nullable|string|max:100|unique:recursos_didaticos,numero_serie',
             'quantidade' => 'required|integer|min:1',
             'observacoes' => 'nullable|string',
-            'data_ultima_limpeza' => 'nullable|date_format:Y-m-d',
+            'data_aquisicao' => 'nullable|date_format:Y-m-d',
             'status' => 'required|in:funcionando,em_manutencao,quebrado,descartado',
         ];
     }

@@ -8,24 +8,43 @@ use App\Http\Resources\RecursoDidaticoResource;
 use App\Models\RecursoDidatico;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Arr;
 
 class RecursoDidaticoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = RecursoDidatico::query()->latest();
+        $sortableColumns = ['id_recurso', 'nome', 'marca', 'numero_serie', 'quantidade', 'status'];
+
+        $sortBy = $request->query('sort_by', 'id_recurso'); 
+        $direction = $request->query('direction', 'asc');   
+
+        if (!in_array(strtolower($direction), ['asc', 'desc'])) {
+            $direction = 'asc';
+        }
+        if (!in_array($sortBy, $sortableColumns)) {
+            $sortBy = 'id_recurso';
+        }
+
+        $query = RecursoDidatico::query();
 
         $query->when($request->query('status'), function ($q, $status) {
             return $q->where('status', $status);
         });
 
-        $recursos = $query->paginate(15);
+        $query->orderBy($sortBy, $direction);
+
+        $recursos = $query->paginate(15)->withQueryString();
 
         if ($request->wantsJson()) {
             return RecursoDidaticoResource::collection($recursos);
         }
 
-        return view('resources.index', ['recursos' => $recursos]);
+        return view('resources.index', [
+            'recursos' => $recursos,
+            'currentSortBy' => $sortBy,
+            'currentDirection' => $direction
+        ]);
     }
 
     public function create()
@@ -35,50 +54,80 @@ class RecursoDidaticoController extends Controller
 
     public function store(StoreRecursoDidaticoRequest $request)
     {
-        $recurso = RecursoDidatico::create($request->validated());
+        $validatedData = $request->validated();
+        $totalQuantidade = (int) $validatedData['quantidade'];
+        
+        $maxSplitLimit = 50; 
+        if ($request->input('split_quantity') === 'true' && $totalQuantidade > 1 && $totalQuantidade <= $maxSplitLimit) {
+                        
+            \Illuminate\Support\Arr::pull($validatedData, 'quantidade');
+            $validatedData['quantidade'] = 1;
 
-        if ($request->wantsJson()) {
-            return (new RecursoDidaticoResource($recurso))
-                ->response()
-                ->setStatusCode(201); 
+            $baseNumeroSerie = $validatedData['numero_serie'] ?? null;
+            $createdResources = [];
+
+            for ($i = 0; $i < $totalQuantidade; $i++) {
+                if ($baseNumeroSerie) {
+                    $validatedData['numero_serie'] = $baseNumeroSerie . '-' . ($i + 1);
+                }
+                $createdResources[] = RecursoDidatico::create($validatedData);
+            }
+
+            $successMessage = $totalQuantidade . ' recursos individuais cadastrados com sucesso!';
+
+            if ($request->wantsJson()) {
+                return (RecursoDidaticoResource::collection(collect($createdResources)))
+                    ->response()
+                    ->setStatusCode(201);
+            }
+
+        } else {
+            $recurso = RecursoDidatico::create($validatedData);
+            $successMessage = 'Lote de ' . $totalQuantidade . ' recurso(s) cadastrado com sucesso!';
+
+            if ($request->wantsJson()) {
+                return (new RecursoDidaticoResource($recurso))
+                    ->response()
+                    ->setStatusCode(201);
+            }
         }
 
         return redirect()->route('resources.index')
-                         ->with('success', 'Recurso didático cadastrado com sucesso!');
+                         ->with('success', $successMessage);
     }
 
-    public function show(Request $request, RecursoDidatico $recursos_didatico)
+    public function show(Request $request, RecursoDidatico $recursoDidatico)
     {
         if ($request->wantsJson()) {
-            $recursos_didatico->load(['agendamentos' => function ($query) {
+            $recursoDidatico->load(['agendamentos' => function ($query) {
                 $query->where('data_hora_inicio', '>=', now())->orderBy('data_hora_inicio');
             }]);
-            return new RecursoDidaticoResource($recursos_didatico);
+            return new RecursoDidaticoResource($recursoDidatico);
         }
         
-        return redirect()->route('resources.edit', $recursos_didatico->id_recurso);
+        return redirect()->route('resources.edit', $recursoDidatico->id_recurso);
     }
     
-    public function edit(RecursoDidatico $recursos_didatico): View 
+    public function edit(RecursoDidatico $recursoDidatico): View 
     {
-        return view('resources.edit', ['recursoDidatico' => $recursos_didatico]);
+        return view('resources.edit', ['recursoDidatico' => $recursoDidatico]);
     }
 
-    public function update(UpdateRecursoDidaticoRequest $request, RecursoDidatico $recursos_didatico)
+    public function update(UpdateRecursoDidaticoRequest $request, RecursoDidatico $recursoDidatico)
     {
-        $recursos_didatico->update($request->validated());
+        $recursoDidatico->update($request->validated());
 
         if ($request->wantsJson()) {
-            return new RecursoDidaticoResource($recursos_didatico->fresh());
+            return new RecursoDidaticoResource($recursoDidatico->fresh());
         }
 
         return redirect()->route('resources.index')
                          ->with('success', 'Recurso didático atualizado com sucesso!');
     }
 
-    public function destroy(Request $request, RecursoDidatico $recursos_didatico)
+    public function destroy(Request $request, RecursoDidatico $recursoDidatico)
     {
-        $recursos_didatico->delete();
+        $recursoDidatico->delete();
 
         if ($request->wantsJson()) {
             return response()->json(null, 204); 

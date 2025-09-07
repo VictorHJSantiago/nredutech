@@ -12,11 +12,12 @@ class RecursoDidaticoResource extends JsonResource
         return [
             'id' => $this->id_recurso,
             'nome' => $this->nome,
+            'tipo' => $this->tipo, 
             'marca' => $this->marca,
             'numeroSerie' => $this->numero_serie,
             'quantidade' => $this->quantidade,
             'observacoes' => $this->observacoes,
-            'dataUltimaLimpeza' => $this->data_ultima_limpeza,
+            'dataAquisicao' => $this->data_aquisicao, 
             'status' => $this->status,
             'agendamentos' => AgendamentoResource::collection($this->whenLoaded('agendamentos')),
         ];

@@ -150,3 +150,19 @@ body {
     font-size: 11px;
   }
 }
+
+.recursos-table th a {
+    color: var(--branco-principal);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.recursos-table th a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.recursos-table th a .fas {
+    margin-left: 6px;
+    font-size: 0.9em;
+}

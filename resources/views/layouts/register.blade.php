@@ -11,8 +11,8 @@
 
         <div class="form-grid">
             <div class="form-group">
-                <label for="nomeCompleto">Nome Completo</label>
-                <input type="text" id="nomeCompleto" name="nomeCompleto" placeholder="Digite seu nome completo" required />
+                <label for="name">Nome Completo</label>
+                <input type="text" id="name" name="nome_completo" placeholder="Digite seu nome completo" required autofocus />
             </div>
 
             <div class="form-group">
@@ -42,7 +42,7 @@
 
             <div class="form-group">
                 <label for="registro">Registro (SIAPE ou RCO)</label>
-                <input type="text" id="registro" name="registro" placeholder="Ex: SIAPE123456" required />
+                <input type="text" id="registro" name="rco_siape" placeholder="Ex: SIAPE123456" required />
             </div>
 
             <div class="form-group">

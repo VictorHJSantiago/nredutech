@@ -14,11 +14,12 @@ class RecursoDidatico extends Model
 
     protected $fillable = [
         'nome',
+        'tipo', 
         'marca',
         'numero_serie',
         'quantidade',
         'observacoes',
-        'data_ultima_limpeza',
+        'data_aquisicao', 
         'status',
     ];
 

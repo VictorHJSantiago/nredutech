@@ -11,11 +11,12 @@ return new class extends Migration
         Schema::create('recursos_didaticos', function (Blueprint $table) {
             $table->id('id_recurso');
             $table->string('nome', 255);
+            $table->enum('tipo', ['didatico', 'laboratorio'])->default('didatico');
             $table->string('marca', 100)->nullable();
             $table->string('numero_serie', 100)->unique()->nullable();
             $table->integer('quantidade')->default(1);
             $table->text('observacoes')->nullable();
-            $table->date('data_ultima_limpeza')->nullable();
+            $table->date('data_aquisicao')->nullable();
             $table->enum('status', ['funcionando', 'em_manutencao', 'quebrado', 'descartado']);
             $table->timestamps(); 
         });
@@ -26,3 +27,4 @@ return new class extends Migration
         Schema::dropIfExists('recursos_didaticos');
     }
 };
+
