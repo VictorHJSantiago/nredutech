@@ -10,12 +10,20 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash; 
+use Illuminate\Support\Facades\Auth; 
 
 class UsuarioController extends Controller
 {
     public function index(Request $request): View
     {
+        $usuarioLogado = Auth::user();
         $query = Usuario::query()->with('escola');
+
+        if ($usuarioLogado->tipo_usuario !== 'administrador' && $usuarioLogado->id_escola) {
+            $query->where('id_escola', $usuarioLogado->id_escola);
+        } elseif ($usuarioLogado->tipo_usuario !== 'administrador') {
+             $query->where('id_escola', null); 
+        }
 
         $query->when($request->query('status'), function ($q, $status) {
             return $q->where('status_aprovacao', $status);
@@ -44,6 +52,14 @@ class UsuarioController extends Controller
         
         $validatedData['data_registro'] = now();
         $validatedData['password'] = Hash::make($request->input('password')); 
+        $usuarioLogado = Auth::user();
+         if ($usuarioLogado->tipo_usuario === 'diretor' && $usuarioLogado->id_escola) {
+             if($validatedData['tipo_usuario'] !== 'administrador') {
+                $validatedData['id_escola'] = $usuarioLogado->id_escola;
+             } else {
+                 return back()->with('error', 'Diretores não podem criar Administradores.');
+             }
+         }
         
         Usuario::create($validatedData);
 
@@ -64,7 +80,6 @@ class UsuarioController extends Controller
     public function update(UpdateUsuarioRequest $request, Usuario $usuario): RedirectResponse
     {
         $usuario->update($request->validated());
-
         return redirect()->route('usuarios.index')->with('success', 'Usuário atualizado com sucesso!');
     }
 

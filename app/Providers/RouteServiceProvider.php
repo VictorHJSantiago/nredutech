@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Route;
 class RouteServiceProvider extends ServiceProvider
 {
     /**
-     * A página para a qual os usuários são redirecionados após o login.
      *
      * @var string
      */

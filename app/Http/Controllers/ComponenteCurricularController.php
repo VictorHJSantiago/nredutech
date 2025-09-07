@@ -8,13 +8,13 @@ use App\Http\Resources\ComponenteCurricularResource;
 use App\Models\ComponenteCurricular;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth; /
 
 class ComponenteCurricularController extends Controller
 {
     public function index() 
-    {
-        $componentes = ComponenteCurricular::paginate(15);
-
+    {        
+        $componentes = ComponenteCurricular::paginate(5);
         return view('disciplines.index', ['componentes' => $componentes]);
     }
 
@@ -30,9 +30,14 @@ class ComponenteCurricularController extends Controller
 
     public function store(StoreComponenteCurricularRequest $request)
     {
-        ComponenteCurricular::create($request->validated());
+        $validatedData = $request->validated();
+        if (Auth::user()->tipo_usuario === 'professor') {
+            $validatedData['status'] = 'pendente';
+        }
 
-        return redirect()->route('componentes.index')->with('success', 'Disciplina cadastrada com sucesso!');
+        ComponenteCurricular::create($validatedData);
+
+        return redirect()->route('componentes.index')->with('success', 'Disciplina cadastrada com sucesso! Aguardando aprovação se necessário.');
     }
 
     public function show(ComponenteCurricular $componenteCurricular): ComponenteCurricularResource

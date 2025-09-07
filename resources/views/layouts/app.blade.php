@@ -12,6 +12,9 @@
   @stack('styles')
 </head>
 <body>
+  @php
+    $userType = Auth::user()->tipo_usuario ?? null;
+  @endphp
   <div class="container">
     <aside class="sidebar">
       <div class="sidebar-logo">
@@ -21,12 +24,23 @@
       
       <nav class="sidebar-nav">
         <a href="{{ route('index') }}" class="nav-item {{ request()->routeIs('index') ? 'active' : '' }}">🏠 Início</a>
-        <a href="{{ route('escolas.index') }}" class="nav-item {{ request()->routeIs('escolas.*') ? 'active' : '' }}">🏫 Escolas</a>
+        
+        @if ($userType != 'professor') 
+          <a href="{{ route('escolas.index') }}" class="nav-item {{ request()->routeIs('escolas.*') ? 'active' : '' }}">🏫 Escolas</a>
+        @endif
+
         <a href="{{ route('componentes.index') }}" class="nav-item {{ request()->routeIs('componentes.*') ? 'active' : '' }}">📂 Disciplinas</a>
         <a href="{{ route('resources.index') }}" class="nav-item {{ request()->routeIs('resources.*') ? 'active' : '' }}">📖 Recursos</a>
-        <a href="{{ route('usuarios.index') }}" class="nav-item {{ request()->routeIs('usuarios.*') ? 'active' : '' }}">👥 Usuários</a>
+
+        @if ($userType != 'professor') 
+          <a href="{{ route('usuarios.index') }}" class="nav-item {{ request()->routeIs('usuarios.*') ? 'active' : '' }}">👥 Usuários</a>
+        @endif
+        
         <a href="{{ route('agendamentos.index') }}" class="nav-item {{ request()->routeIs('agendamentos.*') ? 'active' : '' }}">📅 Agendamentos</a>
-        <a href="{{ route('settings') }}" class="nav-item {{ request()->routeIs('settings') ? 'active' : '' }}">⚙️ Configurações</a>
+        
+        @if ($userType == 'administrador') 
+          <a href="{{ route('settings') }}" class="nav-item {{ request()->routeIs('settings') ? 'active' : '' }}">⚙️ Configurações</a>
+        @endif
         
         <form method="POST" action="{{ route('logout') }}">
           @csrf

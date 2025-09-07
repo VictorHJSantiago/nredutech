@@ -23,7 +23,20 @@ class StoreUsuarioRequest extends FormRequest
             'nome_completo' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:'.Usuario::class],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.Usuario::class],
-            'tipo_usuario' => ['required', 'string', Rule::in(['administrador', 'diretor', 'professor'])],
+                        'tipo_usuario' => [
+                'required', 
+                'string', 
+                Rule::in(['administrador', 'diretor', 'professor']),
+                function ($attribute, $value, $fail) {
+                    if ($value === 'administrador') {
+                        $adminCount = Usuario::where('tipo_usuario', 'administrador')->count();
+                        if ($adminCount >= 6) {
+                            $fail('O limite total de (5) administradores adicionais já foi atingido.');
+                        }
+                    }
+                }
+            ],
+            
             'status_aprovacao' => ['required', 'string', Rule::in(['ativo', 'pendente', 'bloqueado'])],
             'data_nascimento' => ['nullable', 'date'],
             'cpf' => ['nullable', 'string', 'max:14', 'unique:'.Usuario::class],
@@ -32,9 +45,8 @@ class StoreUsuarioRequest extends FormRequest
             'telefone' => ['nullable', 'string', 'max:20'],
             'formacao' => ['nullable', 'string', 'max:255'],
             'area_formacao' => ['nullable', 'string', 'max:255'],
-
             'password' => 'required|string|min:8|confirmed',
-
+            
         ];
     }
 }
