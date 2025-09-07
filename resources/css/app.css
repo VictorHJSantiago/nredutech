@@ -5,6 +5,8 @@
 @import url('./components.css');
 @import url('./settings.css');
 
+@import url('./backup.css');
+@import url('./confirm-password.css');
 @import url('./disciplines.css');
 @import url('./disciplines-list.css');
 @import url('./professors.css');

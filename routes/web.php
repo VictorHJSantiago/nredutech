@@ -48,6 +48,21 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('turmas', TurmaController::class);
     Route::resource('recursos-didaticos', RecursoDidaticoController::class)->names('resources');
     Route::resource('usuarios', UsuarioController::class);
+
+
+    /*
+    | ROTAS DE BACKUP E RESTAURAÇÃO
+    */
+    Route::post('/settings/backup/run', [ConfiguracoesController::class, 'runBackup'])
+         ->name('settings.backup.run')
+         ->middleware('password.confirm');
+
+    Route::post('/settings/backup/restore', [ConfiguracoesController::class, 'uploadAndRestore'])
+         ->name('settings.backup.restore');
+
+    Route::get('/settings/backup/download/{filename}', [ConfiguracoesController::class, 'downloadBackup'])
+         ->name('settings.backup.download')
+         ->middleware('password.confirm');
     
     // --- LOGOUT ---
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
