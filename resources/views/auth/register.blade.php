@@ -24,6 +24,17 @@
       </div>
 
       <div class="form-group">
+          <label for="tipo_usuario">Tipo de Usuário</label>
+          <select id="tipo_usuario" name="tipo_usuario" required>
+              <option value="" disabled selected>Selecione o tipo</option>
+              <option value="administrador" {{ old('tipo_usuario') == 'administrador' ? 'selected' : '' }}>Administrador</option>
+              <option value="diretor" {{ old('tipo_usuario') == 'diretor' ? 'selected' : '' }}>Diretor</option>
+              <option value="professor" {{ old('tipo_usuario') == 'professor' ? 'selected' : '' }}>Professor</option>
+           </select>
+           @error('tipo_usuario')<span class="error-message">{{ $message }}</span>@enderror
+       </div>
+
+      <div class="form-group">
         <label for="cpf">CPF</label>
         <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" value="{{ old('cpf') }}" required />
         @error('cpf')<span class="error-message">{{ $message }}</span>@enderror
