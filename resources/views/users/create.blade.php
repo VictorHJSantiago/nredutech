@@ -52,6 +52,18 @@
                     @error('status_aprovacao')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
+                 <div class="form-group">
+                    <label for="id_escola">Escola/Instituição (Obrigatório para Diretor/Professor)</label>
+                    <select id="id_escola" name="id_escola">
+                        <option value="">Nenhuma (Somente Administradores)</option>
+                        @foreach($escolas as $escola)
+                            <option value="{{ $escola->id_escola }}" {{ old('id_escola') == $escola->id_escola ? 'selected' : '' }}>
+                                {{ $escola->nome }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('id_escola')<span class="error-message">{{ $message }}</span>@enderror
+                </div>
                 <div class="form-group">
                     <label for="data_nascimento">Data de Nascimento</label>
                     <input type="date" id="data_nascimento" name="data_nascimento" value="{{ old('data_nascimento') }}"/>
@@ -93,19 +105,6 @@
                     <input type="text" id="area_formacao" name="area_formacao" placeholder="Ex: Ciências Exatas" value="{{ old('area_formacao') }}" />
                     @error('area_formacao')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
-                
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <input type="password" id="password" name="password" placeholder="Digite a senha" required />
-                    @error('password')<span class="error-message">{{ $message }}</span>@enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="password_confirmation">Confirmar Senha</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirme a senha" required />
-                    @error('password_confirmation')<span class="error-message">{{ $message }}</span>@enderror
-                </div>
-                
             </div>
 
             <div class="form-actions">

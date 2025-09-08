@@ -19,7 +19,6 @@ class UpdateEscolaRequest extends FormRequest
             'id_municipio' => 'sometimes|required|exists:municipios,id_municipio',
             'id_diretor_responsavel' => 'nullable|exists:usuarios,id_usuario',
             'nivel_ensino' => 'sometimes|required|in:colegio_estadual,escola_tecnica,escola_municipal',
-            'tipo' => 'sometimes|required|in:urbana,rural', // Adicionado
-        ];
+            'tipo' => 'sometimes|required|in:urbana,rural', 
     }
 }

@@ -2,23 +2,6 @@
 
 @section('title', 'Agendamento de Recursos')
 
-@push('styles')
-    <style>
-        .calendar-card {
-            max-width: 900px; 
-            margin: 0 auto;   
-        }
-
-        #calendar-container {
-            padding: 1.5rem;
-        }
-        
-        .fc-event {
-            cursor: pointer;
-        }
-    </style>
-@endpush
-
 @section('content')
     <div class="container-fluid mt-4">
         <div class="card calendar-card">
@@ -37,6 +20,25 @@
             </div>
         </div>
     </div>
+    
+    <div class="container-fluid mt-4" id="resource-availability-container">
+        <div class="card calendar-card">
+            <div class="card-header">
+                <h4 class="card-title" style="font-size: 1.3rem; color: #0169b4;">
+                    Disponibilidade para: <span id="selected-date-display" style="font-weight: bold;"></span>
+                </h4>
+            </div>
+            <div class="card-body">
+                <div id="resource-list-placeholder" class="row">
+                </div>
+                <nav aria-label="Resource Pagination">
+                    <ul class="pagination justify-content-center mt-4" id="resource-pagination-controls">
+                    </ul>
+                </nav>
+                
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="agendamentoModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -49,10 +51,9 @@
                     <div class="modal-body">
                         <input type="hidden" id="agendamento_id">
                         
-                        <div class="mb-3">
+                        <div class="mb-3" id="recurso-select-wrapper">
                             <label for="id_recurso" class="form-label">Recurso</label>
-                            <select class="form-select" id="id_recurso" required>
-                                <option value="" disabled selected>Selecione um recurso</option>
+                            <select class="form-select" id="id_recurso"> <option value="" disabled selected>Selecione um recurso</option>
                                 @foreach($recursos as $recurso)
                                     <option value="{{ $recurso->id_recurso }}">{{ $recurso->nome }}</option>
                                 @endforeach
@@ -63,11 +64,13 @@
                             <label for="id_oferta" class="form-label">Turma/Componente</label>
                             <select class="form-select" id="id_oferta" required>
                                 <option value="" disabled selected>Selecione uma opção</option>
-                                @foreach($ofertas as $oferta)
+                                @forelse($ofertas as $oferta)
                                     <option value="{{ $oferta->id_oferta }}">
-                                        {{ $oferta->turma->serie }} - {{ $oferta->componenteCurricular->nome }}
+                                        {{ optional($oferta->turma)->serie ?? 'N/A' }} / {{ optional($oferta->componenteCurricular)->nome ?? 'N/A' }} (Prof: {{ optional($oferta->professor)->nome_completo ?? 'N/A' }})
                                     </option>
-                                @endforeach
+                                @empty
+                                    <option value="" disabled>Nenhuma turma/disciplina encontrada para seu usuário.</option>
+                                @endforelse
                             </select>
                         </div>
 

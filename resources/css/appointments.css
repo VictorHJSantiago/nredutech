@@ -1,0 +1,57 @@
+.calendar-card {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+#calendar-container {
+    padding: 1.5rem;
+}
+
+.fc-event {
+    cursor: pointer;
+}
+
+#recurso-select-wrapper {
+    display: none;
+}
+
+#resource-availability-container {
+    display: none; 
+}
+.resource-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.resource-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.resource-card h5 {
+    color: #0169b4;
+    font-weight: 600;
+}
+.resource-card .bookings-list {
+    font-size: 0.9rem;
+    padding-left: 1.2rem;
+    margin-top: 10px;
+}
+.resource-card .bookings-list li {
+    color: #555;
+    margin-bottom: 4px;
+}
+.resource-card .no-bookings {
+    color: #198754; 
+    font-style: italic;
+    font-weight: 500;
+}
+
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}

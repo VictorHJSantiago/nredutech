@@ -4,25 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUsuarioRequest;
 use App\Http\Requests\UpdateUsuarioRequest;
-use App\Http\Resources\UsuarioResource;
 use App\Models\Usuario;
+use App\Models\Escola; 
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Hash; 
 use Illuminate\Support\Facades\Auth; 
 
 class UsuarioController extends Controller
 {
     public function index(Request $request): View
     {
-        $usuarioLogado = Auth::user();
-        $query = Usuario::query()->with('escola');
+        $userAutenticado = Auth::user();
+        $perfilUsuarioLogado = Usuario::where('email', $userAutenticado->email)->first();
 
-        if ($usuarioLogado->tipo_usuario !== 'administrador' && $usuarioLogado->id_escola) {
-            $query->where('id_escola', $usuarioLogado->id_escola);
-        } elseif ($usuarioLogado->tipo_usuario !== 'administrador') {
-             $query->where('id_escola', null); 
+        $query = Usuario::query()->with('escola');
+        if ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'diretor') {
+            $query->where('id_escola', $perfilUsuarioLogado->id_escola);
         }
 
         $query->when($request->query('status'), function ($q, $status) {
@@ -43,7 +41,19 @@ class UsuarioController extends Controller
 
     public function create(): View
     {
-        return view('users.create');
+        $userAutenticado = Auth::user();
+        $perfilUsuarioLogado = Usuario::where('email', $userAutenticado->email)->first();
+
+        $escolas = collect();
+
+        if ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'administrador') {
+            $escolas = Escola::orderBy('nome')->get();
+        } 
+        elseif ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'diretor' && $perfilUsuarioLogado->id_escola) {
+            $escolas = Escola::where('id_escola', $perfilUsuarioLogado->id_escola)->get();
+        }
+
+        return view('users.create', compact('escolas'));
     }
 
      public function store(StoreUsuarioRequest $request): RedirectResponse
@@ -51,20 +61,19 @@ class UsuarioController extends Controller
         $validatedData = $request->validated();
         
         $validatedData['data_registro'] = now();
-        $validatedData['password'] = Hash::make($request->input('password')); 
-        $usuarioLogado = Auth::user();
-         if ($usuarioLogado->tipo_usuario === 'diretor' && $usuarioLogado->id_escola) {
-             if($validatedData['tipo_usuario'] !== 'administrador') {
-                $validatedData['id_escola'] = $usuarioLogado->id_escola;
-             } else {
-                 return back()->with('error', 'Diretores não podem criar Administradores.');
-             }
-         }
+        
+        $userAutenticado = Auth::user();
+        $perfilUsuarioLogado = Usuario::where('email', $userAutenticado->email)->first();
+        
+        if ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'diretor') {
+            $validatedData['id_escola'] = $perfilUsuarioLogado->id_escola;
+        }
         
         Usuario::create($validatedData);
 
         return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
     }
+
 
     public function show(Usuario $usuario): View
     {
@@ -74,17 +83,49 @@ class UsuarioController extends Controller
 
     public function edit(Usuario $usuario): View
     {
-        return view('users.edit', compact('usuario'));
+        $userAutenticado = Auth::user();
+        $perfilUsuarioLogado = Usuario::where('email', $userAutenticado->email)->first();
+
+        $escolas = collect();
+
+        if ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'administrador') {
+            $escolas = Escola::orderBy('nome')->get();
+        } elseif ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'diretor' && $perfilUsuarioLogado->id_escola) {
+            $escolas = Escola::where('id_escola', $perfilUsuarioLogado->id_escola)->get();
+        }
+
+        return view('users.edit', compact('usuario', 'escolas'));
     }
 
     public function update(UpdateUsuarioRequest $request, Usuario $usuario): RedirectResponse
     {
-        $usuario->update($request->validated());
+        $userAutenticado = Auth::user();
+        $perfilUsuarioLogado = Usuario::where('email', $userAutenticado->email)->first();
+        $validatedData = $request->validated();
+        
+        if ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'diretor') {
+            if($usuario->id_escola != $perfilUsuarioLogado->id_escola) {
+                 return redirect()->route('usuarios.index')->with('error', 'Acesso não autorizado.');
+            }
+            $validatedData['id_escola'] = $perfilUsuarioLogado->id_escola;
+        }
+
+        $usuario->update($validatedData);
+
         return redirect()->route('usuarios.index')->with('success', 'Usuário atualizado com sucesso!');
     }
 
     public function destroy(Usuario $usuario): RedirectResponse
     {
+        $userAutenticado = Auth::user();
+        $perfilUsuarioLogado = Usuario::where('email', $userAutenticado->email)->first();
+
+        if ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'diretor') {
+            if($usuario->id_escola != $perfilUsuarioLogado->id_escola) {
+                 return redirect()->route('usuarios.index')->with('error', 'Acesso não autorizado.');
+            }
+        }
+        
         $usuario->delete();
 
         return redirect()->route('usuarios.index')->with('success', 'Usuário excluído com sucesso!');

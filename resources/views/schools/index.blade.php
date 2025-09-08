@@ -2,9 +2,6 @@
 
 @section('title', 'Gestão de Escolas e Municípios')
 
-@push('styles')
-@endpush
-
 @section('content')
     <div class="header-section">
         <h1 class="text-2xl font-semibold text-gray-800">Gestão de Escolas e Municípios</h1>
@@ -66,18 +63,11 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="escola_nivel_ensino">Nível de Ensino</label>
-                            <select id="escola_nivel_ensino" name="nivel_ensino" class="form-control" required>
+                            <label for="escola_tipo">Tipo de Escola</label>
+                            <select id="escola_tipo" name="tipo" class="form-control" required>
                                 <option value="colegio_estadual">Colégio Estadual</option>
                                 <option value="escola_tecnica">Escola Técnica</option>
                                 <option value="escola_municipal">Escola Municipal</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="escola_tipo">Tipo de Localização</label>
-                            <select id="escola_tipo" name="tipo" class="form-control" required>
-                                <option value="urbana">Urbana</option>
-                                <option value="rural">Rural</option>
                             </select>
                         </div>
                         <button type="submit" class="button button-primary">Salvar Escola</button>
@@ -87,7 +77,7 @@
         </div>
 
         <div class="card-grid">
-            <div class="card">
+            <div class="card card-full">
                 <div class="card-header">
                     <h3>Municípios Cadastrados</h3>
                 </div>
@@ -120,7 +110,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card card-full">
                 <div class="card-header">
                     <h3>Escolas Cadastradas</h3>
                 </div>
@@ -130,8 +120,8 @@
                             <tr>
                                 <th>Nome da Escola</th>
                                 <th>Município</th>
-                                <th>Nível de Ensino</th>
-                                <th>Tipo</th>
+                                <th>Tipo de Escola</th>
+                                <th>Diretores</th> 
                                 <th class="actions-header">Ações</th>
                             </tr>
                         </thead>
@@ -140,8 +130,15 @@
                                 <tr>
                                     <td>{{ $escola->nome }}</td>
                                     <td>{{ $escola->municipio->nome ?? 'N/A' }}</td>
-                                    <td>{{ ucfirst(str_replace('_', ' ', $escola->nivel_ensino)) }}</td>
-                                    <td>{{ ucfirst($escola->tipo) }}</td>
+                                    <td>{{ ucfirst(str_replace('_', ' ', $escola->tipo)) }}</td>
+                                    <td>
+                                        <div style="font-weight: 500;">({{ $escola->usuarios->count() }}/2)</div>
+                                        @forelse($escola->usuarios as $diretor)
+                                            <div>{{ $diretor->nome_completo }}</div>
+                                        @empty
+                                            <span style="color: #888; font-size: 0.9em;">Nenhum</span>
+                                        @endforelse
+                                    </td>
                                     <td class="actions">
                                        <a href="{{ route('escolas.edit', $escola->id_escola) }}" class="button-icon btn-edit" title="Editar">✏️</a>
                                         <form action="{{ route('escolas.destroy', $escola->id_escola) }}" method="POST" onsubmit="return confirm('Tem certeza?');" style="display: inline;">
@@ -161,3 +158,4 @@
         </div>
     </div>
 @endsection
+

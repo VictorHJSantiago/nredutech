@@ -9,55 +9,92 @@ use App\Models\Turma;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Usuario;
+use App\Models\ComponenteCurricular;
+use App\Models\Escola; 
+use Illuminate\Http\RedirectResponse; 
 
 class TurmaController extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): View
     {
-        $query = Turma::query()->with('escola');
+        $usuarioLogado = Auth::user();
+        $queryTurmas = Turma::query()->with('escola');
+        $queryEscolas = Escola::query();
 
-        $query->when($request->query('escola_id'), function ($q, $escolaId) {
-            return $q->where('id_escola', $escolaId);
-        });
-
-        $query->when($request->query('turno'), function ($q, $turno) {
-            return $q->where('turno', $turno);
-        });
+        if ($usuarioLogado->tipo_usuario !== 'administrador' && $usuarioLogado->id_escola) {
+            $queryTurmas->where('id_escola', $usuarioLogado->id_escola);
+            $queryEscolas->where('id_escola', $usuarioLogado->id_escola);
+        }
         
-        $query->when($request->query('ano_letivo'), function ($q, $ano) {
+        $queryTurmas->when($request->query('ano_letivo'), function ($q, $ano) {
             return $q->where('ano_letivo', $ano);
         });
 
-        $turmas = $query->paginate(15);
+        $turmas = $queryTurmas->orderBy('ano_letivo', 'desc')->orderBy('serie')->paginate(20);
+        $escolas = $queryEscolas->orderBy('nome')->get();
 
-        return TurmaResource::collection($turmas);
+        return view('classes.index', compact('turmas', 'escolas'));
     }
 
-    public function store(StoreTurmaRequest $request): TurmaResource
+    public function store(StoreTurmaRequest $request): RedirectResponse
     {
-        $turma = Turma::create($request->validated());
+        Turma::create($request->validated());
 
-        return new TurmaResource($turma->load('escola'));
+        return redirect()->route('turmas.index')->with('success', 'Turma cadastrada com sucesso!');
     }
 
-    public function show(Turma $turma): TurmaResource
+    public function show(Turma $turma): View
     {
-        $turma->load(['escola', 'ofertasComponentes.professor', 'ofertasComponentes.componente']);
+        $this->authorizeTurmaAccess($turma);
+        $turma->load([
+            'escola', 
+            'ofertasComponentes.professor', 
+            'ofertasComponentes.componenteCurricular'
+        ]);
+
+        $queryProfessores = Usuario::whereIn('tipo_usuario', ['professor', 'diretor']);
+        $queryComponentes = ComponenteCurricular::where('status', 'aprovado');
+
+        if (Auth::user()->tipo_usuario !== 'administrador') {
+             $queryProfessores->where('id_escola', $turma->id_escola);
+        }
+
+        $professores = $queryProfessores->orderBy('nome_completo')->get();
+        $componentes = $queryComponentes->orderBy('nome')->get();
         
-        return new TurmaResource($turma);
+        return view('classes.show', compact('turma', 'professores', 'componentes'));
+    }
+
+    private function authorizeTurmaAccess(Turma $turma)
+    {
+        $usuarioLogado = Auth::user();
+        if ($usuarioLogado->tipo_usuario === 'administrador') {
+            return true; 
+        }
+        if ($usuarioLogado->id_escola !== $turma->id_escola) {
+            abort(403, 'Acesso não autorizado a esta turma.');
+        }
     }
 
     public function update(UpdateTurmaRequest $request, Turma $turma): TurmaResource
     {
+        $this->authorizeTurmaAccess($turma);
         $turma->update($request->validated());
-
         return new TurmaResource($turma->fresh()->load('escola'));
     }
 
     public function destroy(Turma $turma): JsonResponse
     {
+        $this->authorizeTurmaAccess($turma);
+        
+        if ($turma->ofertasComponentes()->exists()) {
+             return response()->json(['message' => 'Não é possível excluir. Esta turma já possui professores/disciplinas vinculados.'], 422);
+        }
+        
         $turma->delete();
-
         return response()->json(null, 204);
     }
 }

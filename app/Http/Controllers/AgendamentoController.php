@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth; 
+use App\Models\Turma; 
 
 class AgendamentoController extends Controller
 {
@@ -36,20 +38,34 @@ class AgendamentoController extends Controller
 
             return AgendamentoResource::collection($agendamentos);
         }
+        $recursos = RecursoDidatico::where('status', 'funcionando')->get();        
+        $usuarioLogado = Auth::user();
+        $ofertasQuery = OfertaComponente::query()->with([
+            'componenteCurricular', 
+            'turma', 
+            'professor'
+        ]);
 
-        $recursos = RecursoDidatico::where('status', 'funcionando')->get();
-        
-        $ofertas = OfertaComponente::with(['componenteCurricular', 'turma'])
-                        ->whereHas('turma')
+        if ($usuarioLogado->tipo_usuario === 'professor') {
+            $ofertasQuery->where('id_professor', $usuarioLogado->id_usuario);
+
+        } elseif ($usuarioLogado->tipo_usuario === 'diretor' && $usuarioLogado->id_escola) {
+            $turmaIdsDaEscola = Turma::where('id_escola', $usuarioLogado->id_escola)->pluck('id_turma');
+            $ofertasQuery->whereIn('id_turma', $turmaIdsDaEscola);
+        }
+
+        $ofertas = $ofertasQuery
+                        ->whereHas('turma') 
                         ->whereHas('componenteCurricular')
+                        ->whereHas('professor')
                         ->get();
-
         return view('appointments.index', [
             'recursos' => $recursos,
             'ofertas' => $ofertas,
             'now' => now()->toIso8601String(),
         ]);
     }
+
     public function store(StoreAgendamentoRequest $request): AgendamentoResource
     {
         $agendamento = Agendamento::create($request->validated());

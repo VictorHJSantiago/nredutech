@@ -54,6 +54,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="id_escola">Escola/Instituição (Obrigatório para Diretor/Professor)</label>
+                    <select id="id_escola" name="id_escola">
+                        <option value="">Nenhuma (Somente Administradores)</option>
+                        @foreach($escolas as $escola)
+                            <option value="{{ $escola->id_escola }}" {{ old('id_escola', $usuario->id_escola) == $escola->id_escola ? 'selected' : '' }}>
+                                {{ $escola->nome }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('id_escola')<span class="error-message">{{ $message }}</span>@enderror
+                </div>
+                <div class="form-group">
                     <label for="data_nascimento">Data de Nascimento</label>
                     <input type="date" id="data_nascimento" name="data_nascimento" value="{{ old('data_nascimento', $usuario->data_nascimento) }}"/>
                     @error('data_nascimento')<span class="error-message">{{ $message }}</span>@enderror

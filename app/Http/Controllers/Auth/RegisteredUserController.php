@@ -3,63 +3,56 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Usuario; 
+use App\Http\Requests\RegisterUserRequest; 
+use App\Models\User;
+use App\Models\Usuario;
+use App\Models\Escola;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Validation\Rule; 
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
     public function create(): View
     {
-        return view('auth.register');
+        $escolas = Escola::orderBy('nome')->get();
+        return view('auth.register', ['escolas' => $escolas]);
     }
 
     /**
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(RegisterUserRequest $request): RedirectResponse
     {
-        $request->validate([
-            'nome_completo' => ['required', 'string', 'max:255'],
-            'username' => ['required', 'string', 'max:80', 'unique:'.Usuario::class],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.Usuario::class],
-            'data_nascimento' => ['nullable', 'date'],
-            'cpf' => ['nullable', 'string', 'max:14', 'unique:'.Usuario::class],
-            'rg' => ['nullable', 'string', 'max:20', 'unique:'.Usuario::class],
-            'rco_siape' => ['nullable', 'string', 'max:50', 'unique:'.Usuario::class],
-            'telefone' => ['nullable', 'string', 'max:20'],
-            'formacao' => ['nullable', 'string', 'max:255'],
-            'area_formacao' => ['nullable', 'string', 'max:255'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        $data = $request->validated();
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
         ]);
 
-        $user = Usuario::create([
-            'nome_completo' => $request->nome_completo,
-            'username' => $request->username,
-            'email' => $request->email,
-            'data_nascimento' => $request->data_nascimento,
-            'cpf' => $request->cpf,
-            'rg' => $request->rg,
-            'telefone' => $request->telefone,
-            'rco_siape' => $request->rco_siape,
-            'formacao' => $request->formacao,
-            'area_formacao' => $request->area_formacao,
-            'password' => Hash::make($request->password),
-            'data_registro' => now(),
+        Usuario::create([
+            'nome_completo' => $data['name'],
+            'email' => $data['email'],
+            'username' => $data['username'],
+            'data_nascimento' => $data['data_nascimento'] ?? null,
+            'cpf' => $data['cpf'] ?? null,
+            'rg' => $data['rg'] ?? null,
+            'rco_siape' => $data['rco_siape'] ?? null,
+            'telefone' => $data['telefone'] ?? null,
+            'formacao' => $data['formacao'] ?? null,
+            'area_formacao' => $data['area_formacao'] ?? null,
+            'tipo_usuario' => $data['tipo_usuario'],
+            'id_escola' => $data['id_escola'],
             'status_aprovacao' => 'pendente', 
-            'tipo_usuario' => 'professor', 
+            'data_registro' => now(),
         ]);
 
         event(new Registered($user));
 
-        return redirect()->route('login')->with('success', 'SUCESSO! Cadastro realizado e aguardando aprovação de um administrador.');
+        return redirect()->route('index');
     }
 }
-

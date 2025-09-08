@@ -17,7 +17,6 @@ class Usuario extends Authenticatable
      *
      * @var array<int, string>
      */
-    // ...
     protected $fillable = [
         'nome_completo',
         'username',
@@ -68,9 +67,14 @@ class Usuario extends Authenticatable
         return $this->hasMany(OfertaComponente::class, 'id_professor', 'id_usuario');
     }
     
-    public function escolaResponsavel()
+    public function escolaOndeEDiretor1()
     {
-        return $this->hasOne(Escola::class, 'id_diretor_responsavel', 'id_usuario');
+        return $this->hasOne(Escola::class, 'id_diretor_1', 'id_usuario');
+    }
+
+    public function escolaOndeEDiretor2()
+    {
+        return $this->hasOne(Escola::class, 'id_diretor_2', 'id_usuario');
     }
 
     public function notificacoes()

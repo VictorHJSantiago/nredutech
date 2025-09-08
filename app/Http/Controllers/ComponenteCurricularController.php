@@ -8,7 +8,7 @@ use App\Http\Resources\ComponenteCurricularResource;
 use App\Models\ComponenteCurricular;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Auth; /
+use Illuminate\Support\Facades\Auth; 
 
 class ComponenteCurricularController extends Controller
 {

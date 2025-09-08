@@ -13,7 +13,7 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $observers = [
-        Usuario::class => [UsuarioObserver::class], // Adicione esta linha
+        Usuario::class => [UsuarioObserver::class], 
     ];
 
 }

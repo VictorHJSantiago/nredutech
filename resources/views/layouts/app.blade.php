@@ -27,6 +27,7 @@
         
         @if ($userType != 'professor') 
           <a href="{{ route('escolas.index') }}" class="nav-item {{ request()->routeIs('escolas.*') ? 'active' : '' }}">🏫 Escolas</a>
+          <a href="{{ route('turmas.index') }}" class="nav-item {{ request()->routeIs('turmas.*') ? 'active' : '' }}">👨‍🎓 Turmas</a>
         @endif
 
         <a href="{{ route('componentes.index') }}" class="nav-item {{ request()->routeIs('componentes.*') ? 'active' : '' }}">📂 Disciplinas</a>
