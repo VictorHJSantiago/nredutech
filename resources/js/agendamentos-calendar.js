@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
         now: new Date(calendarContainer.dataset.now),
     };
 
-    const threeHoursFromNow = new Date(config.now.getTime() + 3 * 60 * 60 * 1000);
+    const tenMinutesFromNow = new Date(config.now.getTime() + 10 * 60 * 1000);
 
     let selectedDate = null;
     let currentEventsOnDay = [];
@@ -62,21 +62,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 start: eventData.dataHoraInicio,
                 end: eventData.dataHoraFim,
                 extendedProps: {
-                    recurso: eventData.recurso,
+                    recurso: eventData.recurso, 
                     oferta: eventData.oferta,
                     usuario: eventData.oferta.professor,
-                    componente: eventData.oferta.componenteCurricular,
+                    componente: eventData.oferta.componente, 
                     turma: eventData.oferta.turma,
                 }
             })
         },
 
-        selectAllow: (selectInfo) => selectInfo.start >= threeHoursFromNow,
-        eventAllow: (dropInfo, draggedEvent) => draggedEvent.start >= threeHoursFromNow,
+        selectAllow: (selectInfo) => selectInfo.start >= tenMinutesFromNow,
+        eventAllow: (dropInfo, draggedEvent) => draggedEvent.start >= tenMinutesFromNow,
 
         dateClick: function(info) {
-            if (info.date < threeHoursFromNow) {
-                Swal.fire('Atenção', 'Não é possível agendar com menos de 3 horas de antecedência.', 'warning');
+            if (info.date < tenMinutesFromNow) {
+                Swal.fire('Atenção', 'Não é possível agendar com menos de 10 minutos de antecedência.', 'warning');
                 return;
             }
             selectedDate = info.date;
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 eventsByResourceId.clear(); 
                 currentEventsOnDay.forEach(event => {
-                    const resourceId = event.extendedProps.recurso.id_recurso;
+                    const resourceId = event.extendedProps.recurso.id; 
                     if (!eventsByResourceId.has(resourceId)) {
                         eventsByResourceId.set(resourceId, []);
                     }
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
         eventClick: function (info) {
             const props = info.event.extendedProps;
             document.getElementById('detailRecurso').textContent = props.recurso.nome;
-            document.getElementById('detailUsuario').textContent = props.usuario.nome_completo;
+            document.getElementById('detailUsuario').textContent = props.usuario.nomeCompleto;
             document.getElementById('detailComponente').textContent = props.componente.nome;
             document.getElementById('detailTurma').textContent = props.turma.serie;
             document.getElementById('detailInicio').textContent = new Date(info.event.start).toLocaleString();
@@ -141,16 +141,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const endIndex = page * RESOURCES_PER_PAGE;
         const paginatedResources = allResources.slice(startIndex, endIndex);
 
-        paginatedResources.forEach(resource => {
+        paginatedResources.forEach(resource => {            
             const resourceBookings = eventsMap.get(resource.id_recurso) || [];
-
             let bookingsHtml = '';
             if (resourceBookings.length > 0) {
                 bookingsHtml = '<ul class="bookings-list">';
                 resourceBookings.forEach(booking => {
                     const startTime = new Date(booking.start).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                     const endTime = new Date(booking.end).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                    const professor = booking.extendedProps.usuario.nome_completo.split(' ')[0];
+                    const professor = booking.extendedProps.usuario.nomeCompleto.split(' ')[0];
                     bookingsHtml += `<li><strong>${startTime} às ${endTime}:</strong> Reservado (${professor})</li>`;
                 });
                 bookingsHtml += '</ul>';
@@ -221,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const bookBtn = e.target.closest('.book-resource-btn');
         if (bookBtn) {
             e.preventDefault();
-            const resourceId = bookBtn.dataset.resourceId;
+            const resourceId = bookBtn.dataset.resourceId; 
             const resourceName = bookBtn.dataset.resourceName;
             openBookingModalForResource(resourceId, resourceName, selectedDate);
             return;
@@ -250,15 +249,12 @@ document.addEventListener('DOMContentLoaded', function () {
         modalLabel.textContent = `Agendar: ${resourceName}`;
         document.getElementById('agendamento_id').value = '';
         deleteButton.style.display = 'none';
-
         const defaultStartTime = new Date(date);
         defaultStartTime.setHours(8, 0, 0, 0);
-        
         const defaultEndTime = new Date(defaultStartTime.getTime() + 60 * 60 * 1000);
-
         document.getElementById('data_hora_inicio').value = formatToDateTimeLocal(defaultStartTime);
         document.getElementById('data_hora_fim').value = formatToDateTimeLocal(defaultEndTime);
-        document.getElementById('id_recurso').value = resourceId;
+        document.getElementById('id_recurso').value = resourceId; 
         agendamentoModal.show();
     }
 
@@ -270,12 +266,18 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
         const id = document.getElementById('agendamento_id').value;
         const data = {
-            id_recurso: document.getElementById('id_recurso').value,
+            id_recurso: document.getElementById('id_recurso').value, 
             id_oferta: document.getElementById('id_oferta').value,
             data_hora_inicio: document.getElementById('data_hora_inicio').value,
             data_hora_fim: document.getElementById('data_hora_fim').value,
             status: document.getElementById('status').value,
         };
+        
+        if (!data.id_recurso) {
+            Swal.fire('Erro!', 'Ocorreu um problema ao selecionar o recurso. Tente novamente.', 'error');
+            return;
+        }
+
         const method = id ? 'PUT' : 'POST';
         const url = id ? `${config.baseUrl}/${id}` : config.baseUrl;
 
@@ -287,7 +289,12 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.ok ? response.json() : response.json().then(err => { throw err; }))
         .then(() => {
             agendamentoModal.hide();
-            calendar.refetchEvents();
+            calendar.refetchEvents(); 
+            
+            if (selectedDate && availabilityContainer.style.display === 'block') {
+                 const currentApi = calendar.getApi ? calendar.getApi() : calendar; 
+                 currentApi.trigger('dateClick', { date: selectedDate });
+            }
             Swal.fire('Sucesso!', 'Agendamento salvo com sucesso.', 'success');
         })
         .catch(error => {
@@ -313,8 +320,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (response.ok) {
                         agendamentoModal.hide();
                         calendar.refetchEvents();
+                        if (selectedDate && availabilityContainer.style.display === 'block') {
+                             const currentApi = calendar.getApi ? calendar.getApi() : calendar;
+                             currentApi.trigger('dateClick', { date: selectedDate });
+                        }
                         Swal.fire('Excluído!', 'O agendamento foi excluído.', 'success');
-                    } else { throw new Error('Falha ao excluir.'); }
+                    } else { 
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Falha ao excluir.');
+                        });
+                     }
                 })
                 .catch(error => Swal.fire('Erro!', error.message, 'error'));
             }

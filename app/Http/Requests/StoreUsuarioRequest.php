@@ -5,6 +5,8 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Usuario; 
 use Illuminate\Validation\Rule; 
+use Illuminate\Validation\Rules\Password; 
+
 
 class StoreUsuarioRequest extends FormRequest
 {
@@ -28,6 +30,7 @@ class StoreUsuarioRequest extends FormRequest
             'area_formacao' => 'nullable|string|max:255',
             'status_aprovacao' => 'required|in:ativo,pendente,bloqueado',
             'tipo_usuario' => 'required|in:administrador,diretor,professor',
+            'password' => ['required', 'confirmed', Password::defaults()],
             'id_escola' => [
                 'nullable',
                 'exists:escolas,id_escola',

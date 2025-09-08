@@ -40,6 +40,74 @@
         </div>
     </div>
 
+    <div class="lists-container">
+                <div class="list-card">
+            <h4>Próximos Recursos Reservados</h4>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Início</th>
+                            <th>Recurso</th>
+                            <th>Professor</th>
+                            <th>Turma</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($reservados as $agendamento)
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($agendamento->data_hora_inicio)->format('d/m/Y H:i') }}</td>
+                                <td>{{ $agendamento->recurso->nome }}</td>
+                                <td>{{ $agendamento->oferta->professor->nome_completo ?? 'N/A' }}</td>
+                                <td>{{ $agendamento->oferta->turma->serie ?? 'N/A' }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center">Nenhum recurso reservado encontrado.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-links">
+                {{ $reservados->links() }}
+            </div>
+        </div>
+
+        <div class="list-card">
+            <h4>Horários Livres Cadastrados</h4>
+             <div class="table-responsive">
+                <table class="table">
+                     <thead>
+                        <tr>
+                            <th>Início</th>
+                            <th>Fim</th>
+                            <th>Recurso</th>
+                            <th>Cadastrado por</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                         @forelse ($disponiveis as $agendamento)
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($agendamento->data_hora_inicio)->format('d/m/Y H:i') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($agendamento->data_hora_fim)->format('d/m/Y H:i') }}</td>
+                                <td>{{ $agendamento->recurso->nome }}</td>
+                                <td>{{ $agendamento->oferta->professor->nome_completo ?? 'N/A' }}</td>
+                            </tr>
+                        @empty
+                             <tr>
+                                <td colspan="4" class="text-center">Nenhum horário livre cadastrado.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-links">
+                 {{ $disponiveis->links() }}
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="agendamentoModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -55,7 +123,7 @@
                             <label for="id_recurso" class="form-label">Recurso</label>
                             <select class="form-select" id="id_recurso"> <option value="" disabled selected>Selecione um recurso</option>
                                 @foreach($recursos as $recurso)
-                                    <option value="{{ $recurso->id_recurso }}">{{ $recurso->nome }}</option>
+                                    <option value="{{ $recurso->id }}">{{ $recurso->nome }}</option>
                                 @endforeach
                             </select>
                         </div>

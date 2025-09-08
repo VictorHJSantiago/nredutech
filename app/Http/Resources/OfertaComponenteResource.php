@@ -13,6 +13,7 @@ class OfertaComponenteResource extends JsonResource
             'id' => $this->id_oferta,
             'turma' => new TurmaResource($this->whenLoaded('turma')),
             'professor' => new UsuarioResource($this->whenLoaded('professor')),
+            // 'componente' => new ComponenteCurricularResource($this->whenLoaded('componente')),
             'componente' => new ComponenteCurricularResource($this->whenLoaded('componenteCurricular')),
             'agendamentos' => AgendamentoResource::collection($this->whenLoaded('agendamentos')),
         ];

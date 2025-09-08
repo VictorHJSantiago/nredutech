@@ -15,33 +15,89 @@
         </div>
     @endif
 
-    <div class="form-actions">
+    <div class="page-actions-container">
         <a href="{{ route('usuarios.create') }}" class="btn-primary">+ Cadastrar Usuário</a>
     </div>
 
     <section class="filter-bar">
         <form action="{{ route('usuarios.index') }}" method="GET" class="filter-form">
-            <input type="text" name="search" placeholder="Buscar por nome ou e-mail..." value="{{ request('search') }}" />
-            <select name="status">
-                <option value="">Todos os Status</option>
-                <option value="ativo" {{ request('status') == 'ativo' ? 'selected' : '' }}>Ativo</option>
-                <option value="pendente" {{ request('status') == 'pendente' ? 'selected' : '' }}>Pendente</option>
-                <option value="bloqueado" {{ request('status') == 'bloqueado' ? 'selected' : '' }}>Bloqueado</option>
-            </select>
-            <button type="submit" class="btn-search">🔍 Filtrar</button>
+            
+            <div class="filter-group search-main">
+                <label for="search">Buscar por Nome ou E-mail</label>
+                <input type="text" id="search" name="search" placeholder="Buscar por nome ou e-mail..." value="{{ request('search') }}" />
+            </div>
+            <div class="filter-group">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="">Todos os Status</option>
+                    <option value="ativo" {{ request('status') == 'ativo' ? 'selected' : '' }}>Ativo</option>
+                    <option value="pendente" {{ request('status') == 'pendente' ? 'selected' : '' }}>Pendente</option>
+                    <option value="bloqueado" {{ request('status') == 'bloqueado' ? 'selected' : '' }}>Bloqueado</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="search_doc">CPF, RG ou Registro</label>
+                <input type="text" id="search_doc" name="search_doc" placeholder="Digite um documento..." value="{{ request('search_doc') }}" />
+            </div>
+            
+            <div class="filter-group">
+                <label for="search_edu">Formação ou Área</label>
+                <input type="text" id="search_edu" name="search_edu" placeholder="Busca por formação..." value="{{ request('search_edu') }}" />
+            </div>
+
+            <div class="filter-group">
+                <label for="search_date">Data (Registro ou Nasc.)</label>
+                <input type="date" id="search_date" name="search_date" value="{{ request('search_date') }}" />
+            </div>
+
+            @if(request('sort_by'))
+                <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+            @endif
+             @if(request('order'))
+                <input type="hidden" name="order" value="{{ request('order') }}">
+            @endif
+            
+            <div class="filter-group search-submit">
+                <label>&nbsp;</label> 
+                <button type="submit" class="btn-search">🔍 Filtrar</button>
+            </div>
         </form>
     </section>
 
-    <section class="table-section">
+    <div class="table-section-wrapper">
         <table class="usuarios-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nome Completo</th>
-                    <th>E-mail</th>
-                    <th>Data de Registro</th>
-                    <th>Tipo</th>
-                    <th>Status</th>
+                    @php
+                        function sort_link($coluna, $titulo, $sortBy, $order) {
+                            $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
+                            $icon = $sortBy == $coluna 
+                                ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
+                                : 'fa-sort';
+                            $isActive = $sortBy == $coluna ? 'active' : '';
+                            $url = route('usuarios.index', array_merge(request()->except(['page']), [
+                                'sort_by' => $coluna,
+                                'order' => $newOrder
+                            ]));
+                            return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                        }
+                    @endphp
+
+                    {!! sort_link('id_usuario', 'ID', $sortBy, $order) !!}
+                    {!! sort_link('nome_completo', 'Nome Completo', $sortBy, $order) !!}
+                    {!! sort_link('email', 'E-mail', $sortBy, $order) !!}
+                    {!! sort_link('data_registro', 'Data Registro', $sortBy, $order) !!}
+                    {!! sort_link('tipo_usuario', 'Tipo', $sortBy, $order) !!}
+                    {!! sort_link('status_aprovacao', 'Status', $sortBy, $order) !!}                   
+                    <th class="hide-on-mobile">Data Nasc.</th>
+                    <th class="hide-on-mobile">CPF</th>
+                    <th class="hide-on-mobile">RG</th>
+                    <th class="hide-on-mobile">Registro</th>
+                    <th class="hide-on-mobile">Telefone</th>
+                    <th class="hide-on-mobile">Formação</th>
+                    <th class="hide-on-mobile">Área</th>
+                    
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -51,7 +107,7 @@
                         <td>{{ $usuario->id_usuario }}</td>
                         <td>{{ $usuario->nome_completo }}</td>
                         <td>{{ $usuario->email }}</td>
-                        <td>{{ \Carbon\Carbon::parse($usuario->data_registro)->format('d/m/Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($usuario->data_registro)->format('d/m/Y H:i') }}</td> 
                         <td>{{ ucfirst($usuario->tipo_usuario) }}</td>
                         <td>
                             @switch($usuario->status_aprovacao)
@@ -66,6 +122,14 @@
                                     @break
                             @endswitch
                         </td>
+                        <td class="hide-on-mobile">{{ $usuario->data_nascimento ? \Carbon\Carbon::parse($usuario->data_nascimento)->format('d/m/Y') : 'N/A' }}</td>
+                        <td class="hide-on-mobile">{{ $usuario->cpf ?? 'N/A' }}</td>
+                        <td class="hide-on-mobile">{{ $usuario->rg ?? 'N/A' }}</td>
+                        <td class="hide-on-mobile">{{ $usuario->rco_siape ?? 'N/A' }}</td>
+                        <td class="hide-on-mobile">{{ $usuario->telefone ?? 'N/A' }}</td>
+                        <td class="hide-on-mobile">{{ $usuario->formacao ?? 'N/A' }}</td>
+                        <td class="hide-on-mobile">{{ $usuario->area_formacao ?? 'N/A' }}</td>
+
                         <td class="acao-cell">
                             @if ($usuario->status_aprovacao == 'pendente')
                                 <form action="{{ route('usuarios.update', $usuario) }}" method="POST" class="d-inline">
@@ -92,14 +156,14 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7">Nenhum usuário encontrado.</td>
+                        <td colspan="15">Nenhum usuário encontrado com os filtros aplicados.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
-        <div class="pagination-links">
-            {{ $usuarios->links() }}
-        </div>
-    </section>
+    </div> 
+    <div class="pagination-container">
+        {{ $usuarios->links() }}
+    </div>
 </div>
 @endsection

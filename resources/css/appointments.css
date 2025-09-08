@@ -11,6 +11,44 @@
     cursor: pointer;
 }
 
+.lists-container {
+     max-width: 900px;
+     margin: 2rem auto 0;
+     display: grid;
+     grid-template-columns: 1fr;
+     gap: 2rem;
+}
+
+.list-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+}
+.list-card h4 {
+    color: var(--azul-principal);
+    margin-bottom: 1rem;
+}
+.pagination-links nav {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+.table {
+    width: 100%;
+    font-size: 0.9rem;
+}
+.table th {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 2px solid #eee;
+}
+ .table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #f4f4f4;
+    vertical-align: middle;
+}
+
 #recurso-select-wrapper {
     display: none;
 }

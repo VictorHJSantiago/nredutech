@@ -8,21 +8,30 @@ use App\Http\Resources\AgendamentoResource;
 use App\Models\Agendamento;
 use App\Models\OfertaComponente;
 use App\Models\RecursoDidatico;
+use App\Models\Usuario; 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth; 
-use App\Models\Turma; 
+use Illuminate\View\View;
 
 class AgendamentoController extends Controller
 {
     /**
+     *
      * @param Request $request
      * @return View|AnonymousResourceCollection
      */
     public function index(Request $request)
     {
+        $authUser = Auth::user();
+        $domainUser = $authUser ? Usuario::where('email', $authUser->email)->first() : null;
+        $escolaId = null;
+
+        if ($domainUser && $domainUser->tipo_usuario !== 'administrador' && $domainUser->id_escola) {
+            $escolaId = $domainUser->id_escola;
+        }
+
         if ($request->wantsJson()) {
             $request->validate([
                 'start' => 'required|date',
@@ -30,6 +39,11 @@ class AgendamentoController extends Controller
             ]);
 
             $query = Agendamento::query()->with(['recurso', 'oferta.turma', 'oferta.professor', 'oferta.componenteCurricular']);
+            if ($escolaId) {
+                $query->whereHas('oferta.turma', function ($q) use ($escolaId) {
+                    $q->where('id_escola', $escolaId);
+                });
+            }
 
             $query->where('data_hora_inicio', '<', $request->end)
                   ->where('data_hora_fim', '>', $request->start);
@@ -38,34 +52,51 @@ class AgendamentoController extends Controller
 
             return AgendamentoResource::collection($agendamentos);
         }
-        $recursos = RecursoDidatico::where('status', 'funcionando')->get();        
-        $usuarioLogado = Auth::user();
-        $ofertasQuery = OfertaComponente::query()->with([
-            'componenteCurricular', 
-            'turma', 
-            'professor'
-        ]);
 
-        if ($usuarioLogado->tipo_usuario === 'professor') {
-            $ofertasQuery->where('id_professor', $usuarioLogado->id_usuario);
+        $recursos = RecursoDidatico::where('status', 'funcionando')->get();
+        $ofertasQuery = OfertaComponente::with(['componenteCurricular', 'turma', 'professor'])
+                        ->whereHas('turma')
+                        ->whereHas('componenteCurricular');
 
-        } elseif ($usuarioLogado->tipo_usuario === 'diretor' && $usuarioLogado->id_escola) {
-            $turmaIdsDaEscola = Turma::where('id_escola', $usuarioLogado->id_escola)->pluck('id_turma');
-            $ofertasQuery->whereIn('id_turma', $turmaIdsDaEscola);
+        if ($escolaId) {
+            $ofertasQuery->whereHas('turma', function ($q) use ($escolaId) {
+                $q->where('id_escola', $escolaId);
+            });
         }
 
-        $ofertas = $ofertasQuery
-                        ->whereHas('turma') 
-                        ->whereHas('componenteCurricular')
-                        ->whereHas('professor')
-                        ->get();
+        $ofertas = $ofertasQuery->get();
+        $reservadosQuery = Agendamento::query()
+            ->with(['recurso', 'oferta.professor', 'oferta.turma'])
+            ->where('status', 'agendado') 
+            ->where('data_hora_inicio', '>=', now())
+            ->orderBy('data_hora_inicio', 'asc');
+
+        $disponiveisQuery = Agendamento::query()
+            ->with(['recurso', 'oferta.professor'])
+            ->where('status', 'livre') 
+            ->where('data_hora_inicio', '>=', now())
+            ->orderBy('data_hora_inicio', 'asc');
+
+        if ($escolaId) {
+            $reservadosQuery->whereHas('oferta.turma', function ($q) use ($escolaId) {
+                $q->where('id_escola', $escolaId);
+            });
+            $disponiveisQuery->whereHas('oferta.turma', function ($q) use ($escolaId) {
+                $q->where('id_escola', $escolaId);
+            });
+        }
+
+        $reservados = $reservadosQuery->paginate(5, ['*'], 'reservados_page');
+        $disponiveis = $disponiveisQuery->paginate(5, ['*'], 'disponiveis_page');
+
         return view('appointments.index', [
             'recursos' => $recursos,
             'ofertas' => $ofertas,
             'now' => now()->toIso8601String(),
+            'reservados' => $reservados,     
+            'disponiveis' => $disponiveis, 
         ]);
     }
-
     public function store(StoreAgendamentoRequest $request): AgendamentoResource
     {
         $agendamento = Agendamento::create($request->validated());
@@ -86,9 +117,31 @@ class AgendamentoController extends Controller
 
     public function destroy(Agendamento $agendamento): JsonResponse
     {
-        if ($agendamento->data_hora_inicio < now()->addHours(3)) {
-            return response()->json(['message' => 'Não é possível excluir agendamentos passados ou muito próximos.'], 403);
+        
+        $agendamento->load('oferta');
+        $professorQueReservouId = $agendamento->oferta->id_professor;
+
+        $authUser = Auth::user(); 
+        $usuarioAtual = Usuario::where('email', $authUser->email)->first(); 
+
+        $podeExcluir = false;
+        if ($usuarioAtual) {
+            if (in_array($usuarioAtual->tipo_usuario, ['administrador', 'diretor'])) {
+                $podeExcluir = true;
+            } 
+            elseif ($usuarioAtual->id_usuario == $professorQueReservouId) {
+                $podeExcluir = true;
+            }
         }
+
+        if (!$podeExcluir) {
+            return response()->json(['message' => 'Você não tem permissão para excluir este agendamento.'], 403);
+        }
+
+        if ($agendamento->data_hora_inicio < now()->addMinutes(10)) {
+            return response()->json(['message' => 'Não é possível excluir agendamentos passados ou faltando menos de 10 minutos.'], 403);
+        }
+
         $agendamento->delete();
         return response()->json(null, 204);
     }

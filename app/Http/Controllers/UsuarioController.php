@@ -10,23 +10,14 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Hash; 
+
 
 class UsuarioController extends Controller
 {
     public function index(Request $request): View
     {
-        $userAutenticado = Auth::user();
-        $perfilUsuarioLogado = Usuario::where('email', $userAutenticado->email)->first();
-
         $query = Usuario::query()->with('escola');
-        if ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'diretor') {
-            $query->where('id_escola', $perfilUsuarioLogado->id_escola);
-        }
-
-        $query->when($request->query('status'), function ($q, $status) {
-            return $q->where('status_aprovacao', $status);
-        });
-
         $query->when($request->query('search'), function ($q, $search) {
             return $q->where(function ($subQ) use ($search) {
                 $subQ->where('nome_completo', 'like', "%{$search}%")
@@ -34,9 +25,49 @@ class UsuarioController extends Controller
             });
         });
         
-        $usuarios = $query->orderBy('nome_completo')->paginate(15)->withQueryString();
+        $query->when($request->query('status'), function ($q, $status) {
+            return $q->where('status_aprovacao', $status);
+        });
 
-        return view('users.index', compact('usuarios'));
+        $query->when($request->query('search_doc'), function ($q, $searchDoc) {
+            return $q->where(function ($subQ) use ($searchDoc) {
+                $subQ->where('cpf', 'like', "%{$searchDoc}%")
+                     ->orWhere('rg', 'like', "%{$searchDoc}%")
+                     ->orWhere('rco_siape', 'like', "%{$searchDoc}%");
+            });
+        });
+        $query->when($request->query('search_edu'), function ($q, $searchEdu) {
+            return $q->where(function ($subQ) use ($searchEdu) {
+                $subQ->where('formacao', 'like', "%{$searchEdu}%")
+                     ->orWhere('area_formacao', 'like', "%{$searchEdu}%");
+            });
+        });
+        $query->when($request->query('search_date'), function ($q, $searchDate) {
+             return $q->where(function ($subQ) use ($searchDate) {
+                $subQ->whereDate('data_registro', $searchDate)
+                     ->orWhereDate('data_nascimento', $searchDate);
+            });
+        });
+
+        $sortBy = $request->query('sort_by', 'nome_completo'); 
+        $order = $request->query('order', 'asc'); 
+
+        $allowedSorts = [
+            'id_usuario', 
+            'nome_completo', 
+            'email', 
+            'data_registro', 
+            'tipo_usuario', 
+            'status_aprovacao'
+        ];
+
+        if (in_array($sortBy, $allowedSorts)) {
+            $query->orderBy($sortBy, $order);
+        } else {
+            $query->orderBy('nome_completo', 'asc'); 
+        }
+        $usuarios = $query->paginate(5)->withQueryString();
+        return view('users.index', compact('usuarios', 'sortBy', 'order'));
     }
 
     public function create(): View
@@ -59,17 +90,11 @@ class UsuarioController extends Controller
      public function store(StoreUsuarioRequest $request): RedirectResponse
     {
         $validatedData = $request->validated();
-        
         $validatedData['data_registro'] = now();
         
-        $userAutenticado = Auth::user();
-        $perfilUsuarioLogado = Usuario::where('email', $userAutenticado->email)->first();
+        $validatedData['password'] = Hash::make($validatedData['password']);
         
-        if ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'diretor') {
-            $validatedData['id_escola'] = $perfilUsuarioLogado->id_escola;
-        }
-        
-        Usuario::create($validatedData);
+        Usuario::create($validatedData); 
 
         return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
     }

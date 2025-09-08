@@ -20,5 +20,6 @@ class UpdateEscolaRequest extends FormRequest
             'id_diretor_responsavel' => 'nullable|exists:usuarios,id_usuario',
             'nivel_ensino' => 'sometimes|required|in:colegio_estadual,escola_tecnica,escola_municipal',
             'tipo' => 'sometimes|required|in:urbana,rural', 
+        ];
     }
 }

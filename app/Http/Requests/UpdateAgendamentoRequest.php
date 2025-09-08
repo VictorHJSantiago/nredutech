@@ -15,7 +15,7 @@ class UpdateAgendamentoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'data_hora_inicio' => ['sometimes', 'required', 'date', 'after:' . now()->addHours(3)->toDateTimeString()],
+            'data_hora_inicio' => ['sometimes', 'required', 'date', 'after:' . now()->addMinutes(10)->toDateTimeString()],
             'data_hora_fim' => 'sometimes|required|date|after:data_hora_inicio',
             'status' => 'sometimes|required|in:agendado,livre',
             'id_recurso' => ['sometimes', 'required', 'exists:recursos_didaticos,id_recurso', $this->regraConflito()],
