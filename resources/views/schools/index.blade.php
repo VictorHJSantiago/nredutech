@@ -63,11 +63,18 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="escola_tipo">Tipo de Escola</label>
-                            <select id="escola_tipo" name="tipo" class="form-control" required>
+                            <label for="escola_nivel_ensino">Nível de Ensino</label>
+                            <select id="escola_nivel_ensino" name="nivel_ensino" class="form-control" required>
                                 <option value="colegio_estadual">Colégio Estadual</option>
                                 <option value="escola_tecnica">Escola Técnica</option>
                                 <option value="escola_municipal">Escola Municipal</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="escola_localizacao">Tipo de Localização</label>
+                            <select id="escola_localizacao" name="tipo" class="form-control" required>
+                                <option value="urbana">Urbana</option>
+                                <option value="rural">Rural</option>
                             </select>
                         </div>
                         <button type="submit" class="button button-primary">Salvar Escola</button>

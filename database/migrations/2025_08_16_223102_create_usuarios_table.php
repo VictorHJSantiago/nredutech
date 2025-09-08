@@ -24,8 +24,7 @@ return new class extends Migration
             $table->string('telefone')->nullable();
             $table->string('formacao')->nullable();
             $table->string('area_formacao')->nullable();
-            $table->date('data_registro')->nullable(); 
-            $table->rememberToken();
+            $table->dateTime('data_registro')->nullable();            $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
         });

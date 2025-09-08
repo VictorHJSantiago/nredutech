@@ -54,6 +54,8 @@ class Usuario extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'data_registro' => 'datetime',
+            'data_nascimento' => 'date',
         ];
     }
     

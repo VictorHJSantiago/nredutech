@@ -107,7 +107,7 @@
                         <td>{{ $usuario->id_usuario }}</td>
                         <td>{{ $usuario->nome_completo }}</td>
                         <td>{{ $usuario->email }}</td>
-                        <td>{{ \Carbon\Carbon::parse($usuario->data_registro)->format('d/m/Y H:i') }}</td> 
+                        <td>{{ \Carbon\Carbon::parse($usuario->data_registro)->format('d/m/Y H:i') }}</td>                       
                         <td>{{ ucfirst($usuario->tipo_usuario) }}</td>
                         <td>
                             @switch($usuario->status_aprovacao)
