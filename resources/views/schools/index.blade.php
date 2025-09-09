@@ -10,13 +10,13 @@
 
     <div class="page-content-schools">
         @if (session('success'))
-            <div class="alert alert-success" style="background-color: #d4edda; color: #155724; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">{{ session('success') }}</div>
+            <div class="alert alert-success">{{ session('success') }}</div>
         @endif
          @if (session('error'))
-            <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">{{ session('error') }}</div>
+            <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
         @if ($errors->any())
-            <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+            <div class="alert alert-danger">
                 <ul>
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -83,86 +83,158 @@
             </div>
         </div>
 
-        <div class="card-grid">
-            <div class="card card-full">
-                <div class="card-header">
-                    <h3>Municípios Cadastrados</h3>
-                </div>
-                <div class="card-body">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th class="actions-header">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($municipios as $municipio)
-                                <tr>
-                                    <td>{{ $municipio->nome }}</td>
-                                    <td class="actions">
-                                        <a href="{{ route('municipios.edit', $municipio->id_municipio) }}" class="button-icon btn-edit" title="Editar">✏️</a>
-                                        <form action="{{ route('municipios.destroy', $municipio->id_municipio) }}" method="POST" onsubmit="return confirm('Tem certeza?');" style="display: inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="2">Nenhum município cadastrado.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+        <div class="card card-full municipios-card-lista">
+            <div class="card-header">
+                <h3>Municípios Cadastrados</h3>
             </div>
-
-            <div class="card card-full">
-                <div class="card-header">
-                    <h3>Escolas Cadastradas</h3>
-                </div>
-                <div class="card-body">
-                    <table class="data-table">
-                        <thead>
+            <div class="card-body">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th class="actions-header">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($municipios as $municipio)
                             <tr>
-                                <th>Nome da Escola</th>
-                                <th>Município</th>
-                                <th>Tipo de Escola</th>
-                                <th>Diretores</th> 
-                                <th class="actions-header">Ações</th>
+                                <td>{{ $municipio->nome }}</td>
+                                <td class="actions">
+                                    <a href="{{ route('municipios.edit', $municipio->id_municipio) }}" class="button-icon btn-edit" title="Editar">✏️</a>
+                                    <form action="{{ route('municipios.destroy', $municipio->id_municipio) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
+                                    </form>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($escolas as $escola)
-                                <tr>
-                                    <td>{{ $escola->nome }}</td>
-                                    <td>{{ $escola->municipio->nome ?? 'N/A' }}</td>
-                                    <td>{{ ucfirst(str_replace('_', ' ', $escola->tipo)) }}</td>
-                                    <td>
-                                        <div style="font-weight: 500;">({{ $escola->usuarios->count() }}/2)</div>
-                                        @forelse($escola->usuarios as $diretor)
-                                            <div>{{ $diretor->nome_completo }}</div>
-                                        @empty
-                                            <span style="color: #888; font-size: 0.9em;">Nenhum</span>
-                                        @endforelse
-                                    </td>
-                                    <td class="actions">
-                                       <a href="{{ route('escolas.edit', $escola->id_escola) }}" class="button-icon btn-edit" title="Editar">✏️</a>
-                                        <form action="{{ route('escolas.destroy', $escola->id_escola) }}" method="POST" onsubmit="return confirm('Tem certeza?');" style="display: inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="5">Nenhuma escola cadastrada.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                        @empty
+                            <tr><td colspan="2">Nenhum município cadastrado.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <section class="filter-bar filter-bar-escolas">
+            <form action="{{ route('escolas.index') }}" method="GET" class="filter-form">
+                
+                <div class="filter-group search-main">
+                    <label for="search_nome">Buscar por Nome da Escola</label>
+                    <input type="text" id="search_nome" name="search_nome" placeholder="Buscar por nome..." value="{{ request('search_nome') }}" />
                 </div>
+
+                <div class="filter-group">
+                    <label for="id_municipio">Filtrar por Município</label>
+                    <select id="id_municipio" name="id_municipio">
+                        <option value="">Todos os Municípios</option>
+                        @foreach ($municipios as $municipio)
+                            <option value="{{ $municipio->id_municipio }}" {{ request('id_municipio') == $municipio->id_municipio ? 'selected' : '' }}>
+                                {{ $municipio->nome }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="nivel_ensino">Nível de Ensino</label>
+                    <select id="nivel_ensino" name="nivel_ensino">
+                        <option value="">Todos</option>
+                        <option value="colegio_estadual" {{ request('nivel_ensino') == 'colegio_estadual' ? 'selected' : '' }}>Colégio Estadual</option>
+                        <option value="escola_tecnica" {{ request('nivel_ensino') == 'escola_tecnica' ? 'selected' : '' }}>Escola Técnica</option>
+                        <option value="escola_municipal" {{ request('nivel_ensino') == 'escola_municipal' ? 'selected' : '' }}>Escola Municipal</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="tipo">Localização</label>
+                    <select id="tipo" name="tipo">
+                        <option value="">Todas</option>
+                        <option value="urbana" {{ request('tipo') == 'urbana' ? 'selected' : '' }}>Urbana</option>
+                        <option value="rural" {{ request('tipo') == 'rural' ? 'selected' : '' }}>Rural</option>
+                    </select>
+                </div>
+
+                @if(request('sort_by'))
+                    <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+                @endif
+                @if(request('order'))
+                    <input type="hidden" name="order" value="{{ request('order') }}">
+                @endif
+                
+                <div class="filter-group search-submit">
+                    <label>&nbsp;</label> 
+                    <button type="submit" class="btn-search">🔍 Filtrar</button>
+                </div>
+            </form>
+        </section>
+
+        <div class="card card-full escolas-card-lista">
+            <div class="card-header">
+                <h3>Escolas Cadastradas</h3>
+            </div>
+            <div class="card-body">
+                @php
+                    function sort_link($coluna, $titulo, $sortBy, $order) {
+                        $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
+                        $icon = $sortBy == $coluna 
+                            ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
+                            : 'fa-sort';
+                        $isActive = $sortBy == $coluna ? 'active' : '';
+                        $url = route('escolas.index', array_merge(request()->except(['page']), [
+                            'sort_by' => $coluna,
+                            'order' => $newOrder
+                        ]));
+                        return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                    }
+                @endphp
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            {!! sort_link('id_escola', 'ID', $sortBy, $order) !!}
+                            {!! sort_link('nome', 'Nome da Escola', $sortBy, $order) !!}
+                            {!! sort_link('municipio.nome', 'Município', $sortBy, $order) !!}
+                            {!! sort_link('tipo', 'Tipo', $sortBy, $order) !!}
+                            <th>Diretores</th> 
+                            <th class="actions-header">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($escolas as $escola)
+                            <tr>
+                                <td>{{ $escola->id_escola }}</td>
+                                <td>{{ $escola->nome }}</td>
+                                <td>{{ $escola->municipio->nome ?? 'N/A' }}</td>
+                                <td>{{ ucfirst(str_replace('_', ' ', $escola->tipo)) }}</td>
+                                <td>
+                                    <div style="font-weight: 500;">({{ $escola->usuarios->count() }}/2)</div>
+                                    @forelse($escola->usuarios as $diretor)
+                                        <div>{{ $diretor->nome_completo }}</div>
+                                    @empty
+                                        <span style="color: #888; font-size: 0.9em;">Nenhum</span>
+                                    @endforelse
+                                </td>
+                                <td class="actions">
+                                   <a href="{{ route('escolas.edit', $escola->id_escola) }}" class="button-icon btn-edit" title="Editar">✏️</a>
+                                    <form action="{{ route('escolas.destroy', $escola->id_escola) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="6">Nenhuma escola encontrada com os filtros aplicados.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+
+                <div class="pagination-container">
+                    {{ $escolas->links() }}
+                </div>
+
             </div>
         </div>
     </div>
 @endsection
-
