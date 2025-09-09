@@ -113,7 +113,7 @@ class ConfiguracoesController extends Controller
     public function runBackup(): StreamedResponse|HttpRedirectResponse
     {
         try {
-            // Garantir que a sessão de confirmação de senha seja esquecida
+            // NOTA PARA CORRIGIR: Garantir que a sessão de confirmação de senha seja esquecida
             request()->session()->forget('auth.password_confirmed_at');
 
             Artisan::call('backup:run', ['--only-db' => true]);
@@ -138,7 +138,7 @@ class ConfiguracoesController extends Controller
 
     public function downloadBackup($filename)
     {
-        //request()->session()->forget(keys: 'auth.password_confirmed_at'); // Esquecer senha ao baixar
+        //NOTA PARA CORRIGIR: request()->session()->forget(keys: 'auth.password_confirmed_at'); // Esquecer senha ao baixar
 
         $disk = Storage::disk($this->backupDisk);
         $fullPath = $this->backupPath . '/' . $filename;

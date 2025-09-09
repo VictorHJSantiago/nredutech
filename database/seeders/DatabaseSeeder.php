@@ -9,10 +9,11 @@ use App\Models\ComponenteCurricular;
 
 class DatabaseSeeder extends Seeder
 {
-    public function run(): void
-    {
-        $this->call([
+        public function run(): void
+        {
+            $this->call([
             AdminUserSeeder::class, 
+            NreIratiSeeder::class, 
         ]);
 
         Usuario::factory(1000)->create();

@@ -39,7 +39,7 @@ class RecursoDidaticoController extends Controller
 
         $query->orderBy($sortBy, $direction);
 
-        $recursos = $query->paginate(15)->withQueryString();
+        $recursos = $query->paginate(5)->withQueryString();
 
         if ($request->wantsJson()) {
             return RecursoDidaticoResource::collection($recursos);
