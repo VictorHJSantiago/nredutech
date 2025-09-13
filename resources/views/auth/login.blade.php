@@ -2,6 +2,10 @@
 
 @section('title', 'Login')
 
+@push('scripts')
+    @vite('resources/js/password-toogle.js')
+@endpush
+
 @section('content')
 
 <div class="box">
@@ -34,13 +38,16 @@
     />
 
     <label for="password">Senha</label>
-    <input
-      type="password"
-      id="password"
-      name="password"
-      placeholder="Digite sua senha"
-      required
-    />
+    <div class="password-wrapper">
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Digite sua senha"
+        required
+      />
+      <i class="fas fa-eye toggle-password"></i>
+    </div>
 
     <button type="submit" class="btn">Entrar</button>
   </form>

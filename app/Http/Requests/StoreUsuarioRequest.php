@@ -3,10 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\Usuario; 
-use Illuminate\Validation\Rule; 
-use Illuminate\Validation\Rules\Password; 
-
+use App\Models\Usuario;
+use App\Rules\RgValido;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class StoreUsuarioRequest extends FormRequest
 {
@@ -21,16 +21,16 @@ class StoreUsuarioRequest extends FormRequest
             'nome_completo' => 'required|string|max:255',
             'username' => 'required|string|max:80|unique:usuarios,username',
             'email' => 'required|email|max:255|unique:usuarios,email',
-            'data_nascimento' => 'nullable|date_format:Y-m-d',
-            'cpf' => 'nullable|string|max:14|unique:usuarios,cpf',
-            'rg' => 'nullable|string|max:20|unique:usuarios,rg',
-            'rco_siape' => 'nullable|string|max:50|unique:usuarios,rco_siape',
-            'telefone' => 'nullable|string|max:20',
-            'formacao' => 'nullable|string|max:255',
-            'area_formacao' => 'nullable|string|max:255',
+            'data_nascimento' => 'required|date_format:Y-m-d',
+            'cpf' => ['required', 'cpf', 'unique:usuarios,cpf'],
+            'rg' => ['required', new RgValido, 'unique:usuarios,rg'],
+            'rco_siape' => 'required|string|max:50|unique:usuarios,rco_siape',
+            'telefone' => 'required|celular_com_ddd',
+            'formacao' => 'required|string|max:255',
+            'area_formacao' => 'required|string|max:255',
             'status_aprovacao' => 'required|in:ativo,pendente,bloqueado',
             'tipo_usuario' => 'required|in:administrador,diretor,professor',
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'password' => ['required', 'confirmed', Password::min(16)->letters()->mixedCase()->numbers()->symbols()->uncompromised(), 'unique:usuarios,password'],
             'id_escola' => [
                 'nullable',
                 'exists:escolas,id_escola',
@@ -53,7 +53,7 @@ class StoreUsuarioRequest extends FormRequest
                         $directorCount = Usuario::where('id_escola', $value)
                                                 ->where('tipo_usuario', 'diretor')
                                                 ->count();
-                        
+
                         if ($directorCount >= 2) {
                             $fail('Esta escola já atingiu o limite de 2 (dois) diretores cadastrados.');
                         }
@@ -62,7 +62,7 @@ class StoreUsuarioRequest extends FormRequest
                         $profCount = Usuario::where('id_escola', $value)
                                             ->where('tipo_usuario', 'professor')
                                             ->count();
-                        
+
                         if ($profCount >= 3) {
                             $fail('Esta escola já atingiu o limite de 3 (três) professores cadastrados.');
                         }

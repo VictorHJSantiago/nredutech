@@ -3,32 +3,31 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
+use Faker\Factory as FakerFactory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Usuario>
- */
 class UsuarioFactory extends Factory
 {
     protected static ?string $password;
 
     public function definition(): array
     {
+        $faker = FakerFactory::create('pt_BR');
+        $nomeCompleto = $faker->name();
+
         return [
-            'nome_completo' => fake()->name(),
-            'username' => fake()->unique()->userName(),
-            'email' => fake()->unique()->safeEmail(),
-            'password' => static::$password ??= Hash::make('password'),
-            'data_nascimento' => fake()->date('Y-m-d', '2000-01-01'),
-            'cpf' => fake()->unique()->numerify('###.###.###-##'),
-            'rg' => fake()->unique()->numerify('1#.###.###-#'),
-            'rco_siape' => fake()->unique()->numerify('SIA#######'),
-            'telefone' => fake()->phoneNumber(),
-            'formacao' => fake()->randomElement(['Licenciatura em Pedagogia', 'Licenciatura em Matemática', 'Licenciatura em História', 'Ciência da Computação']),
-            'area_formacao' => fake()->randomElement(['Ciências Humanas', 'Ciências Exatas', 'Linguagens', 'Ciências da Natureza']),
+            'nome_completo' => $nomeCompleto,
+            'username' => strtolower(str_replace([' ', '.'], '', $nomeCompleto)) . $faker->unique()->randomNumber(5),
+            'email' => $faker->unique()->safeEmail(),
+            'password' => static::$password ??= 'Password@12345678',
+            'data_nascimento' => $faker->date('Y-m-d', '2000-01-01'),
+            'cpf' => $faker->unique()->cpf(false),
+            'rg' => $faker->unique()->rg(false),
+            'rco_siape' => $faker->unique()->numerify('##########'),
+            'telefone' => $faker->unique()->cellphoneNumber(false),
+            'formacao' => $faker->randomElement(['Licenciatura', 'Bacharelado', 'Tecnólogo']),
+            'area_formacao' => $faker->randomElement(['Ciências Humanas', 'Ciências Exatas', 'Ciências Biológicas']),
             'data_registro' => now(),
-            'status_aprovacao' => fake()->randomElement(['ativo', 'pendente', 'bloqueado']),
-            'tipo_usuario' => fake()->randomElement(['professor', 'diretor']), 
+            'status_aprovacao' => 'ativo', // Padrão 'ativo', será sobrescrito pelo Seeder conforme necessário
             'created_at' => now(),
             'updated_at' => now(),
         ];

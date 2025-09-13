@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RegisterUserRequest; 
+use App\Http\Requests\RegisterUserRequest;
 use App\Models\User;
 use App\Models\Usuario;
 use App\Models\Escola;
@@ -38,6 +38,7 @@ class RegisteredUserController extends Controller
             'nome_completo' => $data['name'],
             'email' => $data['email'],
             'username' => $data['username'],
+            'password' => Hash::make($data['password']),
             'data_nascimento' => $data['data_nascimento'] ?? null,
             'cpf' => $data['cpf'] ?? null,
             'rg' => $data['rg'] ?? null,
@@ -47,12 +48,12 @@ class RegisteredUserController extends Controller
             'area_formacao' => $data['area_formacao'] ?? null,
             'tipo_usuario' => $data['tipo_usuario'],
             'id_escola' => $data['id_escola'],
-            'status_aprovacao' => 'pendente', 
+            'status_aprovacao' => 'pendente',
             'data_registro' => now(),
         ]);
 
         event(new Registered($user));
 
-        return redirect()->route('index');
+        return redirect()->route('login')->with('success', 'SUCESSO! Cadastro realizado, aguarde a aprovação por um administrador ou diretor.');
     }
 }

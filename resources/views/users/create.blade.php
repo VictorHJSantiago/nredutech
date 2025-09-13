@@ -23,7 +23,7 @@
                     <input type="text" id="nome_completo" name="nome_completo" placeholder="Digite o nome completo" value="{{ old('nome_completo') }}" required />
                     @error('nome_completo')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
-                
+
                 <div class="form-group">
                     <label for="username">Usuário</label>
                     <input type="text" id="username" name="username" placeholder="Escolha um nome de usuário" value="{{ old('username') }}" required />
@@ -59,46 +59,46 @@
 
                 <div class="form-group">
                     <label for="data_nascimento">Data de Nascimento</label>
-                    <input type="date" id="data_nascimento" name="data_nascimento" value="{{ old('data_nascimento') }}"/>
+                    <input type="date" id="data_nascimento" name="data_nascimento" value="{{ old('data_nascimento') }}" required/>
                     @error('data_nascimento')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
-                
+
                 <div class="form-group">
                     <label for="cpf">CPF</label>
-                    <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" value="{{ old('cpf') }}" />
+                    <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" value="{{ old('cpf') }}" required/>
                     @error('cpf')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label for="rg">RG</label>
-                    <input type="text" id="rg" name="rg" placeholder="Digite o RG" value="{{ old('rg') }}" />
+                    <input type="text" id="rg" name="rg" placeholder="Digite o RG" value="{{ old('rg') }}" required/>
                     @error('rg')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
-                
+
                 <div class="form-group">
                     <label for="rco_siape">Registro (SIAPE ou RCO)</label>
-                    <input type="text" id="rco_siape" name="rco_siape" placeholder="Ex: SIAPE123456" value="{{ old('rco_siape') }}" />
+                    <input type="text" id="rco_siape" name="rco_siape" placeholder="Ex: SIAPE123456" value="{{ old('rco_siape') }}" required/>
                     @error('rco_siape')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label for="telefone">Telefone</label>
-                    <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" value="{{ old('telefone') }}"/>
+                    <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" value="{{ old('telefone') }}" required/>
                     @error('telefone')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label for="formacao">Formação</label>
-                    <input type="text" id="formacao" name="formacao" placeholder="Ex: Licenciatura em Física" value="{{ old('formacao') }}" />
+                    <input type="text" id="formacao" name="formacao" placeholder="Ex: Licenciatura em Física" value="{{ old('formacao') }}" required/>
                     @error('formacao')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label for="area_formacao">Área de Formação</label>
-                    <input type="text" id="area_formacao" name="area_formacao" placeholder="Ex: Ciências Exatas" value="{{ old('area_formacao') }}" />
+                    <input type="text" id="area_formacao" name="area_formacao" placeholder="Ex: Ciências Exatas" value="{{ old('area_formacao') }}" required/>
                     @error('area_formacao')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
-                
+
                 <div class="form-group">
                     <label for="password">Senha</label>
                     <div class="password-wrapper">

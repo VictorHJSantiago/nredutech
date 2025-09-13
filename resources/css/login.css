@@ -74,6 +74,31 @@ body {
   font-size: 1rem;
 }
 
+.password-wrapper {
+    position: relative;
+    display: flex;
+    width: 100%;
+}
+
+.password-wrapper input {
+    flex: 1;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    z-index: 2;
+    transition: color 0.2s;
+}
+
+.toggle-password:hover {
+    color: var(--verde-principal);
+}
+
 .box input[type="text"]::placeholder,
 .box input[type="email"]::placeholder,
 .box input[type="password"]::placeholder {
@@ -136,4 +161,3 @@ body {
   background-color: var(--vermelho-erro-fundo); 
   border-color: var(--vermelho-erro); 
 }
-
