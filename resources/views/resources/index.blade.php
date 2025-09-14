@@ -47,100 +47,27 @@
                 <thead>
                     <tr>
                         @php 
-                            $sortParamsId = ['sort_by' => 'id_recurso', 'direction' => ($currentSortBy == 'id_recurso' && $currentDirection == 'asc') ? 'desc' : 'asc'];
+                            function sort_link($coluna, $titulo, $sortBy, $order) {
+                                $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
+                                $icon = $sortBy == $coluna 
+                                    ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
+                                    : 'fa-sort';
+                                $isActive = $sortBy == $coluna ? 'active' : '';
+                                $url = route('resources.index', array_merge(request()->except(['page']), [
+                                    'sort_by' => $coluna,
+                                    'order' => $newOrder
+                                ]));
+                                return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                            }
                         @endphp
-                        <th>
-                            <a href="{{ route('resources.index', array_merge(request()->query(), $sortParamsId)) }}">
-                                ID
-                                @if($currentSortBy == 'id_recurso')
-                                    <i class="fas fa-sort-{{ $currentDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                @endif
-                            </a>
-                        </th>
-
-                        @php 
-                            $sortParamsNome = ['sort_by' => 'nome', 'direction' => ($currentSortBy == 'nome' && $currentDirection == 'asc') ? 'desc' : 'asc'];
-                        @endphp
-                        <th>
-                            <a href="{{ route('resources.index', array_merge(request()->query(), $sortParamsNome)) }}">
-                                Nome do Item
-                                @if($currentSortBy == 'nome')
-                                    <i class="fas fa-sort-{{ $currentDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                @endif
-                            </a>
-                        </th>
-
-                        @php 
-                            $sortParamsMarca = ['sort_by' => 'marca', 'direction' => ($currentSortBy == 'marca' && $currentDirection == 'asc') ? 'desc' : 'asc'];
-                        @endphp
-                        <th>
-                            <a href="{{ route('resources.index', array_merge(request()->query(), $sortParamsMarca)) }}">
-                                Marca
-                                @if($currentSortBy == 'marca')
-                                    <i class="fas fa-sort-{{ $currentDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                @endif
-                            </a>
-                        </th>
-
-                        @php 
-                            $sortParamsSN = ['sort_by' => 'numero_serie', 'direction' => ($currentSortBy == 'numero_serie' && $currentDirection == 'asc') ? 'desc' : 'asc'];
-                        @endphp
-                        <th>
-                             <a href="{{ route('resources.index', array_merge(request()->query(), $sortParamsSN)) }}">
-                                N.º de Série
-                                @if($currentSortBy == 'numero_serie')
-                                    <i class="fas fa-sort-{{ $currentDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                @endif
-                            </a>
-                        </th>
-
-                        @php 
-                            $sortParamsQtd = ['sort_by' => 'quantidade', 'direction' => ($currentSortBy == 'quantidade' && $currentDirection == 'asc') ? 'desc' : 'asc'];
-                        @endphp
-                        <th>
-                            <a href="{{ route('resources.index', array_merge(request()->query(), $sortParamsQtd)) }}">
-                                Quantidade
-                                @if($currentSortBy == 'quantidade')
-                                    <i class="fas fa-sort-{{ $currentDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                @endif
-                            </a>
-                        </th>
-                        
-                        @php 
-                            $sortParamsTipo = ['sort_by' => 'tipo', 'direction' => ($currentSortBy == 'tipo' && $currentDirection == 'asc') ? 'desc' : 'asc'];
-                        @endphp
-                        <th>
-                            <a href="{{ route('resources.index', array_merge(request()->query(), $sortParamsTipo)) }}">
-                                Tipo
-                                @if($currentSortBy == 'tipo')
-                                    <i class="fas fa-sort-{{ $currentDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                @endif
-                            </a>
-                        </th>
-
-                        @php 
-                            $sortParamsStatus = ['sort_by' => 'status', 'direction' => ($currentSortBy == 'status' && $currentDirection == 'asc') ? 'desc' : 'asc'];
-                        @endphp
-                        <th>
-                            <a href="{{ route('resources.index', array_merge(request()->query(), $sortParamsStatus)) }}">
-                                Status
-                                @if($currentSortBy == 'status')
-                                    <i class="fas fa-sort-{{ $currentDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                @endif
-                            </a>
-                        </th>
-                        
-                        @php
-                            $sortParamsData = ['sort_by' => 'data_aquisicao', 'direction' => ($currentSortBy == 'data_aquisicao' && $currentDirection == 'asc') ? 'desc' : 'asc'];
-                        @endphp
-                        <th>
-                            <a href="{{ route('resources.index', array_merge(request()->query(), $sortParamsData)) }}">
-                                Data de Aquisição
-                                @if($currentSortBy == 'data_aquisicao')
-                                    <i class="fas fa-sort-{{ $currentDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                @endif
-                            </a>
-                        </th>
+                        {!! sort_link('id_recurso', 'ID', $sortBy, $order) !!}
+                        {!! sort_link('nome', 'Nome do Item', $sortBy, $order) !!}
+                        {!! sort_link('marca', 'Marca', $sortBy, $order) !!}
+                        {!! sort_link('numero_serie', 'N.º de Série', $sortBy, $order) !!}
+                        {!! sort_link('quantidade', 'Quantidade', $sortBy, $order) !!}
+                        {!! sort_link('tipo', 'Tipo', $sortBy, $order) !!}
+                        {!! sort_link('status', 'Status', $sortBy, $order) !!}
+                        {!! sort_link('data_aquisicao', 'Data de Aquisição', $sortBy, $order) !!}
                         <th>Ações</th> 
                     </tr>
                 </thead>
@@ -178,4 +105,3 @@
         </section>
     </div>
 @endsection
-

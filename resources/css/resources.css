@@ -1,7 +1,7 @@
 :root {
   --verde-fundo: #deece7;
   --branco-principal: #ffffff;
-  --verde-principal: #005519; 
+  --verde-principal: #005519;
   --azul-principal: #0169b4;
   --verde-secundario: #313a22;
   --vermelho-erro: #d9534f;
@@ -30,6 +30,12 @@
   transform: translateY(-1px);
 }
 
+.form-actions {
+  display: flex;
+  justify-content: center; 
+  margin: 20px 0;         
+}
+
 body {
   font-family: 'Roboto', sans-serif;
   background-color: var(--verde-fundo);
@@ -55,6 +61,77 @@ body {
   margin-bottom: 20px;
 }
 
+.filter-bar {
+    margin-bottom: 25px;
+    background-color: var(--cinza-claro);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--sombra);
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.filter-input-text,
+.filter-select {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: var(--texto-secundario);
+    flex-grow: 1;
+    max-width: 220px;
+}
+
+.filter-select {
+    background-color: var(--branco-principal);
+    cursor: pointer;
+}
+
+.btn-search {
+    background-color: var(--azul-principal);
+    color: var(--branco-principal);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-search:hover {
+    background-color: #004a8c;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .filter-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-input-text,
+  .filter-select,
+  .btn-search {
+      max-width: 100%;
+      margin-bottom: 10px;
+  }
+
+  .filter-form > *:last-child {
+      margin-bottom: 0;
+  }
+}
+
 .table-section {
   max-width: 1000px;
   margin: 0 auto;
@@ -69,6 +146,7 @@ body {
   border-radius: 8px;
   overflow: hidden;
   font-size: 14px;
+  margin-bottom: 20px;
 }
 
 .recursos-table thead {
@@ -181,3 +259,42 @@ body {
     font-size: 0.9em;
 }
 
+.pagination-links .pagination {
+    display: flex;
+    justify-content: center;
+    padding: 15px 0;
+    list-style: none;
+}
+
+.pagination-links .pagination li {
+    margin: 0 5px;
+}
+
+.pagination-links .pagination li a,
+.pagination-links .pagination li span {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--azul-principal);
+    background-color: var(--branco-principal);
+    transition: all 0.2s;
+}
+
+.pagination-links .pagination li.active span {
+    background-color: var(--azul-principal);
+    color: var(--branco-principal);
+    border-color: var(--azul-principal);
+}
+
+.pagination-links .pagination li a:hover:not(.active) {
+    background-color: var(--cinza-claro);
+    border-color: #bbb;
+}
+
+.pagination-links .pagination li.disabled span {
+    color: #ccc;
+    background-color: var(--cinza-claro);
+    cursor: not-allowed;
+}
