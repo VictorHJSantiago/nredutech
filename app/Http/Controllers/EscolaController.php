@@ -8,13 +8,15 @@ use App\Http\Requests\StoreEscolaRequest;
 use App\Http\Requests\UpdateEscolaRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use Illuminate\Http\Request; 
+use Illuminate\Http\Request;
+use App\Models\Usuario;
+use Illuminate\Support\Facades\DB;
 
 class EscolaController extends Controller
 {
     public function index(Request $request): View
     {
-        $allowedSorts = ['id_escola', 'nome', 'nivel_ensino', 'tipo'];
+        $allowedSorts = ['id_escola', 'nome', 'nivel_ensino', 'tipo', 'municipio_nome', 'diretor_nome'];
         $sortBy = $request->query('sort_by', 'nome');
         $order = $request->query('order', 'asc');
 
@@ -24,38 +26,45 @@ class EscolaController extends Controller
         if (!in_array(strtolower($order), ['asc', 'desc'])) {
             $order = 'asc';
         }
-        
-       $query = Escola::query()->with([
-            'municipio', 
+
+        $query = Escola::query()->with([
+            'municipio',
             'usuarios' => fn($q) => $q->where('tipo_usuario', 'diretor')->where('status_aprovacao', 'ativo')
         ]);
 
+        $directorSubQuery = Usuario::select('id_escola', DB::raw('MIN(nome_completo) as diretor_nome'))
+            ->where('tipo_usuario', 'diretor')
+            ->where('status_aprovacao', 'ativo')
+            ->groupBy('id_escola');
+
+        $query->leftJoin('municipios', 'escolas.id_municipio', '=', 'municipios.id_municipio')
+              ->leftJoinSub($directorSubQuery, 'diretores_joined', function ($join) {
+                  $join->on('escolas.id_escola', '=', 'diretores_joined.id_escola');
+              });
+
         $query->when($request->query('search_nome'), function ($q, $search_nome) {
-            return $q->where('nome', 'LIKE', "%{$search_nome}%");
+            return $q->where(function ($subQ) use ($search_nome) {
+                $subQ->where('escolas.nome', 'LIKE', "%{$search_nome}%")
+                     ->orWhere('diretores_joined.diretor_nome', 'LIKE', "%{$search_nome}%");
+            });
         });
 
-        $query->when($request->query('id_municipio'), function ($q, $municipioId) {
-            return $q->where('id_municipio', $municipioId);
-        });
+        $query->when($request->query('id_municipio'), fn($q, $id) => $q->where('escolas.id_municipio', $id));
+        $query->when($request->query('nivel_ensino'), fn($q, $n) => $q->where('escolas.nivel_ensino', $n));
+        $query->when($request->query('tipo'), fn($q, $t) => $q->where('escolas.tipo', $t));
 
-        $query->when($request->query('nivel_ensino'), function ($q, $nivel) {
-            return $q->where('nivel_ensino', $nivel);
-        });
+        $sortColumn = match($sortBy) {
+            'municipio_nome' => 'municipios.nome',
+            'diretor_nome' => 'diretores_joined.diretor_nome',
+            'nome' => 'escolas.nome', 
+            default => 'escolas.' . $sortBy,
+        };
 
-        $query->when($request->query('tipo'), function ($q, $tipo) {
-            return $q->where('tipo', $tipo);
-        });
+        $query->orderBy($sortColumn, $order);
 
-        if ($sortBy === 'municipio.nome') {
-             $query->join('municipios', 'escolas.id_municipio', '=', 'municipios.id_municipio')
-                   ->orderBy('municipios.nome', $order)
-                   ->select('escolas.*'); 
-        } else {
-            $query->orderBy($sortBy, $order);
-        }
-
-        $escolas = $query->paginate(perPage: 5)->withQueryString(); 
+        $escolas = $query->select('escolas.*')->paginate(5)->withQueryString();
         $municipios = Municipio::orderBy('nome')->get();
+        
         return view('schools.index', compact('escolas', 'municipios', 'sortBy', 'order'));
     }
 

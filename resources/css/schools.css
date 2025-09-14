@@ -71,11 +71,12 @@ select.form-control {
     padding-right: 2.5rem;
 }
 
-
-.form-control:focus {
+.form-control:focus,
+.filter-form input:focus,
+.filter-form select:focus {
     border-color: #80bdff;
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    box-shadow: none !important; 
 }
 
 .button {
@@ -86,7 +87,6 @@ select.form-control {
     font-weight: 500;
     text-align: center;
     transition: background-color 0.2s ease;
-
     position: relative;
     z-index: 2;
 }
@@ -106,22 +106,53 @@ select.form-control {
     border-collapse: collapse;
 }
 
-.data-table th,
 .data-table td {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid #dee2e6;
 }
 
-.data-table thead th {
-    background-color: #f8f9fa;
-    font-weight: 500;
-    vertical-align: bottom;
-    border-bottom: 2px solid #dee2e6;
-}
-
 .data-table tbody tr:hover {
     background-color: #f1f3f5;
+}
+
+.data-table thead {
+    background-color: var(--azul-principal);
+}
+
+.data-table thead th {
+    color: var(--branco-principal);
+    font-weight: 500;
+    vertical-align: middle;
+    padding: 0; 
+}
+
+.data-table th a {
+  display: block;
+  padding: 1rem;
+  color: var(--branco-principal);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.data-table th a:hover {
+  background-color: #015a9e;
+}
+
+.data-table th a .sort-icon {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  margin-left: 6px;
+  opacity: 0.6;
+}
+
+.data-table th a.active {
+    font-weight: 700;
+}
+
+.data-table th a.active .sort-icon {
+  opacity: 1;
 }
 
 .actions {
@@ -130,6 +161,7 @@ select.form-control {
 
 .actions-header {
     text-align: left !important;
+    padding: 1rem;
 }
 
 .button-icon {
@@ -161,7 +193,6 @@ select.form-control {
 .btn-delete:hover {
     background-color: #c82333;
 }
-
 
 .alert.alert-success {
     background-color: #d4edda;

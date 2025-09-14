@@ -120,8 +120,8 @@
             <form action="{{ route('escolas.index') }}" method="GET" class="filter-form">
                 
                 <div class="filter-group search-main">
-                    <label for="search_nome">Buscar por Nome da Escola</label>
-                    <input type="text" id="search_nome" name="search_nome" placeholder="Buscar por nome..." value="{{ request('search_nome') }}" />
+                    <label for="search_nome">Buscar por Nome da Escola ou Diretor</label>
+                    <input type="text" id="search_nome" name="search_nome" placeholder="Buscar por nome de escola ou diretor..." value="{{ request('search_nome') }}" />
                 </div>
 
                 <div class="filter-group">
@@ -194,9 +194,9 @@
                         <tr>
                             {!! sort_link('id_escola', 'ID', $sortBy, $order) !!}
                             {!! sort_link('nome', 'Nome da Escola', $sortBy, $order) !!}
-                            {!! sort_link('municipio.nome', 'Município', $sortBy, $order) !!}
+                            {!! sort_link('municipio_nome', 'Município', $sortBy, $order) !!}
                             {!! sort_link('tipo', 'Tipo', $sortBy, $order) !!}
-                            <th>Diretores</th> 
+                            {!! sort_link('diretor_nome', 'Diretores', $sortBy, $order) !!} 
                             <th class="actions-header">Ações</th>
                         </tr>
                     </thead>
@@ -249,4 +249,3 @@
         </div>
     </div>
 @endsection
-
