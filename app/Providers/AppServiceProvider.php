@@ -5,6 +5,9 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Faker\Generator as FakerGenerator;
 use Faker\Factory as FakerFactory;
+use Illuminate\Support\Facades\View; 
+use Illuminate\Support\Facades\Auth;  
+use App\Models\Notificacao;           
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,5 +25,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        View::composer('layouts.app', function ($view) {
+            $unreadCount = 0;
+            if (Auth::check()) {
+                $unreadCount = Notificacao::where('id_usuario', Auth::id())
+                                          ->where('status_mensagem', 'enviada')
+                                          ->count();
+            }
+            $view->with('unreadNotificationsCount', $unreadCount);
+        });
     }
 }

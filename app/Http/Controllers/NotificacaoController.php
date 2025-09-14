@@ -2,64 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreNotificacaoRequest;
 use App\Http\Requests\UpdateNotificacaoRequest;
 use App\Http\Resources\NotificacaoResource;
 use App\Models\Notificacao;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class NotificacaoController extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): View
     {
-        // $query = Notificacao::query()->where('id_usuario', auth()->id());
-        $query = Notificacao::query()->with(['usuario', 'agendamento']);
-
-        $query->when($request->query('status'), function ($q, $status) {
-            return $q->where('status_mensagem', $status);
-        });
-
-        $notificacoes = $query->latest('data_envio')->paginate(15);
-
-        return NotificacaoResource::collection($notificacoes);
-    }
-
-    public function store(StoreNotificacaoRequest $request): NotificacaoResource
-    {
-        $validatedData = $request->validated();
-        $validatedData['data_envio'] = now();
+        $user = Auth::user();
+        $notificacoes = Notificacao::where('id_usuario', $user->id_usuario)
+                                    ->latest('data_envio')
+                                    ->paginate(15);
         
-        $notificacao = Notificacao::create($validatedData);
+        Notificacao::where('id_usuario', $user->id_usuario)
+                 ->where('status_mensagem', 'enviada')
+                 ->update(['status_mensagem' => 'lida']);
 
-        return new NotificacaoResource($notificacao->load(['usuario', 'agendamento']));
-    }
-
-    public function show(Notificacao $notificacao): NotificacaoResource
-    {
-        return new NotificacaoResource($notificacao->load(['usuario', 'agendamento']));
+        return view('notifications.index', compact('notificacoes'));
     }
 
     public function update(UpdateNotificacaoRequest $request, Notificacao $notificacao): NotificacaoResource
     {
         $notificacao->update($request->validated());
-
-        return new NotificacaoResource($notificacao->fresh());
-    }
-
-    public function marcarComoLida(Notificacao $notificacao): NotificacaoResource
-    {
-        // $this->authorize('update', $notificacao);
-
-        $notificacao->update(['status_mensagem' => 'lida']);
         return new NotificacaoResource($notificacao->fresh());
     }
 
     public function destroy(Notificacao $notificacao): JsonResponse
     {
         $notificacao->delete();
-
         return response()->json(null, 204);
     }
 }

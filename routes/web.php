@@ -12,11 +12,14 @@ use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ConfiguracoesController;
 use App\Http\Controllers\ProfileController;
-
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\NotificacaoController; 
 
 Route::middleware(['auth'])->group(function () {
+
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::get('/dashboard', fn() => redirect()->route('index'))->name('dashboard');
+    Route::get('/notifications', [NotificacaoController::class, 'index'])->name('notifications.index');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -29,6 +32,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/settings/backup/download/{filename}', [ConfiguracoesController::class, 'downloadBackup'])->name('settings.backup.download');
         Route::post('/settings/backup/restore', [ConfiguracoesController::class, 'uploadAndRestore'])->name('settings.backup.restore');
     });
+        
 
     Route::resource('agendamentos', AgendamentoController::class);
     Route::resource('componentes', ComponenteCurricularController::class);

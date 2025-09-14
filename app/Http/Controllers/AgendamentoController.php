@@ -38,7 +38,11 @@ class AgendamentoController extends Controller
                 'end' => 'required|date|after_or_equal:start',
             ]);
 
-            $query = Agendamento::query()->with(['recurso', 'oferta.turma', 'oferta.professor', 'oferta.componenteCurricular']);
+            $query = Agendamento::query()
+                ->with(['recurso', 'oferta.turma', 'oferta.professor', 'oferta.componenteCurricular'])
+                ->whereHas('recurso') 
+                ->whereHas('oferta.turma'); 
+
             if ($escolaId) {
                 $query->whereHas('oferta.turma', function ($q) use ($escolaId) {
                     $q->where('id_escola', $escolaId);

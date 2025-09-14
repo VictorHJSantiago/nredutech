@@ -14,6 +14,7 @@ return new class extends Migration
             $table->text('descricao')->nullable();
             $table->string('carga_horaria');
             $table->enum('status', ['pendente', 'aprovado', 'reprovado'])->default('pendente');
+            $table->foreignId('id_usuario_criador')->nullable()->constrained('usuarios', 'id_usuario')->onDelete('set null');            
             $table->timestamps(); 
         });
     }

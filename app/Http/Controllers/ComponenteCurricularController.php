@@ -4,18 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreComponenteCurricularRequest;
 use App\Http\Requests\UpdateComponenteCurricularRequest;
-use App\Http\Resources\ComponenteCurricularResource;
 use App\Models\ComponenteCurricular;
+use App\Models\Notificacao; 
+use App\Models\Usuario;     
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Auth; 
-use Illuminate\Http\Request; 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ComponenteCurricularController extends Controller
 {
     public function index(Request $request) 
     {        
-        $query = ComponenteCurricular::query();
+        $query = ComponenteCurricular::query()->with('criador');
+
         $query->when($request->query('search_text'), function ($q, $searchText) {
             return $q->where(function ($subQ) use ($searchText) {
                 $subQ->where('nome', 'LIKE', "%{$searchText}%")
@@ -56,39 +58,53 @@ class ComponenteCurricularController extends Controller
         return view('disciplines.create');
     }
 
+    public function store(StoreComponenteCurricularRequest $request)
+    {
+        $validatedData = $request->validated();
+        $user = Auth::user();
+
+        $validatedData['id_usuario_criador'] = $user->id_usuario;
+        
+        if ($user->tipo_usuario !== 'administrador') {
+            $validatedData['status'] = 'pendente';
+        }
+
+        $componente = ComponenteCurricular::create($validatedData);
+
+        if ($componente->status === 'pendente') {
+            $usersToNotify = Usuario::whereIn('tipo_usuario', ['administrador', 'diretor'])->get();
+            foreach ($usersToNotify as $userToNotify) {
+                Notificacao::create([
+                    'titulo' => 'Nova Disciplina para Aprovação',
+                    'mensagem' => "A disciplina '{$componente->nome}' foi cadastrada por {$user->nome_completo} e aguarda aprovação.",
+                    'data_envio' => now(),
+                    'status_mensagem' => 'enviada',
+                    'id_usuario' => $userToNotify->id_usuario,
+                ]);
+            }
+        }
+        $successMessage = 'Disciplina cadastrada com sucesso!';
+        if ($user->tipo_usuario !== 'administrador') {
+            $successMessage .= ' Aguardando aprovação.';
+        }
+
+        return redirect()->route('componentes.index')->with('success', $successMessage);
+    }
+    
     public function edit(ComponenteCurricular $componente) 
     {
         return view('disciplines.edit', ['componenteCurricular' => $componente]);
     }
 
-    public function store(StoreComponenteCurricularRequest $request)
-    {
-        $validatedData = $request->validated();
-        if (Auth::user()->tipo_usuario === 'professor') {
-            $validatedData['status'] = 'pendente';
-        }
-
-        ComponenteCurricular::create($validatedData);
-
-        return redirect()->route('componentes.index')->with('success', 'Disciplina cadastrada com sucesso! Aguardando aprovação se necessário.');
-    }
-
-    public function show(ComponenteCurricular $componenteCurricular): ComponenteCurricularResource
-    {
-        return new ComponenteCurricularResource($componenteCurricular);
-    }
-
     public function update(UpdateComponenteCurricularRequest $request, ComponenteCurricular $componente)
     {
         $componente->update($request->validated());
-
         return redirect()->route('componentes.index')->with('success', 'Disciplina atualizada com sucesso!');
     }
 
     public function destroy(ComponenteCurricular $componente): JsonResponse
     {
         $componente->delete();
-
         return response()->json(null, 204);
     }
 }
