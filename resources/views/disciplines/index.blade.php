@@ -20,6 +20,40 @@
         </div>
 
         <section class="filter-bar" style="max-width: 1100px; margin-left: auto; margin-right: auto;">
+            <form action="{{ route('componentes.index') }}" method="GET" class="filter-form">
+                
+                <div class="filter-group search-main">
+                    <label for="search_text">Buscar por Nome ou Descrição</label>
+                    <input type="text" id="search_text" name="search_text" placeholder="Buscar por nome ou descrição..." value="{{ request('search_text') }}" />
+                </div>
+
+                <div class="filter-group">
+                    <label for="search_carga">Carga Horária</label>
+                    <input type="text" id="search_carga" name="search_carga" placeholder="Buscar carga horária (Ex: 60h)" value="{{ request('search_carga') }}" />
+                </div>
+
+                <div class="filter-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="">Todos os Status</option>
+                        <option value="aprovado" {{ request('status') == 'aprovado' ? 'selected' : '' }}>Aprovado</option>
+                        <option value="pendente" {{ request('status') == 'pendente' ? 'selected' : '' }}>Pendente</option>
+                        <option value="reprovado" {{ request('status') == 'reprovado' ? 'selected' : '' }}>Reprovado</option>
+                    </select>
+                </div>
+
+                @if(request('sort_by'))
+                    <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+                @endif
+                @if(request('order'))
+                    <input type="hidden" name="order" value="{{ request('order') }}">
+                @endif
+                
+                <div class="filter-group search-submit">
+                    <label>&nbsp;</label> 
+                    <button type="submit" class="btn-search">🔍 Filtrar</button>
+                </div>
+            </form>
         </section>
 
         <div class="table-section-wrapper" style="max-width: 1100px; margin-left: auto; margin-right: auto;">
@@ -43,6 +77,7 @@
 
                         {!! sort_link('id_componente', 'ID', $sortBy, $order) !!}
                         {!! sort_link('nome', 'Nome', $sortBy, $order) !!}
+                        <th>Descrição</th>
                         <th>Cadastrado por</th>
                         {!! sort_link('carga_horaria', 'Carga Horária', $sortBy, $order) !!}
                         {!! sort_link('status', 'Status', $sortBy, $order) !!}
@@ -54,6 +89,7 @@
                         <tr>
                             <td>{{ $componente->id_componente }}</td>
                             <td>{{ $componente->nome }}</td>
+                            <td class="description-cell">{{ Str::limit($componente->descricao, 80) }}</td>
                             <td>{{ $componente->criador->nome_completo ?? 'Usuário removido' }}</td>
                             <td>{{ $componente->carga_horaria }}</td>
                             <td><span class="status-{{ \Illuminate\Support\Str::slug($componente->status) }}">{{ ucfirst($componente->status) }}</span></td>
@@ -84,7 +120,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6">Nenhuma disciplina encontrada com os filtros aplicados.</td>
+                            <td colspan="7">Nenhuma disciplina encontrada com os filtros aplicados.</td>
                         </tr>
                     @endforelse
                 </tbody>
