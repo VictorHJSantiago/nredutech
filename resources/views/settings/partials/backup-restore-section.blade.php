@@ -1,3 +1,4 @@
+@if(Auth::user()->tipo_usuario === 'administrador')
 <section class="settings-card backup-restore-section">
     <div class="card-header">
         <h2 class="section-title">Backup e Restauração</h2>
@@ -29,8 +30,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('settings.backup.run') }}">            
-            @csrf
+        <form method="GET" action="{{ route('settings.backup.initiate') }}" class="mb-4">
             <p class="help-text">
                 Clique no botão abaixo para gerar um backup instantâneo <strong>apenas do banco de dados</strong>.
             </p>
@@ -43,7 +43,7 @@
             @csrf
             <h3 class="section-subtitle-sm">Restaurar de um Arquivo</h3>
             <p class="help-text">
-                Envie um arquivo <code>.sql</code> para restaurar o banco de dados.
+                Envie um arquivo <code>.sql</code> para restaurar o banco de dados. A senha será solicitada para confirmar.
                 <br>
                 <strong>Nota:</strong> Se você baixou um backup <code>.zip</code>, você deve <strong>extrair o arquivo <code>.sql</code></strong> de dentro dele primeiro (geralmente fica numa pasta <code>db-dumps</code>).
             </p>
@@ -95,3 +95,4 @@
         </div>
     </div>
 </section>
+@endif

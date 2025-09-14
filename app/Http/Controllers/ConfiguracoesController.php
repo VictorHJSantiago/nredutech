@@ -19,7 +19,7 @@ use Illuminate\Http\RedirectResponse as HttpRedirectResponse;
 
 class ConfiguracoesController extends Controller
 {
-    private $backupDisk = 'local';  
+    private $backupDisk = 'backups';  
     private $backupPath; 
 
     public function __construct()
@@ -50,7 +50,9 @@ class ConfiguracoesController extends Controller
                     'name' => basename($file),
                     'size_raw' => $disk->size($file),
                     'size' => $this->formatBytes($disk->size($file)),
-                    'date' => Carbon::createFromTimestamp($disk->lastModified($file))->format('d/m/Y H:i:s'),
+                    'date' => Carbon::createFromTimestamp($disk->lastModified($file))
+                                    ->setTimezone('America/Sao_Paulo')
+                                    ->format('d/m/Y H:i:s'),
                 ];
             })
             ->values() 
@@ -85,7 +87,7 @@ class ConfiguracoesController extends Controller
 
     private function findLatestBackupFile(): ?string
     {
-        $disk = Storage::disk('local'); 
+        $disk = Storage::disk($this->backupDisk);
         $backupDirectory = $this->backupPath;
         
         $allBackups = $disk->exists($backupDirectory) ? $disk->files($backupDirectory) : [];
@@ -110,36 +112,46 @@ class ConfiguracoesController extends Controller
         return $latestFile;
     }
 
-    public function runBackup(): StreamedResponse|HttpRedirectResponse
+    public function initiateBackup(Request $request): HttpRedirectResponse
     {
         try {
-            // NOTA PARA CORRIGIR: Garantir que a sessão de confirmação de senha seja esquecida
-            request()->session()->forget('auth.password_confirmed_at');
+            $request->session()->forget('auth.password_confirmed_at');
 
             Artisan::call('backup:run', ['--only-db' => true]);
 
-            $latestBackupPath = $this->findLatestBackupFile();
+            $latestBackup = $this->findLatestBackupFile();
 
-            if (!$latestBackupPath) {
-                 Log::error('Backup Artisan executado, mas findLatestBackupFile() não encontrou nenhum arquivo.');
+            if (!$latestBackup) {
+                 Log::error('Backup Artisan executado, mas nenhum arquivo foi encontrado.');
                  return redirect()->route('settings')->with('error', 'Nenhum arquivo de backup encontrado após a execução.');
             }
 
-            Log::info('Backup criado no servidor (' . $latestBackupPath . ') e download iniciado pelo usuário.');
-            return Storage::disk('local')->download($latestBackupPath);
+            return redirect()->route('settings')
+                ->with('success', 'BACKUP REALIZADO COM SUCESSO!')
+                ->with('download_backup_url', route('settings.backup.download.latest'));
 
         } catch (\Exception $e) {
-            request()->session()->forget('auth.password_confirmed_at');
-            $message = 'Ocorreu um erro ao tentar realizar e baixar o backup.';
+            $message = 'Ocorreu um erro ao tentar realizar o backup.';
             Log::error($message . ' Erro: ' . $e->getMessage());
             return redirect()->route('settings')->with('error', $message);
         }
     }
 
-    public function downloadBackup($filename)
+    public function downloadLatestBackup(): StreamedResponse|HttpRedirectResponse
     {
-        //NOTA PARA CORRIGIR: request()->session()->forget(keys: 'auth.password_confirmed_at'); // Esquecer senha ao baixar
+        $latestBackupPath = $this->findLatestBackupFile();
 
+        if (!$latestBackupPath) {
+             abort(404, 'Nenhum arquivo de backup recente encontrado para download.');
+        }
+
+        return Storage::disk($this->backupDisk)->download($latestBackupPath);
+    }
+
+    public function downloadBackup(Request $request, $filename)
+    {
+        $request->session()->forget('auth.password_confirmed_at');
+        
         $disk = Storage::disk($this->backupDisk);
         $fullPath = $this->backupPath . '/' . $filename;
 

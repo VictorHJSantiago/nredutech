@@ -56,7 +56,7 @@ class EscolaController extends Controller
         $sortColumn = match($sortBy) {
             'municipio_nome' => 'municipios.nome',
             'diretor_nome' => 'diretores_joined.diretor_nome',
-            'nome' => 'escolas.nome', 
+            'nome' => 'escolas.nome',
             default => 'escolas.' . $sortBy,
         };
 

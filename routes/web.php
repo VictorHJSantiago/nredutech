@@ -27,8 +27,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/settings', [ConfiguracoesController::class, 'index'])->name('settings');
     Route::patch('/settings/preferences', [ConfiguracoesController::class, 'updatePreferences'])->name('settings.preferences.update');
+    
+    Route::get('/settings/backup/initiate', [ConfiguracoesController::class, 'initiateBackup'])->name('settings.backup.initiate')->middleware('password.confirm');
+    Route::get('/settings/backup/download/latest', [ConfiguracoesController::class, 'downloadLatestBackup'])->name('settings.backup.download.latest');
+
     Route::middleware(['password.confirm'])->group(function () {
-        Route::post('/settings/backup', [ConfiguracoesController::class, 'runBackup'])->name('settings.backup.run');
         Route::get('/settings/backup/download/{filename}', [ConfiguracoesController::class, 'downloadBackup'])->name('settings.backup.download');
         Route::post('/settings/backup/restore', [ConfiguracoesController::class, 'uploadAndRestore'])->name('settings.backup.restore');
     });

@@ -12,7 +12,7 @@
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
-         @if (session('error'))
+        @if (session('error'))
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
         @if ($errors->any())
@@ -35,7 +35,8 @@
                         @csrf
                         <div class="form-group">
                             <label for="municipio_nome">Nome do Município</label>
-                            <input type="text" id="municipio_nome" name="nome" class="form-control" placeholder="Ex: Curitiba" required>
+                            <input type="text" id="municipio_nome" name="nome" class="form-control"
+                                placeholder="Ex: Curitiba" required>
                         </div>
                         <button type="submit" class="button button-primary">Salvar Município</button>
                     </form>
@@ -51,7 +52,8 @@
                         @csrf
                         <div class="form-group">
                             <label for="escola_nome">Nome da Escola</label>
-                            <input type="text" id="escola_nome" name="nome" class="form-control" placeholder="Ex: Escola Estadual NREduTech" required>
+                            <input type="text" id="escola_nome" name="nome" class="form-control"
+                                placeholder="Ex: Escola Estadual NREduTech" required>
                         </div>
                         <div class="form-group">
                             <label for="escola_municipio">Município</label>
@@ -100,8 +102,10 @@
                             <tr>
                                 <td>{{ $municipio->nome }}</td>
                                 <td class="actions">
-                                    <a href="{{ route('municipios.edit', $municipio->id_municipio) }}" class="button-icon btn-edit" title="Editar">✏️</a>
-                                    <form action="{{ route('municipios.destroy', $municipio->id_municipio) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                                    <a href="{{ route('municipios.edit', $municipio->id_municipio) }}"
+                                        class="button-icon btn-edit" title="Editar">✏️</a>
+                                    <form action="{{ route('municipios.destroy', $municipio->id_municipio) }}" method="POST"
+                                        onsubmit="return confirm('Tem certeza?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
@@ -109,7 +113,9 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="2">Nenhum município cadastrado.</td></tr>
+                            <tr>
+                                <td colspan="2">Nenhum município cadastrado.</td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -118,10 +124,11 @@
 
         <section class="filter-bar filter-bar-escolas">
             <form action="{{ route('escolas.index') }}" method="GET" class="filter-form">
-                
+
                 <div class="filter-group search-main">
                     <label for="search_nome">Buscar por Nome da Escola ou Diretor</label>
-                    <input type="text" id="search_nome" name="search_nome" placeholder="Buscar por nome de escola ou diretor..." value="{{ request('search_nome') }}" />
+                    <input type="text" id="search_nome" name="search_nome"
+                        placeholder="Buscar por nome de escola ou diretor..." value="{{ request('search_nome') }}" />
                 </div>
 
                 <div class="filter-group">
@@ -141,7 +148,8 @@
                     <select id="nivel_ensino" name="nivel_ensino">
                         <option value="">Todos</option>
                         <option value="colegio_estadual" {{ request('nivel_ensino') == 'colegio_estadual' ? 'selected' : '' }}>Colégio Estadual</option>
-                        <option value="escola_tecnica" {{ request('nivel_ensino') == 'escola_tecnica' ? 'selected' : '' }}>Escola Técnica</option>
+                        <option value="escola_tecnica" {{ request('nivel_ensino') == 'escola_tecnica' ? 'selected' : '' }}>
+                            Escola Técnica</option>
                         <option value="escola_municipal" {{ request('nivel_ensino') == 'escola_municipal' ? 'selected' : '' }}>Escola Municipal</option>
                     </select>
                 </div>
@@ -161,9 +169,9 @@
                 @if(request('order'))
                     <input type="hidden" name="order" value="{{ request('order') }}">
                 @endif
-                
+
                 <div class="filter-group search-submit">
-                    <label>&nbsp;</label> 
+                    <label>&nbsp;</label>
                     <button type="submit" class="btn-search">🔍 Filtrar</button>
                 </div>
             </form>
@@ -175,9 +183,10 @@
             </div>
             <div class="card-body">
                 @php
-                    function sort_link($coluna, $titulo, $sortBy, $order) {
+                    function sort_link($coluna, $titulo, $sortBy, $order)
+                    {
                         $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
-                        $icon = $sortBy == $coluna 
+                        $icon = $sortBy == $coluna
                             ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
                             : 'fa-sort';
                         $isActive = $sortBy == $coluna ? 'active' : '';
@@ -196,7 +205,7 @@
                             {!! sort_link('nome', 'Nome da Escola', $sortBy, $order) !!}
                             {!! sort_link('municipio_nome', 'Município', $sortBy, $order) !!}
                             {!! sort_link('tipo', 'Tipo', $sortBy, $order) !!}
-                            {!! sort_link('diretor_nome', 'Diretores', $sortBy, $order) !!} 
+                            {!! sort_link('diretor_nome', 'Diretores', $sortBy, $order) !!}
                             <th class="actions-header">Ações</th>
                         </tr>
                     </thead>
@@ -227,8 +236,10 @@
                                     @endforelse
                                 </td>
                                 <td class="actions">
-                                   <a href="{{ route('escolas.edit', $escola->id_escola) }}" class="button-icon btn-edit" title="Editar">✏️</a>
-                                    <form action="{{ route('escolas.destroy', $escola->id_escola) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                                    <a href="{{ route('escolas.edit', $escola->id_escola) }}" class="button-icon btn-edit"
+                                        title="Editar">✏️</a>
+                                    <form action="{{ route('escolas.destroy', $escola->id_escola) }}" method="POST"
+                                        onsubmit="return confirm('Tem certeza?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
@@ -236,7 +247,9 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6">Nenhuma escola encontrada com os filtros aplicados.</td></tr>
+                            <tr>
+                                <td colspan="6">Nenhuma escola encontrada com os filtros aplicados.</td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
