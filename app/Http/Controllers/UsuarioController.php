@@ -58,7 +58,14 @@ class UsuarioController extends Controller
             'email', 
             'data_registro', 
             'tipo_usuario', 
-            'status_aprovacao'
+            'status_aprovacao',
+            'data_nascimento',
+            'cpf',
+            'rg',
+            'rco_siape',
+            'telefone',
+            'formacao',
+            'area_formacao'
         ];
 
         if (in_array($sortBy, $allowedSorts)) {

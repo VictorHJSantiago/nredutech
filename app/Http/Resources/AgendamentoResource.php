@@ -16,7 +16,6 @@ class AgendamentoResource extends JsonResource
             'status' => $this->status,
             'recurso' => new RecursoDidaticoResource($this->whenLoaded('recurso')),
             'oferta' => new OfertaComponenteResource($this->whenLoaded('oferta')),
-            'notificacao' => new NotificacaoResource($this->whenLoaded('notificacao')),
         ];
     }
 }

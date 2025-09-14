@@ -1,8 +1,7 @@
-
 :root {
   --verde-fundo: #deece7;
   --branco-principal: #ffffff;
-  --verde-principal: #5fb13b;
+  --verde-principal: #005519; 
   --azul-principal: #0169b4;
   --verde-secundario: #313a22;
   --vermelho-erro: #d9534f;
@@ -10,6 +9,7 @@
   --cinza-escuro: #888888;
   --texto-secundario: #555555;
   --sombra: rgba(0, 0, 0, 0.1);
+  --amarelo-aviso: #ffc107;
 }
 
 .btn-primary {
@@ -87,7 +87,7 @@ body {
 }
 
 .recursos-table tbody tr:hover {
-  background-color: rgba(91, 177, 59, 0.1);
+  background-color: rgba(21, 128, 61, 0.1);
   transition: background 0.2s;
 }
 
@@ -97,17 +97,31 @@ body {
   color: var(--texto-secundario);
 }
 
-.recursos-table .status-funcionando {
-  color: green;
-  font-weight: bold;
+.status-funcionando,
+.status-em-manutencao,
+.status-quebrado,
+.status-descartado {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--branco-principal);
+  text-align: center;
+  display: inline-block;
 }
-.recursos-table .status-quebrado {
-  color: var(--vermelho-erro);
-  font-weight: bold;
+
+.status-funcionando {
+  background-color: var(--verde-principal);
 }
-.recursos-table .status-descartado {
-  color: var(--cinza-escuro);
-  font-weight: bold;
+.status-em-manutencao {
+  background-color: var(--amarelo-aviso);
+  color: #333;
+}
+.status-quebrado {
+  background-color: var(--vermelho-erro);
+}
+.status-descartado {
+  background-color: var(--cinza-escuro);
 }
 
 .btn-edit,
@@ -166,3 +180,4 @@ body {
     margin-left: 6px;
     font-size: 0.9em;
 }
+

@@ -8,19 +8,19 @@
             <div class="card-header">
                 <h3 class="card-title" style="text-align: center; font-size: 1.5rem; color: #0169b4;">📅 Calendário de Agendamentos</h3>
             </div>
-            <div class="card-body" 
+            <div class="card-body"
                 id="calendar-container"
                 data-recursos='@json($recursos)'
                 data-events-url="{{ route('agendamentos.index') }}"
                 data-base-url="{{ url('agendamentos') }}"
                 data-csrf-token="{{ csrf_token() }}"
                 data-now="{{ $now ?? now()->toIso8601String() }}">
-                
+
                 <div id="calendar"></div>
             </div>
         </div>
     </div>
-    
+
     <div class="container-fluid mt-4" id="resource-availability-container">
         <div class="card calendar-card">
             <div class="card-header">
@@ -35,7 +35,7 @@
                     <ul class="pagination justify-content-center mt-4" id="resource-pagination-controls">
                     </ul>
                 </nav>
-                
+
             </div>
         </div>
     </div>
@@ -118,16 +118,7 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" id="agendamento_id">
-                        
-                        <div class="mb-3" id="recurso-select-wrapper">
-                            <label for="id_recurso" class="form-label">Recurso</label>
-                            <select class="form-select" id="id_recurso"> <option value="" disabled selected>Selecione um recurso</option>
-                                @foreach($recursos as $recurso)
-                                    <option value="{{ $recurso->id }}">{{ $recurso->nome }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
+                        <input type="hidden" id="id_recurso" name="id_recurso">
                         <div class="mb-3">
                             <label for="id_oferta" class="form-label">Turma/Componente</label>
                             <select class="form-select" id="id_oferta" required>

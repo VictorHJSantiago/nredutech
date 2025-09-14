@@ -90,13 +90,13 @@
                     {!! sort_link('data_registro', 'Data Registro', $sortBy, $order) !!}
                     {!! sort_link('tipo_usuario', 'Tipo', $sortBy, $order) !!}
                     {!! sort_link('status_aprovacao', 'Status', $sortBy, $order) !!}                   
-                    <th class="hide-on-mobile">Data Nasc.</th>
-                    <th class="hide-on-mobile">CPF</th>
-                    <th class="hide-on-mobile">RG</th>
-                    <th class="hide-on-mobile">Registro</th>
-                    <th class="hide-on-mobile">Telefone</th>
-                    <th class="hide-on-mobile">Formação</th>
-                    <th class="hide-on-mobile">Área</th>
+                    {!! sort_link('data_nascimento', 'Data Nasc.', $sortBy, $order) !!}
+                    {!! sort_link('cpf', 'CPF', $sortBy, $order) !!}
+                    {!! sort_link('rg', 'RG', $sortBy, $order) !!}
+                    {!! sort_link('rco_siape', 'Registro', $sortBy, $order) !!}
+                    {!! sort_link('telefone', 'Telefone', $sortBy, $order) !!}
+                    {!! sort_link('formacao', 'Formação', $sortBy, $order) !!}
+                    {!! sort_link('area_formacao', 'Área', $sortBy, $order) !!}
                     
                     <th>Ações</th>
                 </tr>
