@@ -12,7 +12,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Chama os seeders iniciais para o admin e as escolas
         $this->call([
             AdminUserSeeder::class,
             NreIratiSeeder::class,
@@ -20,25 +19,22 @@ class DatabaseSeeder extends Seeder
 
         $statusOptions = ['ativo', 'pendente', 'bloqueado'];
 
-        // 1. Cria 5 Administradores com status variado e 2 extras como bloqueados
         for ($i = 0; $i < 5; $i++) {
             Usuario::factory()->create([
                 'tipo_usuario' => 'administrador',
                 'id_escola' => null,
-                'status_aprovacao' => $statusOptions[array_rand(['ativo', 'pendente'])], // Varia entre ativo e pendente
+                'status_aprovacao' => $statusOptions[array_rand(['ativo', 'pendente'])], 
             ]);
         }
         Usuario::factory()->count(2)->create([
             'tipo_usuario' => 'administrador',
             'id_escola' => null,
-            'status_aprovacao' => 'bloqueado', // Excedem o limite
+            'status_aprovacao' => 'bloqueado', 
         ]);
 
 
-        // 2. Itera sobre cada escola para popular com diretores e professores
         $escolas = Escola::all();
         foreach ($escolas as $escola) {
-            // Cria 2 Diretores com status variado e 1 extra como bloqueado
             for ($i = 0; $i < 2; $i++) {
                 Usuario::factory()->create([
                     'tipo_usuario' => 'diretor',
@@ -52,7 +48,6 @@ class DatabaseSeeder extends Seeder
                 'status_aprovacao' => 'bloqueado',
             ]);
 
-            // Cria 3 Professores com status variado e 1 extra como bloqueado
             for ($i = 0; $i < 3; $i++) {
                 Usuario::factory()->create([
                     'tipo_usuario' => 'professor',
@@ -67,7 +62,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 3. Cria recursos e componentes de forma genérica
         RecursoDidatico::factory(200)->create();
         ComponenteCurricular::factory(50)->create();
     }

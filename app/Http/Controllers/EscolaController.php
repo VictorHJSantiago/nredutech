@@ -24,9 +24,10 @@ class EscolaController extends Controller
         if (!in_array(strtolower($order), ['asc', 'desc'])) {
             $order = 'asc';
         }
-        $query = Escola::query()->with([
+        
+       $query = Escola::query()->with([
             'municipio', 
-            'usuarios' => fn($q) => $q->where('tipo_usuario', 'diretor')
+            'usuarios' => fn($q) => $q->where('tipo_usuario', 'diretor')->where('status_aprovacao', 'ativo')
         ]);
 
         $query->when($request->query('search_nome'), function ($q, $search_nome) {

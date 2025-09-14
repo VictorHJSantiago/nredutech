@@ -27,7 +27,7 @@ class UsuarioFactory extends Factory
             'formacao' => $faker->randomElement(['Licenciatura', 'Bacharelado', 'Tecnólogo']),
             'area_formacao' => $faker->randomElement(['Ciências Humanas', 'Ciências Exatas', 'Ciências Biológicas']),
             'data_registro' => now(),
-            'status_aprovacao' => 'ativo', // Padrão 'ativo', será sobrescrito pelo Seeder conforme necessário
+            'status_aprovacao' => 'ativo', 
             'created_at' => now(),
             'updated_at' => now(),
         ];

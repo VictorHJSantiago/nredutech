@@ -21,7 +21,7 @@ class Escola extends Model
         'tipo', 
     ];
 
-    public function municipio()
+     public function municipio()
     {
         return $this->belongsTo(Municipio::class, 'id_municipio', 'id_municipio');
     }
@@ -34,6 +34,13 @@ class Escola extends Model
     public function usuarios()
     {
         return $this->hasMany(Usuario::class, 'id_escola', 'id_escola');
+    }
+
+    public function diretoresAtivos()
+    {
+        return $this->hasMany(Usuario::class, 'id_escola', 'id_escola')
+                    ->where('tipo_usuario', 'diretor')
+                    ->where('status_aprovacao', 'ativo');
     }
 
     public function turmas()

@@ -8,8 +8,6 @@ use Faker\Factory as FakerFactory;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     */
     public function register(): void
     {
         $this->app->singleton(FakerGenerator::class, function () {
@@ -22,10 +20,7 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 
-    /**
-     */
     public function boot(): void
     {
-        //
     }
 }

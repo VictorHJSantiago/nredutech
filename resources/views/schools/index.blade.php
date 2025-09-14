@@ -208,11 +208,22 @@
                                 <td>{{ $escola->municipio->nome ?? 'N/A' }}</td>
                                 <td>{{ ucfirst(str_replace('_', ' ', $escola->tipo)) }}</td>
                                 <td>
-                                    <div style="font-weight: 500;">({{ $escola->usuarios->count() }}/2)</div>
+                                    @php
+                                        $count = $escola->usuarios->count();
+                                        $class = '';
+                                        if ($count == 0) {
+                                            $class = 'count-empty';
+                                        } elseif ($count == 1) {
+                                            $class = 'count-ok';
+                                        } elseif ($count >= 2) {
+                                            $class = 'count-full';
+                                        }
+                                    @endphp
+                                    <div class="director-count {{ $class }}">({{ $count }}/2)</div>
                                     @forelse($escola->usuarios as $diretor)
                                         <div>{{ $diretor->nome_completo }}</div>
                                     @empty
-                                        <span style="color: #888; font-size: 0.9em;">Nenhum</span>
+                                        <span style="color: #888; font-size: 0.9em;">Nenhum diretor ativo</span>
                                     @endforelse
                                 </td>
                                 <td class="actions">
@@ -238,3 +249,4 @@
         </div>
     </div>
 @endsection
+

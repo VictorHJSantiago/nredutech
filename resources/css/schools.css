@@ -200,3 +200,22 @@ select.form-control {
 .actions form {
     display: inline;
 }
+
+.director-count {
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #fff;
+    display: inline-block;
+    font-size: 0.9em;
+}
+.count-ok {
+    background-color: #28a745; 
+}
+.count-full {
+    background-color: #ffc107; 
+    color: #212529;
+}
+.count-empty {
+    background-color: #dc3545; 
+}
