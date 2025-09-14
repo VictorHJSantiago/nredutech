@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Usuario;
 use App\Models\UsuarioPreferencia;
 use Illuminate\Http\RedirectResponse as HttpRedirectResponse; 
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ConfiguracoesController extends Controller
 {
@@ -27,7 +28,7 @@ class ConfiguracoesController extends Controller
         $this->backupPath = config('backup.backup.name', 'laravel-backup'); 
     }
 
-    public function index(): View 
+    public function index(Request $request): View 
     {
         $authUser = Auth::user();
         $usuario = Usuario::where('email', $authUser->email)->firstOrFail();
@@ -40,24 +41,39 @@ class ConfiguracoesController extends Controller
         
         $files = $disk->exists($this->backupPath) ? $disk->files($this->backupPath) : [];
 
-        $backups = collect($files)
-            ->filter(function ($file) {
-                return \Illuminate\Support\Str::endsWith($file, '.zip');
-            })
-            ->reverse() 
+        $allBackups = collect($files)
+            ->filter(fn ($file) => \Illuminate\Support\Str::endsWith($file, '.zip'))
             ->map(function ($file) use ($disk) {
                 return [
                     'name' => basename($file),
                     'size_raw' => $disk->size($file),
                     'size' => $this->formatBytes($disk->size($file)),
-                    'date' => Carbon::createFromTimestamp($disk->lastModified($file))
-                                    ->setTimezone('America/Sao_Paulo')
-                                    ->format('d/m/Y H:i:s'),
+                    'timestamp' => $disk->lastModified($file),
                 ];
             })
-            ->values() 
-            ->toArray();
-        return view('settings', compact('usuario', 'preferencias', 'backups'));
+            ->sortByDesc('timestamp')
+            ->values();
+
+        $perPage = 5;
+        $currentPage = $request->get('page', 1);
+        $paginatedBackups = new LengthAwarePaginator(
+            $allBackups->forPage($currentPage, $perPage)->map(function ($backup) {
+                $backup['date'] = Carbon::createFromTimestamp($backup['timestamp'])
+                                        ->setTimezone('America/Sao_Paulo')
+                                        ->format('d/m/Y H:i:s');
+                return $backup;
+            }),
+            $allBackups->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return view('settings', [
+            'usuario' => $usuario, 
+            'preferencias' => $preferencias, 
+            'backups' => $paginatedBackups
+        ]);
     }
 
     public function updatePreferences(Request $request): HttpRedirectResponse
@@ -115,9 +131,8 @@ class ConfiguracoesController extends Controller
     public function initiateBackup(Request $request): HttpRedirectResponse
     {
         try {
-            $request->session()->forget('auth.password_confirmed_at');
-
             Artisan::call('backup:run', ['--only-db' => true]);
+            $request->session()->forget('auth.password_confirmed_at');
 
             $latestBackup = $this->findLatestBackupFile();
 
@@ -126,8 +141,11 @@ class ConfiguracoesController extends Controller
                  return redirect()->route('settings')->with('error', 'Nenhum arquivo de backup encontrado após a execução.');
             }
 
+            $timestamp = Storage::disk($this->backupDisk)->lastModified($latestBackup);
+            $backupDate = Carbon::createFromTimestamp($timestamp)->setTimezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i');
+
             return redirect()->route('settings')
-                ->with('success', 'BACKUP REALIZADO COM SUCESSO!')
+                ->with('success', "BACKUP DO DIA {$backupDate} REALIZADO COM SUCESSO!")
                 ->with('download_backup_url', route('settings.backup.download.latest'));
 
         } catch (\Exception $e) {
@@ -156,9 +174,29 @@ class ConfiguracoesController extends Controller
         $fullPath = $this->backupPath . '/' . $filename;
 
         if (!$disk->exists($fullPath)) {
+            return redirect()->route('settings')->with('error', 'Arquivo de backup não encontrado.');
+        }
+        
+        $timestamp = $disk->lastModified($fullPath);
+        $backupDate = Carbon::createFromTimestamp($timestamp)->setTimezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i');
+        
+        $message = "BACKUP DO DIA ({$backupDate}) REALIZADO COM SUCESSO!";
+
+        return redirect()->route('settings')
+            ->with('success', $message)
+            ->with('download_backup_url', route('settings.backup.download-file', ['filename' => $filename]));
+    }
+
+    public function downloadFile($filename)
+    {
+        $disk = Storage::disk($this->backupDisk);
+        $fullPath = $this->backupPath . '/' . $filename;
+
+        if (!$disk->exists($fullPath)) {
             abort(404, 'Arquivo de backup não encontrado.');
         }
-        return $disk->download($fullPath); 
+
+        return $disk->download($fullPath);
     }
 
     public function uploadAndRestore(Request $request)
@@ -196,7 +234,6 @@ class ConfiguracoesController extends Controller
             Log::error('Falha na restauração: A restauração por upload de SQL só está configurada para MySQL/MariaDB, mas o driver padrão é SQLite.');
             return Redirect::route('settings')->with('error', 'Falha na restauração: O sistema está configurado para SQLite, mas a restauração tentou usar comandos do MySQL.');
         }
-
 
         $process = Process::fromShellCommandline($command);
 

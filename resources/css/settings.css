@@ -1,4 +1,3 @@
-
 body {
   display: flex;
   min-height: 100vh;
@@ -262,6 +261,45 @@ body {
 
 .backup-actions input[type="file"] {
   padding: 6px;
+}
+
+.btn-info {
+  background-color: var(--azul-principal);
+  color: var(--branco-principal);
+  padding: 10px 24px;
+}
+
+.btn-info:hover {
+  background-color: #014a86;
+  transform: translateY(-1px);
+}
+
+.btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 6px 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--azul-principal);
+    background-color: transparent;
+    border: 1px solid var(--azul-principal);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-download:hover {
+    background-color: var(--azul-principal);
+    color: var(--branco-principal);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagination-container {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
 }
 
 @media (max-width: 992px) {

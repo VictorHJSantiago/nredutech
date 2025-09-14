@@ -18,6 +18,17 @@ class ConfirmablePasswordController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        if ($request->email !== $request->user()->email) {
+            throw ValidationException::withMessages([
+                'email' => __('O e-mail fornecido não corresponde ao do usuário autenticado.'),
+            ]);
+        }
+
         if (! Auth::guard('web')->validate([
             'email' => $request->user()->email,
             'password' => $request->password,
@@ -28,7 +39,9 @@ class ConfirmablePasswordController extends Controller
         }
 
         $request->session()->put('auth.password_confirmed_at', time());
+        
+        $intendedUrl = $request->session()->pull('url.intended', route('settings'));
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect($intendedUrl);
     }
 }

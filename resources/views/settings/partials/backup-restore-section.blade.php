@@ -34,7 +34,7 @@
             <p class="help-text">
                 Clique no botão abaixo para gerar um backup instantâneo <strong>apenas do banco de dados</strong>.
             </p>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-info">
                 Executar Backup do Banco de Dados Agora
             </button>
         </form>
@@ -62,7 +62,7 @@
         <div class="backup-list-wrapper">
             <h3 class="section-subtitle-sm">Backups Salvos no Servidor</h3>
 
-            @if(empty($backups) || count($backups) === 0)
+            @if(empty($backups) || $backups->isEmpty())
                 <p class="help-text">Nenhum backup encontrado no servidor.</p>
             @else
                 <div class="table-responsive">
@@ -82,14 +82,17 @@
                                     <td>{{ $backup['date'] }}</td>
                                     <td>{{ $backup['size'] }}</td>
                                     <td>
-                                        <a href="{{ route('settings.backup.download', ['filename' => $backup['name']]) }}" class="btn btn-secondary btn-sm">
-                                            Baixar
+                                        <a href="{{ route('settings.backup.download', ['filename' => $backup['name']]) }}" class="btn btn-download">
+                                            <i class="fas fa-download"></i> Baixar
                                         </a>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+                <div class="pagination-container">
+                    {{ $backups->links() }}
                 </div>
             @endif
         </div>

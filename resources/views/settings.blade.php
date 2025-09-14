@@ -7,7 +7,6 @@
         <h1>Configurações Gerais</h1>
         <p class="subtitle">Ajuste preferências e parâmetros do sistema</p>
     </header>
-
     @if(session('download_backup_url'))
         <div id="backupDownloadTrigger" data-url="{{ session('download_backup_url') }}" style="display: none;"></div>
     @endif

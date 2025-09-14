@@ -13,7 +13,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ConfiguracoesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\NotificacaoController; 
+use App\Http\Controllers\NotificacaoController;
 
 Route::middleware(['auth'])->group(function () {
 
@@ -27,15 +27,16 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/settings', [ConfiguracoesController::class, 'index'])->name('settings');
     Route::patch('/settings/preferences', [ConfiguracoesController::class, 'updatePreferences'])->name('settings.preferences.update');
-    
+
     Route::get('/settings/backup/initiate', [ConfiguracoesController::class, 'initiateBackup'])->name('settings.backup.initiate')->middleware('password.confirm');
     Route::get('/settings/backup/download/latest', [ConfiguracoesController::class, 'downloadLatestBackup'])->name('settings.backup.download.latest');
+    Route::get('/settings/backup/download-file/{filename}', [ConfiguracoesController::class, 'downloadFile'])->name('settings.backup.download-file');
 
     Route::middleware(['password.confirm'])->group(function () {
         Route::get('/settings/backup/download/{filename}', [ConfiguracoesController::class, 'downloadBackup'])->name('settings.backup.download');
         Route::post('/settings/backup/restore', [ConfiguracoesController::class, 'uploadAndRestore'])->name('settings.backup.restore');
     });
-        
+
 
     Route::resource('agendamentos', AgendamentoController::class);
     Route::resource('componentes', ComponenteCurricularController::class);
