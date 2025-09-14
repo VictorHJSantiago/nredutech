@@ -14,15 +14,15 @@ class RecursoDidaticoController extends Controller
 {
     public function index(Request $request)
     {
-        $sortableColumns = ['id_recurso', 'nome', 'marca', 'numero_serie', 'quantidade', 'tipo', 'status', 'data_aquisicao'];
+        $allowedSorts = ['id_recurso', 'nome', 'marca', 'numero_serie', 'quantidade', 'tipo', 'status', 'data_aquisicao'];
         $sortBy = $request->query('sort_by', 'id_recurso');
-        $direction = $request->query('direction', 'asc');
+        $order = $request->query('order', 'asc');
 
-        if (!in_array(strtolower($direction), ['asc', 'desc'])) {
-            $direction = 'asc';
-        }
-        if (!in_array($sortBy, $sortableColumns)) {
+        if (!in_array($sortBy, $allowedSorts)) {
             $sortBy = 'id_recurso';
+        }
+        if (!in_array(strtolower($order), ['asc', 'desc'])) {
+            $order = 'asc';
         }
 
         $query = RecursoDidatico::query();
@@ -37,7 +37,7 @@ class RecursoDidaticoController extends Controller
             return $q->where('marca', 'LIKE', "%{$search_marca}%");
         });
 
-        $query->orderBy($sortBy, $direction);
+        $query->orderBy($sortBy, $order);
 
         $recursos = $query->paginate(5)->withQueryString();
 
@@ -47,8 +47,8 @@ class RecursoDidaticoController extends Controller
 
         return view('resources.index', [
             'recursos' => $recursos,
-            'currentSortBy' => $sortBy,
-            'currentDirection' => $direction
+            'sortBy' => $sortBy,
+            'order' => $order
         ]);
     }
 

@@ -93,6 +93,7 @@
                         {!! sort_link('serie', 'Turma (Série)', $sortBy, $order) !!}
                         {!! sort_link('turno', 'Turno', $sortBy, $order) !!}
                         {!! sort_link('ano_letivo', 'Ano Letivo', $sortBy, $order) !!}
+                        {!! sort_link('nivel_escolaridade', 'Nível', $sortBy, $order) !!}
                         {!! sort_link('escola_nome', 'Escola', $sortBy, $order) !!}
                         <th class="actions-header">Ações</th>
                     </tr>
@@ -103,6 +104,16 @@
                             <td>{{ $turma->serie }}</td>
                             <td>{{ ucfirst($turma->turno) }}</td>
                             <td>{{ $turma->ano_letivo }}</td>
+                            <td>
+                                @php
+                                    $niveis = [
+                                        'fundamental_1' => 'Fundamental I',
+                                        'fundamental_2' => 'Fundamental II',
+                                        'medio' => 'Ensino Médio',
+                                    ];
+                                @endphp
+                                {{ $niveis[$turma->nivel_escolaridade] ?? 'N/A' }}
+                            </td>
                             <td>{{ $turma->escola->nome ?? 'N/A' }}</td>
                             <td class="actions">
                                 <a href="{{ route('turmas.show', $turma->id_turma) }}" class="btn-edit btn-manage-offers" title="Gerenciar Ofertas (Professores/Disciplinas)">
@@ -112,7 +123,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5">Nenhuma turma encontrada. Cadastre uma no formulário acima.</td>
+                            <td colspan="6">Nenhuma turma encontrada. Cadastre uma no formulário acima.</td>
                         </tr>
                     @endforelse
                 </tbody>
