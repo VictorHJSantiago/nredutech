@@ -11,16 +11,19 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ComponenteCurricularController extends Controller
 {
     public function index(Request $request) 
     {        
-        $query = ComponenteCurricular::query()->with('criador');
+        $query = ComponenteCurricular::query()
+            ->join('usuarios', 'componentes_curriculares.id_usuario_criador', '=', 'usuarios.id_usuario')
+            ->select('componentes_curriculares.*', 'usuarios.nome_completo as criador_nome');
 
         $query->when($request->query('search_text'), function ($q, $searchText) {
             return $q->where(function ($subQ) use ($searchText) {
-                $subQ->where('nome', 'LIKE', "%{$searchText}%")
+                $subQ->where('componentes_curriculares.nome', 'LIKE', "%{$searchText}%")
                      ->orWhere('descricao', 'LIKE', "%{$searchText}%");
             });
         });
@@ -36,12 +39,13 @@ class ComponenteCurricularController extends Controller
         $sortBy = $request->query('sort_by', 'nome'); 
         $order = $request->query('order', 'asc'); 
 
-        $allowedSorts = ['id_componente', 'nome', 'descricao', 'carga_horaria', 'status'];
+        $allowedSorts = ['id_componente', 'nome', 'descricao', 'carga_horaria', 'status', 'criador_nome'];
 
         if (in_array($sortBy, $allowedSorts)) {
-            $query->orderBy($sortBy, $order);
+            $sortColumn = $sortBy === 'criador_nome' ? 'usuarios.nome_completo' : 'componentes_curriculares.' . $sortBy;
+            $query->orderBy($sortColumn, $order);
         } else {
-            $query->orderBy('nome', 'asc'); 
+            $query->orderBy('componentes_curriculares.nome', 'asc'); 
         }
         
         $componentes = $query->paginate(5)->withQueryString();
@@ -102,9 +106,13 @@ class ComponenteCurricularController extends Controller
         return redirect()->route('componentes.index')->with('success', 'Disciplina atualizada com sucesso!');
     }
 
-    public function destroy(ComponenteCurricular $componente): JsonResponse
+    public function destroy(ComponenteCurricular $componente)
     {
+        if ($componente->ofertas()->exists()) {
+            return redirect()->route('componentes.index')->with('error', 'Não é possível excluir uma disciplina que já está associada a uma turma.');
+        }
+
         $componente->delete();
-        return response()->json(null, 204);
+        return redirect()->route('componentes.index')->with('success', 'Disciplina excluída com sucesso!');
     }
 }

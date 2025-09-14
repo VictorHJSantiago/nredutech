@@ -76,10 +76,24 @@
             <table class="componentes-table"> 
                 <thead>
                     <tr>
-                        <th>Turma (Série)</th>
-                        <th>Turno</th>
-                        <th>Ano Letivo</th>
-                        <th>Escola</th>
+                        @php
+                            function sort_link($coluna, $titulo, $sortBy, $order) {
+                                $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
+                                $icon = $sortBy == $coluna 
+                                    ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
+                                    : 'fa-sort';
+                                $isActive = $sortBy == $coluna ? 'active' : '';
+                                $url = route('turmas.index', array_merge(request()->except(['page']), [
+                                    'sort_by' => $coluna,
+                                    'order' => $newOrder
+                                ]));
+                                return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                            }
+                        @endphp
+                        {!! sort_link('serie', 'Turma (Série)', $sortBy, $order) !!}
+                        {!! sort_link('turno', 'Turno', $sortBy, $order) !!}
+                        {!! sort_link('ano_letivo', 'Ano Letivo', $sortBy, $order) !!}
+                        {!! sort_link('escola_nome', 'Escola', $sortBy, $order) !!}
                         <th class="actions-header">Ações</th>
                     </tr>
                 </thead>

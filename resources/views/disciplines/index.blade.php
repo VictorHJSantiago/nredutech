@@ -14,6 +14,11 @@
                 {{ session('success') }}
             </div>
         @endif
+         @if (session('error'))
+            <div class="alert alert-danger mb-4" style="max-width: 1100px; margin-left: auto; margin-right: auto;">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <div class="page-actions-container" style="max-width: 1100px; margin-left: auto; margin-right: auto;">
             <a href="{{ route('componentes.create') }}" class="btn-primary">+ Cadastrar Nova Disciplina</a>
@@ -77,8 +82,8 @@
 
                         {!! sort_link('id_componente', 'ID', $sortBy, $order) !!}
                         {!! sort_link('nome', 'Nome', $sortBy, $order) !!}
-                        <th>Descrição</th>
-                        <th>Cadastrado por</th>
+                        {!! sort_link('descricao', 'Descrição', $sortBy, $order) !!}
+                        {!! sort_link('criador_nome', 'Cadastrado por', $sortBy, $order) !!}
                         {!! sort_link('carga_horaria', 'Carga Horária', $sortBy, $order) !!}
                         {!! sort_link('status', 'Status', $sortBy, $order) !!}
                         <th>Ações</th>
@@ -90,7 +95,7 @@
                             <td>{{ $componente->id_componente }}</td>
                             <td>{{ $componente->nome }}</td>
                             <td class="description-cell">{{ Str::limit($componente->descricao, 80) }}</td>
-                            <td>{{ $componente->criador->nome_completo ?? 'Usuário removido' }}</td>
+                            <td>{{ $componente->criador_nome ?? 'Usuário removido' }}</td>
                             <td>{{ $componente->carga_horaria }}</td>
                             <td><span class="status-{{ \Illuminate\Support\Str::slug($componente->status) }}">{{ ucfirst($componente->status) }}</span></td>
                             

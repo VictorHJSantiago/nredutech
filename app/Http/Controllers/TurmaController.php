@@ -33,10 +33,28 @@ class TurmaController extends Controller
             return $q->where('ano_letivo', $ano);
         });
 
-        $turmas = $queryTurmas->orderBy('ano_letivo', 'desc')->orderBy('serie')->paginate(20);
+        $allowedSorts = ['serie', 'turno', 'ano_letivo', 'escola_nome'];
+        $sortBy = $request->query('sort_by', 'ano_letivo');
+        $order = $request->query('order', 'desc');
+
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'ano_letivo';
+        }
+
+        $sortColumn = $sortBy;
+        if ($sortBy === 'escola_nome') {
+            $queryTurmas->join('escolas', 'turmas.id_escola', '=', 'escolas.id_escola')
+                        ->select('turmas.*', 'escolas.nome as escola_nome');
+            $sortColumn = 'escolas.nome';
+        } else {
+             $queryTurmas->orderBy($sortColumn, $order);
+        }
+
+
+        $turmas = $queryTurmas->paginate(20)->withQueryString();
         $escolas = $queryEscolas->orderBy('nome')->get();
 
-        return view('classes.index', compact('turmas', 'escolas'));
+        return view('classes.index', compact('turmas', 'escolas', 'sortBy', 'order'));
     }
 
     public function store(StoreTurmaRequest $request): RedirectResponse
