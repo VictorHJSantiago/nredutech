@@ -48,7 +48,7 @@ class DatabaseSeeder extends Seeder
             });
         });
 
-        RecursoDidatico::factory(50)->create();
+        RecursoDidatico::factory(1000)->create();
         $ofertas = OfertaComponente::all();
         $recursos = RecursoDidatico::where('status', 'funcionando')->get();
 
