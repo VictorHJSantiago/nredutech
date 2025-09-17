@@ -40,6 +40,10 @@
         
         <a href="{{ route('agendamentos.index') }}" class="nav-item {{ request()->routeIs('agendamentos.*') ? 'active' : '' }}">📅 Agendamentos</a>
         
+        @if ($userType == 'administrador' || $userType == 'diretor')
+            <a href="{{ route('reports.index') }}" class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">📊 Relatórios</a>
+        @endif
+
         <a href="{{ route('notifications.index') }}" class="nav-item {{ request()->routeIs('notifications.index') ? 'active' : '' }}">
             <span>🔔 Notificações</span>
             @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)

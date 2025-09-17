@@ -49,6 +49,8 @@ Route::middleware(['auth'])->group(function () {
         ->names('resources');
 
     Route::resource('usuarios', UsuarioController::class);
+
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 });
 
 require __DIR__.'/auth.php';

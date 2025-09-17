@@ -1,44 +1,66 @@
+/* Estilos Gerais da Página de Relatórios */
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
 
+.chart-container {
+  position: relative;
+  height: 400px; /* Altura fixa para o contêiner do gráfico */
+  width: 100%;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.powerbi-container {
+  grid-column: 1 / -1; /* Ocupa a largura total da grid */
+}
+
+/* Estilos para o Formulário de Filtro (CORRIGIDO) */
 .filter-form {
   background-color: var(--cinza-claro);
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 30px;
   box-shadow: 0 4px 12px var(--sombra);
-  max-width: 800px;
+  max-width: 1000px; /* Aumentado para melhor acomodação */
   margin-inline: auto;
 }
 
 .filter-form form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: space-between;
+  /* CORREÇÃO: Usando Grid para um layout mais compacto e responsivo */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem; /* Espaçamento entre os campos */
+  align-items: end;
 }
 
-.form-group {
-  flex: 1 1 45%;
+.filter-form .form-group {
   display: flex;
   flex-direction: column;
 }
 
-.form-group label {
+.filter-form .form-group label {
   font-weight: 600;
   margin-bottom: 6px;
   color: var(--azul-principal);
+  font-size: 0.9rem;
 }
 
-.form-group select {
+.filter-form .form-group select {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
   background-color: var(--branco-principal);
-  color: var(--preto-titulo);
 }
 
-.form-actions {
-  flex-basis: 100%;
+.filter-form .form-actions {
+  grid-column: 1 / -1; /* Faz o botão ocupar a largura inteira da grid */
   text-align: center;
   margin-top: 10px;
 }
@@ -53,26 +75,109 @@
   cursor: pointer;
   font-weight: bold;
   transition: background 0.3s ease;
+  width: auto; /* Garante que o botão não ocupe 100% da largura */
+  display: inline-block;
 }
 
 .btn-gerar:hover {
   background-color: var(--verde-secundario);
 }
 
+/* Estilos para a Pré-visualização do Relatório */
 .relatorio-preview {
   background-color: var(--branco-principal);
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 6px var(--sombra);
-  max-width: 800px;
+  max-width: 1200px;
   margin-inline: auto;
-  text-align: center;
   font-size: 15px;
   color: var(--texto-secundario);
+  overflow-x: auto; /* Garante que tabelas largas não quebrem o layout */
 }
 
-@media (max-width: 600px) {
-  .form-group {
-    flex: 1 1 100%;
-  }
+/* --- NOVOS ESTILOS PARA O DASHBOARD --- */
+
+/* Cards de KPI no Topo */
+.kpi-cards-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-left: 5px solid var(--azul-principal);
+}
+
+.kpi-card .value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.kpi-card .label {
+  font-size: 1rem;
+  color: #555;
+  margin-top: 0.5rem;
+}
+
+/* Ajustes na Tabela de Preview */
+.report-section {
+    margin-top: 2.5rem;
+}
+
+.report-section h4 {
+    font-size: 1.5rem;
+    color: var(--azul-principal);
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th, .data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.data-table thead th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Estilos para os links de ordenação */
+.data-table thead th a {
+    color: #333;
+    text-decoration: none;
+    display: block;
+    position: relative;
+    padding-right: 20px;
+}
+
+.data-table thead th a .sort-icon {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
+}
+
+.data-table thead th a.active .sort-icon {
+    opacity: 1;
+    color: var(--azul-principal);
 }
