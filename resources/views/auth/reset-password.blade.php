@@ -1,39 +1,61 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('password.store') }}">
-        @csrf
+@extends('layouts.guest')
 
-        <!-- Password Reset Token -->
-        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+@section('title', 'Criar Nova Senha')
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+@push('scripts')
+    @vite('resources/js/password-toogle.js')
+@endpush
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+@section('content')
+<div class="box">
+  <h2>Criar Nova Senha</h2>
+  <form method="POST" action="{{ route('password.store') }}">
+    @csrf
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+    <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
+    <label for="email">E-mail</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      placeholder="Confirme seu e-mail"
+      value="{{ old('email', $request->email) }}"
+      required
+      autofocus
+    />
+    @error('email')
+        <span class="error-message">{{ $message }}</span>
+    @enderror
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+    <label for="password">Nova Senha</label>
+    <div class="password-wrapper">
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Digite sua nova senha"
+        required
+      />
+      <i class="fas fa-eye toggle-password"></i>
+    </div>
+    @error('password')
+        <span class="error-message">{{ $message }}</span>
+    @enderror
+    
+    <label for="password_confirmation">Confirmar Nova Senha</label>
+    <div class="password-wrapper">
+      <input
+        type="password"
+        id="password_confirmation"
+        name="password_confirmation"
+        placeholder="Confirme a nova senha"
+        required
+      />
+      <i class="fas fa-eye toggle-password"></i>
+    </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    <button type="submit" class="btn">Redefinir Senha</button>
+  </form>
+</div>
+@endsection

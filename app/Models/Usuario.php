@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Mail\CustomResetPasswordMail; 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Support\Facades\Mail; 
 
-class Usuario extends Authenticatable
+class Usuario extends Authenticatable implements CanResetPasswordContract
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, CanResetPassword;
 
     protected $primaryKey = 'id_usuario';
 
@@ -32,7 +36,7 @@ class Usuario extends Authenticatable
         'status_aprovacao',
         'tipo_usuario',
         'id_escola',
-        'password', 
+        'password',
     ];
 
 
@@ -58,7 +62,7 @@ class Usuario extends Authenticatable
             'data_nascimento' => 'date',
         ];
     }
-    
+
     public function escola()
     {
         return $this->belongsTo(Escola::class, 'id_escola', 'id_escola');
@@ -68,7 +72,7 @@ class Usuario extends Authenticatable
     {
         return $this->hasMany(OfertaComponente::class, 'id_professor', 'id_usuario');
     }
-    
+
     public function escolaOndeEDiretor1()
     {
         return $this->hasOne(Escola::class, 'id_diretor_1', 'id_usuario');
@@ -87,5 +91,20 @@ class Usuario extends Authenticatable
     public function preferencias()
     {
         return $this->hasOne(UsuarioPreferencia::class, 'id_usuario', 'id_usuario');
+    }
+
+    /**
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $url = route('password.reset', [
+            'token' => $token,
+            'email' => $this->getEmailForPasswordReset(),
+        ]);
+
+        Mail::to($this)->send(new CustomResetPasswordMail($url, $this->nome_completo));
     }
 }

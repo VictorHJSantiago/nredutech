@@ -1,0 +1,68 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    background-color: #f0f4f8;
+    margin: 0;
+    padding: 0;
+    color: #3d4852;
+}
+.container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+.email-wrapper {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    padding: 40px;
+}
+.header {
+    text-align: center;
+    border-bottom: 1px solid #e8e5ef;
+    padding-bottom: 25px;
+    margin-bottom: 30px;
+}
+.logo {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0169b4; 
+    text-decoration: none;
+}
+.logo-icon {
+    font-size: 32px;
+    vertical-align: middle;
+}
+.content h1 {
+    color: #2f3d4a;
+    font-size: 22px;
+    margin-top: 0;
+}
+.content p {
+    font-size: 18px; 
+    line-height: 1.6;
+    margin: 1em 0;
+}
+.button-wrapper {
+    text-align: center;
+    margin: 30px 0;
+}
+.button {
+    background-color: #5fb13b; 
+    border-radius: 5px;
+    color: #ffffff;
+    display: inline-block;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: 600;
+    text-decoration: none;
+}
+.footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 14px;
+    color: #8795a1;
+}
+.footer a {
+    color: #0169b4;
+}

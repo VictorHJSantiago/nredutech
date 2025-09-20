@@ -1,25 +1,52 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+@extends('layouts.guest')
+
+@section('title', 'Redefinir Senha')
+
+@section('content')
+
+<div class="box">
+  <h2>Redefinir Senha</h2>
+  
+  <p class="info-text">
+    Esqueceu sua senha? Sem problemas. Apenas nos informe seu e-mail e enviaremos um link para você criar uma nova.
+  </p>
+
+  @if (session('status'))
+    <div class="alert alert-success">
+        {{ session('status') }}
     </div>
+  @endif
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+  @if ($errors->any())
+    <div class="alert alert-danger">
+      @foreach ($errors->all() as $error)
+        {{ $error }}
+      @endforeach
+    </div>
+  @endif
 
-    <form method="POST" action="{{ route('password.email') }}">
-        @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+  <form method="POST" action="{{ route('password.email') }}">
+    @csrf  
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    <label for="email">E-mail</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      placeholder="Digite seu e-mail de cadastro"
+      value="{{ old('email') }}"
+      required
+      autofocus
+    />
+
+    <button type="submit" class="btn">Enviar Link de Redefinição</button>
+  </form>
+
+  <p>
+    Lembrou a senha?
+    <a href="{{ route('login') }}">Voltar para o login</a>
+  </p>
+</div>
+
+@endsection

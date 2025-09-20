@@ -161,3 +161,11 @@ body {
   background-color: var(--vermelho-erro-fundo); 
   border-color: var(--vermelho-erro); 
 }
+
+.box .forgot-password-link {
+  text-align: center; 
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem; 
+}
+

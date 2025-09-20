@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Usuario;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,12 +29,18 @@ class NewPasswordController extends Controller
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Rules\Password::min(16)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
+        ], 
+        [
+            'password.required' => 'O campo nova senha é obrigatório.',
+            'password.confirmed' => 'A confirmação de senha não corresponde.',
+            'password.min' => 'A senha deve ter no mínimo 16 caracteres.',
+            'password' => 'A senha deve conter 16 caracteres com uma letra maiúscula, minúscula, número e símbolo.' 
         ]);
 
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user) use ($request) {
+            function (Usuario $user) use ($request) {
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),

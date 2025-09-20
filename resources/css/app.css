@@ -4,6 +4,8 @@
 @import url('./index.css');
 @import url('./components.css');
 @import url('./settings.css');
+@import url('./forgot-password.css');
+/*@import url('./reset-password.css');*/
 
 @import url('./appointments.css');
 @import url('./backup.css');

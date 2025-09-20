@@ -52,6 +52,11 @@
     <button type="submit" class="btn">Entrar</button>
   </form>
 
+  
+  <p class="forgot-password-link">
+    <a href="{{ route('password.request') }}">Esqueci minha senha</a>
+  </p>
+
   <p>
     Não tem uma conta?
     <a href="{{ route('register') }}">Cadastre-se</a>
