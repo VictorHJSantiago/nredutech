@@ -250,3 +250,17 @@ select.form-control {
 .count-empty {
     background-color: #dc3545; 
 }
+
+.table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.data-table {
+    min-width: 900px;
+}
+
+.data-table th, .data-table td {
+    white-space: nowrap;
+}

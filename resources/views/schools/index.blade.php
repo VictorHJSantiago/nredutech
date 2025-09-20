@@ -90,47 +90,47 @@
                 <h3>Municípios Cadastrados</h3>
             </div>
             <div class="card-body">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th class="actions-header">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($municipios as $municipio)
+                <div class="table-responsive-wrapper">
+                    <table class="data-table">
+                        <thead>
                             <tr>
-                                <td>{{ $municipio->nome }}</td>
-                                <td class="actions">
-                                    <a href="{{ route('municipios.edit', $municipio->id_municipio) }}"
-                                        class="button-icon btn-edit" title="Editar">✏️</a>
-                                    <form action="{{ route('municipios.destroy', $municipio->id_municipio) }}" method="POST"
-                                        onsubmit="return confirm('Tem certeza?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
-                                    </form>
-                                </td>
+                                <th>Nome</th>
+                                <th class="actions-header">Ações</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="2">Nenhum município cadastrado.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse ($municipios as $municipio)
+                                <tr>
+                                    <td>{{ $municipio->nome }}</td>
+                                    <td class="actions">
+                                        <a href="{{ route('municipios.edit', $municipio->id_municipio) }}"
+                                            class="button-icon btn-edit" title="Editar">✏️</a>
+                                        <form action="{{ route('municipios.destroy', $municipio->id_municipio) }}" method="POST"
+                                            onsubmit="return confirm('Tem certeza?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="2">Nenhum município cadastrado.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <section class="filter-bar filter-bar-escolas">
-            <form action="{{ route('escolas.index') }}" method="GET" class="filter-form">
-
+             <form action="{{ route('escolas.index') }}" method="GET" class="filter-form">
                 <div class="filter-group search-main">
                     <label for="search_nome">Buscar por Nome da Escola ou Diretor</label>
                     <input type="text" id="search_nome" name="search_nome"
                         placeholder="Buscar por nome de escola ou diretor..." value="{{ request('search_nome') }}" />
                 </div>
-
                 <div class="filter-group">
                     <label for="id_municipio">Filtrar por Município</label>
                     <select id="id_municipio" name="id_municipio">
@@ -142,7 +142,6 @@
                         @endforeach
                     </select>
                 </div>
-
                 <div class="filter-group">
                     <label for="nivel_ensino">Nível de Ensino</label>
                     <select id="nivel_ensino" name="nivel_ensino">
@@ -153,7 +152,6 @@
                         <option value="escola_municipal" {{ request('nivel_ensino') == 'escola_municipal' ? 'selected' : '' }}>Escola Municipal</option>
                     </select>
                 </div>
-
                 <div class="filter-group">
                     <label for="tipo">Localização</label>
                     <select id="tipo" name="tipo">
@@ -162,14 +160,12 @@
                         <option value="rural" {{ request('tipo') == 'rural' ? 'selected' : '' }}>Rural</option>
                     </select>
                 </div>
-
                 @if(request('sort_by'))
                     <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
                 @endif
                 @if(request('order'))
                     <input type="hidden" name="order" value="{{ request('order') }}">
                 @endif
-
                 <div class="filter-group search-submit">
                     <label>&nbsp;</label>
                     <button type="submit" class="btn-search">🔍 Filtrar</button>
@@ -197,67 +193,82 @@
                         return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
                     }
                 @endphp
-
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            {!! sort_link('id_escola', 'ID', $sortBy, $order) !!}
-                            {!! sort_link('nome', 'Nome da Escola', $sortBy, $order) !!}
-                            {!! sort_link('municipio_nome', 'Município', $sortBy, $order) !!}
-                            {!! sort_link('tipo', 'Tipo', $sortBy, $order) !!}
-                            {!! sort_link('diretor_nome', 'Diretores', $sortBy, $order) !!}
-                            <th class="actions-header">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($escolas as $escola)
+                <div class="table-responsive-wrapper">
+                    <table class="data-table">
+                        <thead>
                             <tr>
-                                <td>{{ $escola->id_escola }}</td>
-                                <td>{{ $escola->nome }}</td>
-                                <td>{{ $escola->municipio->nome ?? 'N/A' }}</td>
-                                <td>{{ ucfirst(str_replace('_', ' ', $escola->tipo)) }}</td>
-                                <td>
-                                    @php
-                                        $count = $escola->usuarios->count();
-                                        $class = '';
-                                        if ($count == 0) {
-                                            $class = 'count-empty';
-                                        } elseif ($count == 1) {
-                                            $class = 'count-ok';
-                                        } elseif ($count >= 2) {
-                                            $class = 'count-full';
-                                        }
-                                    @endphp
-                                    <div class="director-count {{ $class }}">({{ $count }}/2)</div>
-                                    @forelse($escola->usuarios as $diretor)
-                                        <div>{{ $diretor->nome_completo }}</div>
-                                    @empty
-                                        <span style="color: #888; font-size: 0.9em;">Nenhum diretor ativo</span>
-                                    @endforelse
-                                </td>
-                                <td class="actions">
-                                    <a href="{{ route('escolas.edit', $escola->id_escola) }}" class="button-icon btn-edit"
-                                        title="Editar">✏️</a>
-                                    <form action="{{ route('escolas.destroy', $escola->id_escola) }}" method="POST"
-                                        onsubmit="return confirm('Tem certeza?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
-                                    </form>
-                                </td>
+                                {!! sort_link('id_escola', 'ID', $sortBy, $order) !!}
+                                {!! sort_link('nome', 'Nome da Escola', $sortBy, $order) !!}
+                                {!! sort_link('municipio_nome', 'Município', $sortBy, $order) !!}
+                                {!! sort_link('nivel_ensino', 'Nível de Ensino', $sortBy, $order) !!}
+                                {!! sort_link('tipo', 'Tipo', $sortBy, $order) !!}
+                                {!! sort_link('diretor_nome', 'Diretores', $sortBy, $order) !!}
+                                <th class="actions-header">Ações</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6">Nenhuma escola encontrada com os filtros aplicados.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-
+                        </thead>
+                        <tbody>
+                            @forelse ($escolas as $escola)
+                                <tr>
+                                    <td>{{ $escola->id_escola }}</td>
+                                    <td>{{ $escola->nome }}</td>
+                                    <td>{{ $escola->municipio->nome ?? 'N/A' }}</td>
+                                    <td>
+                                        @switch($escola->nivel_ensino)
+                                            @case('colegio_estadual')
+                                                Colégio Estadual
+                                                @break
+                                            @case('escola_tecnica')
+                                                Escola Técnica
+                                                @break
+                                            @case('escola_municipal')
+                                                Escola Municipal
+                                                @break
+                                            @default
+                                                {{ $escola->nivel_ensino }}
+                                        @endswitch
+                                    </td>
+                                    <td>{{ ucfirst(str_replace('_', ' ', $escola->tipo)) }}</td>
+                                    <td>
+                                        @php
+                                            $count = $escola->usuarios->count();
+                                            $class = '';
+                                            if ($count == 0) {
+                                                $class = 'count-empty';
+                                            } elseif ($count == 1) {
+                                                $class = 'count-ok';
+                                            } elseif ($count >= 2) {
+                                                $class = 'count-full';
+                                            }
+                                        @endphp
+                                        <div class="director-count {{ $class }}">({{ $count }}/2)</div>
+                                        @forelse($escola->usuarios as $diretor)
+                                            <div>{{ $diretor->nome_completo }}</div>
+                                        @empty
+                                            <span style="color: #888; font-size: 0.9em;">Nenhum diretor ativo</span>
+                                        @endforelse
+                                    </td>
+                                    <td class="actions">
+                                        <a href="{{ route('escolas.edit', $escola->id_escola) }}" class="button-icon btn-edit"
+                                            title="Editar">✏️</a>
+                                        <form action="{{ route('escolas.destroy', $escola->id_escola) }}" method="POST"
+                                            onsubmit="return confirm('Tem certeza?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7">Nenhuma escola encontrada com os filtros aplicados.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
                 <div class="pagination-container">
                     {{ $escolas->links() }}
                 </div>
-
             </div>
         </div>
     </div>

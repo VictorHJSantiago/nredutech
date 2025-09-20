@@ -32,7 +32,7 @@ class EscolaController extends Controller
             'usuarios' => fn($q) => $q->where('tipo_usuario', 'diretor')->where('status_aprovacao', 'ativo')
         ]);
 
-        $directorSubQuery = Usuario::select('id_escola', DB::raw('MIN(nome_completo) as diretor_nome'))
+        $directorSubQuery = Usuario::select('id_escola', DB::raw("GROUP_CONCAT(nome_completo ORDER BY nome_completo SEPARATOR ', ') as diretor_nome"))
             ->where('tipo_usuario', 'diretor')
             ->where('status_aprovacao', 'ativo')
             ->groupBy('id_escola');
@@ -59,15 +59,19 @@ class EscolaController extends Controller
             'nome' => 'escolas.nome',
             default => 'escolas.' . $sortBy,
         };
+        
+        $finalOrder = $order;
+        if ($sortBy === 'tipo') {
+            $finalOrder = ($order === 'asc') ? 'desc' : 'asc';
+        }
+        
+        $query->orderBy($sortColumn, $finalOrder);
 
-        $query->orderBy($sortColumn, $order);
-
-        $escolas = $query->select('escolas.*')->paginate(5)->withQueryString();
+        $escolas = $query->select('escolas.*', 'diretores_joined.diretor_nome')->paginate(5)->withQueryString();
         $municipios = Municipio::orderBy('nome')->get();
         
         return view('schools.index', compact('escolas', 'municipios', 'sortBy', 'order'));
     }
-
     public function store(StoreEscolaRequest $request): RedirectResponse
     {
         Escola::create($request->validated());
