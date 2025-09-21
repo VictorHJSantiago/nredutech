@@ -6,6 +6,7 @@ use App\Http\Requests\StoreUsuarioRequest;
 use App\Http\Requests\UpdateUsuarioRequest;
 use App\Models\Usuario;
 use App\Models\Escola; 
+use App\Models\Notificacao;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -94,14 +95,22 @@ class UsuarioController extends Controller
         return view('users.create', compact('escolas'));
     }
 
-     public function store(StoreUsuarioRequest $request): RedirectResponse
+      public function store(StoreUsuarioRequest $request): RedirectResponse
     {
         $validatedData = $request->validated();
         $validatedData['data_registro'] = now();
-        
         $validatedData['password'] = Hash::make($validatedData['password']);
-        
-        Usuario::create($validatedData); 
+        $usuario = Usuario::create($validatedData); 
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
+        foreach ($administradores as $admin) {
+            Notificacao::create([
+                'titulo' => 'Novo Usuário Cadastrado Manualmente',
+                'mensagem' => "O usuário '{$usuario->nome_completo}' foi cadastrado no sistema e está com status '{$usuario->status_aprovacao}'.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $admin->id_usuario,
+            ]);
+        }
 
         return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
     }
@@ -129,37 +138,50 @@ class UsuarioController extends Controller
         return view('users.edit', compact('usuario', 'escolas'));
     }
 
-    public function update(UpdateUsuarioRequest $request, Usuario $usuario): RedirectResponse
+     public function update(UpdateUsuarioRequest $request, Usuario $usuario): RedirectResponse
     {
-        $userAutenticado = Auth::user();
-        $perfilUsuarioLogado = Usuario::where('email', $userAutenticado->email)->first();
         $validatedData = $request->validated();
         
-        if ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'diretor') {
-            if($usuario->id_escola != $perfilUsuarioLogado->id_escola) {
-                 return redirect()->route('usuarios.index')->with('error', 'Acesso não autorizado.');
-            }
-            $validatedData['id_escola'] = $perfilUsuarioLogado->id_escola;
+        if (isset($validatedData['status_aprovacao']) && $usuario->status_aprovacao !== $validatedData['status_aprovacao']) {
+            $status = $validatedData['status_aprovacao'];
+            Notificacao::create([
+                'titulo' => 'Status da Sua Conta Atualizado',
+                'mensagem' => "O status da sua conta foi atualizado para '{$status}'.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $usuario->id_usuario,
+            ]);
         }
 
         $usuario->update($validatedData);
-
         return redirect()->route('usuarios.index')->with('success', 'Usuário atualizado com sucesso!');
     }
 
     public function destroy(Usuario $usuario): RedirectResponse
     {
-        $userAutenticado = Auth::user();
-        $perfilUsuarioLogado = Usuario::where('email', $userAutenticado->email)->first();
+        $nomeUsuario = $usuario->nome_completo;
+        $escolaId = $usuario->id_escola;
+        $usuario->delete();
+        $diretores = collect();
+        if ($escolaId) {
+            $diretores = Usuario::where('id_escola', $escolaId)
+                                ->where('tipo_usuario', 'diretor')
+                                ->get();
+        }
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
+        
+        $usersToNotify = $diretores->merge($administradores)->unique('id_usuario');
 
-        if ($perfilUsuarioLogado && $perfilUsuarioLogado->tipo_usuario === 'diretor') {
-            if($usuario->id_escola != $perfilUsuarioLogado->id_escola) {
-                 return redirect()->route('usuarios.index')->with('error', 'Acesso não autorizado.');
-            }
+        foreach ($usersToNotify as $user) {
+             Notificacao::create([
+                'titulo' => 'Usuário Excluído',
+                'mensagem' => "O usuário '{$nomeUsuario}' foi removido do sistema.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $user->id_usuario,
+            ]);
         }
         
-        $usuario->delete();
-
         return redirect()->route('usuarios.index')->with('success', 'Usuário excluído com sucesso!');
     }
 }

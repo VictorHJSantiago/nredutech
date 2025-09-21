@@ -6,6 +6,8 @@ use App\Http\Requests\StoreRecursoDidaticoRequest;
 use App\Http\Requests\UpdateRecursoDidaticoRequest;
 use App\Http\Resources\RecursoDidaticoResource;
 use App\Models\RecursoDidatico;
+use App\Models\Notificacao;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Arr;
@@ -63,6 +65,8 @@ class RecursoDidaticoController extends Controller
         $totalQuantidade = (int) $validatedData['quantidade'];
         $maxSplitLimit = 50; 
 
+        $usersToNotify = Usuario::whereIn('tipo_usuario', ['administrador', 'diretor'])->get();
+
         if ($request->input('split_quantity') === 'true' && $totalQuantidade > 1 && $totalQuantidade <= $maxSplitLimit) {
             
             Arr::pull($validatedData, 'quantidade');
@@ -78,6 +82,16 @@ class RecursoDidaticoController extends Controller
                 $createdResources[] = RecursoDidatico::create($validatedData);
             }
 
+            foreach ($usersToNotify as $user) {
+                Notificacao::create([
+                    'titulo' => 'Novos Recursos Cadastrados',
+                    'mensagem' => "{$totalQuantidade} unidades do recurso '{$validatedData['nome']}' foram cadastradas.",
+                    'data_envio' => now(),
+                    'status_mensagem' => 'enviada',
+                    'id_usuario' => $user->id_usuario,
+                ]);
+            }
+
             $successMessage = $totalQuantidade . ' recursos individuais cadastrados com sucesso!';
 
             if ($request->wantsJson()) {
@@ -89,6 +103,16 @@ class RecursoDidaticoController extends Controller
         } else {
             
             $recurso = RecursoDidatico::create($validatedData);
+
+            foreach ($usersToNotify as $user) {
+                Notificacao::create([
+                    'titulo' => 'Novo Lote de Recursos Cadastrado',
+                    'mensagem' => "Um lote de {$totalQuantidade} unidade(s) do recurso '{$recurso->nome}' foi cadastrado.",
+                    'data_envio' => now(),
+                    'status_mensagem' => 'enviada',
+                    'id_usuario' => $user->id_usuario,
+                ]);
+            }
             $successMessage = 'Lote de ' . $totalQuantidade . ' recurso(s) cadastrado com sucesso!';
 
             if ($request->wantsJson()) {
@@ -123,6 +147,17 @@ class RecursoDidaticoController extends Controller
     {
         $recursoDidatico->update($request->validated());
 
+        $usersToNotify = Usuario::whereIn('tipo_usuario', ['administrador', 'diretor'])->get();
+        foreach ($usersToNotify as $user) {
+            Notificacao::create([
+                'titulo' => 'Recurso Didático Atualizado',
+                'mensagem' => "O recurso '{$recursoDidatico->nome}' foi atualizado.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $user->id_usuario,
+            ]);
+        }
+
         if ($request->wantsJson()) {
             return new RecursoDidaticoResource($recursoDidatico->fresh());
         }
@@ -133,6 +168,17 @@ class RecursoDidaticoController extends Controller
 
     public function destroy(Request $request, RecursoDidatico $recursoDidatico)
     {
+        $usersToNotify = Usuario::whereIn('tipo_usuario', ['administrador', 'diretor'])->get();
+        foreach ($usersToNotify as $user) {
+            Notificacao::create([
+                'titulo' => 'Recurso Didático Excluído',
+                'mensagem' => "O recurso '{$recursoDidatico->nome}' foi excluído.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $user->id_usuario,
+            ]);
+        }
+
         $recursoDidatico->delete();
 
         if ($request->wantsJson()) {

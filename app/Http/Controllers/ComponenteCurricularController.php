@@ -7,14 +7,12 @@ use App\Http\Requests\UpdateComponenteCurricularRequest;
 use App\Models\ComponenteCurricular;
 use App\Models\Notificacao; 
 use App\Models\Usuario;     
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class ComponenteCurricularController extends Controller
 {
+
     public function index(Request $request) 
     {        
         $query = ComponenteCurricular::query()
@@ -99,10 +97,26 @@ class ComponenteCurricularController extends Controller
     {
         return view('disciplines.edit', ['componenteCurricular' => $componente]);
     }
-
+    
     public function update(UpdateComponenteCurricularRequest $request, ComponenteCurricular $componente)
     {
-        $componente->update($request->validated());
+        $validatedData = $request->validated();
+        $componente->update($validatedData);
+
+        if (isset($validatedData['status']) && $componente->id_usuario_criador) {
+            $status = $validatedData['status'];
+            $criador = $componente->criador;
+            if ($criador && $criador->id_usuario != Auth::id()) {
+                Notificacao::create([
+                    'titulo' => 'Atualização de Status da Disciplina',
+                    'mensagem' => "O status da disciplina '{$componente->nome}' que você criou foi atualizado para '{$status}'.",
+                    'data_envio' => now(),
+                    'status_mensagem' => 'enviada',
+                    'id_usuario' => $criador->id_usuario,
+                ]);
+            }
+        }
+
         return redirect()->route('componentes.index')->with('success', 'Disciplina atualizada com sucesso!');
     }
 
@@ -111,8 +125,25 @@ class ComponenteCurricularController extends Controller
         if ($componente->ofertas()->exists()) {
             return redirect()->route('componentes.index')->with('error', 'Não é possível excluir uma disciplina que já está associada a uma turma.');
         }
-
+        
+        $nomeComponente = $componente->nome;
+        $criador = $componente->criador;
         $componente->delete();
+        $usersToNotify = Usuario::where('tipo_usuario', 'administrador')->get();
+                if ($criador && $criador->id_usuario != Auth::id()) {
+            $usersToNotify->push($criador);
+        }
+
+        foreach ($usersToNotify->unique('id_usuario') as $user) {
+            Notificacao::create([
+                'titulo' => 'Disciplina Excluída',
+                'mensagem' => "A disciplina '{$nomeComponente}' foi excluída do sistema.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $user->id_usuario,
+            ]);
+        }
+        
         return redirect()->route('componentes.index')->with('success', 'Disciplina excluída com sucesso!');
     }
 }

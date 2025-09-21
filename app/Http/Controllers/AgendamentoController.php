@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\View\View;
+use App\Models\Notificacao;
 
 class AgendamentoController extends Controller
 {
@@ -101,10 +102,22 @@ class AgendamentoController extends Controller
             'disponiveis' => $disponiveis, 
         ]);
     }
+
     public function store(StoreAgendamentoRequest $request): AgendamentoResource
     {
         $agendamento = Agendamento::create($request->validated());
-        return new AgendamentoResource($agendamento->load(['recurso', 'oferta']));
+        $agendamento->load(['recurso', 'oferta.professor']);
+
+        if ($agendamento->oferta && $agendamento->oferta->professor) {
+            Notificacao::create([
+                'titulo' => 'Novo Agendamento Criado',
+                'mensagem' => "Um novo agendamento para o recurso '{$agendamento->recurso->nome}' foi criado.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $agendamento->oferta->id_professor,
+            ]);
+        }
+        return new AgendamentoResource($agendamento);
     }
 
     public function show(Agendamento $agendamento): AgendamentoResource
@@ -116,34 +129,33 @@ class AgendamentoController extends Controller
     public function update(UpdateAgendamentoRequest $request, Agendamento $agendamento): AgendamentoResource
     {
         $agendamento->update($request->validated());
-        return new AgendamentoResource($agendamento->fresh()->load(['recurso', 'oferta']));
+        $agendamento->load(['recurso', 'oferta.professor']);
+
+        if ($agendamento->oferta && $agendamento->oferta->professor) {
+            Notificacao::create([
+                'titulo' => 'Agendamento Atualizado',
+                'mensagem' => "O agendamento para o recurso '{$agendamento->recurso->nome}' foi atualizado.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $agendamento->oferta->id_professor,
+            ]);
+        }
+        return new AgendamentoResource($agendamento->fresh());
     }
 
     public function destroy(Agendamento $agendamento): JsonResponse
     {
-        
-        $agendamento->load('oferta');
-        $professorQueReservouId = $agendamento->oferta->id_professor;
+        $agendamento->load(['recurso', 'oferta.professor']);
+        $professorId = $agendamento->oferta->id_professor;
 
-        $authUser = Auth::user(); 
-        $usuarioAtual = Usuario::where('email', $authUser->email)->first(); 
-
-        $podeExcluir = false;
-        if ($usuarioAtual) {
-            if (in_array($usuarioAtual->tipo_usuario, ['administrador', 'diretor'])) {
-                $podeExcluir = true;
-            } 
-            elseif ($usuarioAtual->id_usuario == $professorQueReservouId) {
-                $podeExcluir = true;
-            }
-        }
-
-        if (!$podeExcluir) {
-            return response()->json(['message' => 'Você não tem permissão para excluir este agendamento.'], 403);
-        }
-
-        if ($agendamento->data_hora_inicio < now()->addMinutes(10)) {
-            return response()->json(['message' => 'Não é possível excluir agendamentos passados ou faltando menos de 10 minutos.'], 403);
+        if ($agendamento->oferta && $agendamento->oferta->professor) {
+            Notificacao::create([
+                'titulo' => 'Agendamento Cancelado',
+                'mensagem' => "O agendamento para o recurso '{$agendamento->recurso->nome}' foi cancelado.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $professorId,
+            ]);
         }
 
         $agendamento->delete();

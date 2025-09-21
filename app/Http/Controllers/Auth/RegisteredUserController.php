@@ -7,6 +7,7 @@ use App\Http\Requests\RegisterUserRequest;
 use App\Models\User;
 use App\Models\Usuario;
 use App\Models\Escola;
+use App\Models\Notificacao;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        Usuario::create([
+        $usuario = Usuario::create([
             'nome_completo' => $data['name'],
             'email' => $data['email'],
             'username' => $data['username'],
@@ -51,6 +52,17 @@ class RegisteredUserController extends Controller
             'status_aprovacao' => 'pendente',
             'data_registro' => now(),
         ]);
+
+        $usersToNotify = Usuario::whereIn('tipo_usuario', ['administrador', 'diretor'])->get();
+        foreach ($usersToNotify as $userToNotify) {
+            Notificacao::create([
+                'titulo' => 'Novo Usuário Aguardando Aprovação',
+                'mensagem' => "O usuário '{$usuario->nome_completo}' se cadastrou e aguarda aprovação.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $userToNotify->id_usuario,
+            ]);
+        }
 
         event(new Registered($user));
 

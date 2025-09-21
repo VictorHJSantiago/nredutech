@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use App\Models\Usuario;
+use App\Models\Notificacao;
 use Illuminate\Support\Facades\DB;
 
 class EscolaController extends Controller
@@ -74,7 +75,19 @@ class EscolaController extends Controller
     }
     public function store(StoreEscolaRequest $request): RedirectResponse
     {
-        Escola::create($request->validated());
+        $escola = Escola::create($request->validated());
+
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
+        foreach ($administradores as $admin) {
+            Notificacao::create([
+                'titulo' => 'Nova Escola Cadastrada',
+                'mensagem' => "A escola '{$escola->nome}' foi cadastrada.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $admin->id_usuario,
+            ]);
+        }
+
         return redirect()->route('escolas.index')->with('success', 'Escola adicionada com sucesso!');
     }
 
@@ -87,6 +100,17 @@ class EscolaController extends Controller
     public function update(UpdateEscolaRequest $request, Escola $escola): RedirectResponse
     {
         $escola->update($request->validated());
+        $diretores = $escola->usuarios()->where('tipo_usuario', 'diretor')->get();
+        foreach ($diretores as $diretor) {
+            Notificacao::create([
+                'titulo' => 'Dados da Escola Atualizados',
+                'mensagem' => "Os dados da escola '{$escola->nome}' foram atualizados.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $diretor->id_usuario,
+            ]);
+        }
+
         return redirect()->route('escolas.index')->with('success', 'Escola atualizada com sucesso!');
     }
 
@@ -98,6 +122,17 @@ class EscolaController extends Controller
 
          if ($escola->usuarios()->exists()) {
             return redirect()->route('escolas.index')->with('error', 'Não é possível excluir esta escola, pois ela possui usuários (diretores ou professores) associados.');
+        }
+
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
+        foreach ($administradores as $admin) {
+            Notificacao::create([
+                'titulo' => 'Escola Excluída',
+                'mensagem' => "A escola '{$escola->nome}' foi excluída.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $admin->id_usuario,
+            ]);
         }
 
         $escola->delete();

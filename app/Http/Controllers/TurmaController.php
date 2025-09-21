@@ -8,12 +8,12 @@ use App\Http\Resources\TurmaResource;
 use App\Models\Turma;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Usuario;
 use App\Models\ComponenteCurricular;
 use App\Models\Escola; 
+use App\Models\Notificacao; 
 use Illuminate\Http\RedirectResponse; 
 
 class TurmaController extends Controller
@@ -57,9 +57,23 @@ class TurmaController extends Controller
         return view('classes.index', compact('turmas', 'escolas', 'sortBy', 'order'));
     }
 
+
     public function store(StoreTurmaRequest $request): RedirectResponse
     {
-        Turma::create($request->validated());
+        $turma = Turma::create($request->validated());
+        $diretores = Usuario::where('id_escola', $turma->id_escola)
+                            ->where('tipo_usuario', 'diretor')
+                            ->get();
+
+        foreach ($diretores as $diretor) {
+            Notificacao::create([
+                'titulo' => 'Nova Turma Cadastrada',
+                'mensagem' => "A turma '{$turma->serie} - {$turma->turno}' foi cadastrada na sua escola.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $diretor->id_usuario,
+            ]);
+        }
 
         return redirect()->route('turmas.index')->with('success', 'Turma cadastrada com sucesso!');
     }
@@ -90,7 +104,7 @@ class TurmaController extends Controller
     {
         $usuarioLogado = Auth::user();
         if ($usuarioLogado->tipo_usuario === 'administrador') {
-            return true; 
+            return;
         }
         if ($usuarioLogado->id_escola !== $turma->id_escola) {
             abort(403, 'Acesso não autorizado a esta turma.');
@@ -112,7 +126,23 @@ class TurmaController extends Controller
              return response()->json(['message' => 'Não é possível excluir. Esta turma já possui professores/disciplinas vinculados.'], 422);
         }
         
+        $nomeTurma = "{$turma->serie} ({$turma->turno})";
+        $escolaId = $turma->id_escola;
         $turma->delete();
+        $diretores = Usuario::where('id_escola', $escolaId)
+                            ->where('tipo_usuario', 'diretor')
+                            ->get();
+
+        foreach ($diretores as $diretor) {
+            Notificacao::create([
+                'titulo' => 'Turma Excluída',
+                'mensagem' => "A turma '{$nomeTurma}' foi excluída da sua escola.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $diretor->id_usuario,
+            ]);
+        }
+        
         return response()->json(null, 204);
     }
 }

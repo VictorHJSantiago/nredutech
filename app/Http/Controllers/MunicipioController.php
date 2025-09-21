@@ -6,30 +6,40 @@ use App\Http\Requests\StoreMunicipioRequest;
 use App\Http\Requests\UpdateMunicipioRequest;
 use App\Http\Resources\MunicipioResource;
 use App\Models\Municipio;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Models\Notificacao;
+use App\Models\Usuario;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class MunicipioController extends Controller
 {
-    public function index(): AnonymousResourceCollection
+    public function index(): View 
     {
         $municipios = Municipio::with('escolas')->paginate(15);
-
-        return MunicipioResource::collection($municipios);
+        return view('escolas.index', ['municipios' => $municipios]);
     }
 
     public function store(StoreMunicipioRequest $request): RedirectResponse
     {
-        Municipio::create($request->validated());
+        $municipio = Municipio::create($request->validated());
+
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
+        foreach ($administradores as $admin) {
+            Notificacao::create([
+                'titulo' => 'Novo Município Cadastrado',
+                'mensagem' => "O município '{$municipio->nome}' foi adicionado ao sistema.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $admin->id_usuario,
+            ]);
+        }
+
         return redirect()->route('escolas.index')->with('success', 'Município adicionado com sucesso!');
     }
 
     public function show(Municipio $municipio): MunicipioResource
     {
         $municipio->load('escolas');
-
         return new MunicipioResource($municipio);
     }
 
@@ -40,7 +50,19 @@ class MunicipioController extends Controller
 
     public function update(UpdateMunicipioRequest $request, Municipio $municipio): RedirectResponse
     {
+        $nomeAntigo = $municipio->nome;
         $municipio->update($request->validated());
+        $nomeNovo = $municipio->nome;
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
+        foreach ($administradores as $admin) {
+            Notificacao::create([
+                'titulo' => 'Município Atualizado',
+                'mensagem' => "O município '{$nomeAntigo}' foi atualizado para '{$nomeNovo}'.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $admin->id_usuario,
+            ]);
+        }
 
         return redirect()->route('escolas.index')->with('success', 'Município atualizado com sucesso!');
     }
@@ -51,7 +73,18 @@ class MunicipioController extends Controller
             return redirect()->route('escolas.index')->with('error', 'Não é possível excluir um município que possui escolas associadas.');
         }
 
+        $nomeMunicipio = $municipio->nome;
         $municipio->delete();
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
+        foreach ($administradores as $admin) {
+            Notificacao::create([
+                'titulo' => 'Município Excluído',
+                'mensagem' => "O município '{$nomeMunicipio}' foi excluído do sistema.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $admin->id_usuario,
+            ]);
+        }
 
         return redirect()->route('escolas.index')->with('success', 'Município excluído com sucesso!');
     }
