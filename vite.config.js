@@ -7,7 +7,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/js/pages/agendamentos-calendar.js',
+                'resources/js/pages/appointments-calendar.js',
             ],
             refresh: true,
         }),

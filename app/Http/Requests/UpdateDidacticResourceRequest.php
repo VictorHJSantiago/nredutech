@@ -14,16 +14,16 @@ class UpdateDidacticResourceRequest extends FormRequest
 
     public function rules(): array
     {
-
-        $recursoId = $this->route('recurso_didatico')->id_recurso;
+        $recursoId = $this->route('recursoDidatico')->id_recurso;
+        
         return [
             'nome' => 'sometimes|required|string|max:255',
-            'tipo' => 'sometimes|required|in:didatico,laboratorio', 
+            'tipo' => 'sometimes|required|in:didatico,laboratorio',
             'marca' => 'nullable|string|max:100',
             'numero_serie' => ['nullable', 'string', 'max:100', Rule::unique('recursos_didaticos')->ignore($recursoId, 'id_recurso')],
             'quantidade' => 'sometimes|required|integer|min:1',
             'observacoes' => 'nullable|string',
-            'data_aquisicao' => 'nullable|date_format:Y-m-d', 
+            'data_aquisicao' => 'nullable|date_format:Y-m-d',
             'status' => 'sometimes|required|in:funcionando,em_manutencao,quebrado,descartado',
         ];
     }

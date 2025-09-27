@@ -184,5 +184,5 @@
 @endsection
 
 @push('scripts')
-    @vite('resources/js/agendamentos-calendar.js')
+    @vite('resources/js/appointments-calendar.js')
 @endpush
