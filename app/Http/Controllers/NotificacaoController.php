@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UpdateNotificacaoRequest;
-use App\Http\Resources\NotificacaoResource;
 use App\Models\Notificacao;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -18,7 +16,6 @@ class NotificacaoController extends Controller
         $notificacoes = Notificacao::where('id_usuario', $user->id_usuario)
                                     ->latest('data_envio')
                                     ->paginate(15);
-        
         Notificacao::where('id_usuario', $user->id_usuario)
                  ->where('status_mensagem', 'enviada')
                  ->update(['status_mensagem' => 'lida']);
@@ -26,15 +23,21 @@ class NotificacaoController extends Controller
         return view('notifications.index', compact('notificacoes'));
     }
 
-    public function update(UpdateNotificacaoRequest $request, Notificacao $notificacao): NotificacaoResource
+    public function destroy(Notificacao $notificacao): RedirectResponse
     {
-        $notificacao->update($request->validated());
-        return new NotificacaoResource($notificacao->fresh());
+        if ($notificacao->id_usuario !== Auth::id()) {
+            abort(403);
+        }
+
+        $notificacao->delete();
+
+        return redirect()->route('notifications.index')->with('success', 'Notificação removida com sucesso.');
     }
 
-    public function destroy(Notificacao $notificacao): JsonResponse
+    public function clearAll(): RedirectResponse
     {
-        $notificacao->delete();
-        return response()->json(null, 204);
+        Notificacao::where('id_usuario', Auth::id())->delete();
+
+        return redirect()->route('notifications.index')->with('success', 'Todas as suas notificações foram limpas.');
     }
 }

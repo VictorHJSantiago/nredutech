@@ -19,7 +19,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::get('/dashboard', fn() => redirect()->route('index'))->name('dashboard');
+
     Route::get('/notifications', [NotificacaoController::class, 'index'])->name('notifications.index');
+    Route::delete('/notifications/{notificacao}', [NotificacaoController::class, 'destroy'])->name('notifications.destroy');
+    Route::post('/notifications/clear-all', [NotificacaoController::class, 'clearAll'])->name('notifications.clearAll');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

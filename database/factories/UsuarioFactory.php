@@ -14,7 +14,7 @@ class UsuarioFactory extends Factory
     {
         return [
             'nome_completo' => $this->faker->name(),
-            'username' => $this->faker->unique()->userName(),
+            'username' => $this->faker->unique()->userName() . '_' . $this->faker->randomNumber(5),
             'email' => $this->faker->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('Password@12345678'),
             'data_nascimento' => $this->faker->date('Y-m-d', '2000-01-01'),
