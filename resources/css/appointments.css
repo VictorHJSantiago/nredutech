@@ -11,6 +11,21 @@
     }
 }
 
+.table-responsive-wrapper {
+    overflow-x: auto; 
+    width: 100%;
+}
+
+.calendar-card {
+    min-height: 650px;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-card .card-body {
+    flex-grow: 1;
+}
+
 .calendar-card .card-title {
     font-size: 1.5rem;
     color: var(--azul-principal);
@@ -22,6 +37,7 @@
     font-weight: 500;
     margin-bottom: 1rem;
 }
+
 .availability-title span {
     color: var(--azul-principal);
     font-weight: 700;
@@ -50,26 +66,87 @@
     padding-bottom: 0.75rem;
 }
 
-.resource-list {
-    list-style-type: none;
-    padding-left: 0;
-    margin-bottom: 0;
-    flex-grow: 1;
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem; 
+    min-width: 600px; 
 }
-.resource-list li {
-    padding: 0.8rem 0;
+
+.table thead {
+    background: linear-gradient(45deg, var(--azul-principal), #0284c7);
+    color: white;
+}
+
+.table th {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    font-weight: 500;
+}
+
+.table td {
+    padding: 0.8rem 1rem;
     border-bottom: 1px solid #f0f0f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    line-height: 1.5; 
+    vertical-align: middle;
 }
-.resource-list li:last-child {
+
+.table tbody tr:last-child td {
     border-bottom: none;
 }
-.resource-list .details {
-    color: #6c757d;
-    font-size: 0.85em;
-    display: block;
+
+.table thead a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.table thead a:hover {
+    color: #e0f2ff;
+}
+
+.table thead a .sort-icon {
+    opacity: 0.6;
+    margin-left: 5px;
+}
+
+.table thead a.active .sort-icon {
+    opacity: 1;
+}
+
+.filter-container {
+    margin-bottom: 1rem;
+}
+
+.filter-container input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.btn-cancel {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-cancel:hover {
+    background-color: #dc2626;
+}
+
+.book-btn {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+.book-btn:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
 }
 
 .placeholder-text {
@@ -122,16 +199,7 @@
 }
 
 .fc-event-title {
-    font-size: 0.8em !important;
+    font-size: 0.85em !important;
     white-space: normal !important;
-}
-
-.calendar-card {
-    min-height: 650px;
-    display: flex;
-    flex-direction: column;
-}
-
-.calendar-card .card-body {
-    flex-grow: 1;
+    font-weight: bold;
 }

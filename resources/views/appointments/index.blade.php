@@ -13,12 +13,10 @@
             <div class="card-header">
                 <h3 class="card-title">📅 Calendário de Agendamentos</h3>
             </div>
-            <div class="card-body" id="calendar-container"
+            <div class="card-body table-responsive-wrapper" id="calendar-container"
                  data-availability-url="{{ route('appointments.availability') }}"
-                 data-events-url="{{ route('agendamentos.index') }}"
+                 data-events-url="{{ route('appointments.events') }}"
                  data-base-url="{{ url('agendamentos') }}"
-                 data-csrf-token="{{ csrf_token() }}"
-                 data-now="{{ $now ?? now()->toIso8601String() }}"
                  data-ofertas='@json($ofertas)'>
                 <div id="calendar"></div>
             </div>
@@ -28,13 +26,13 @@
     <div class="lists-column">
         <div class="list-card">
             <h4>Meus Recursos Agendados</h4>
-            <div class="table-responsive">
+            <div class="table-responsive-wrapper">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Recurso</th>
-                            <th>Data/Hora</th>
-                            <th>Turma</th>
+                            <th>{!! sort_link('recurso_nome', 'Recurso', $sortBy, $order) !!}</th>
+                            <th>{!! sort_link('data_hora_inicio', 'Data/Hora', $sortBy, $order) !!}</th>
+                            <th>{!! sort_link('turma_serie', 'Turma', $sortBy, $order) !!}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,17 +43,13 @@
                                 <td>{{ $agendamento->oferta->turma->serie ?? 'N/A' }}</td>
                             </tr>
                         @empty
-                            <tr>
-                                <td colspan="3" class="text-center placeholder-text">Você não possui agendamentos futuros.</td>
-                            </tr>
+                            <tr><td colspan="3" class="text-center placeholder-text">Você não possui agendamentos futuros.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
             @if ($meusAgendamentos->hasPages())
-                <div class="pagination-links">
-                    {{ $meusAgendamentos->withQueryString()->links() }}
-                </div>
+                <div class="pagination-links">{{ $meusAgendamentos->withQueryString()->links() }}</div>
             @endif
         </div>
 
@@ -64,18 +58,26 @@
             <div class="availability-grid">
                 <div class="list-card">
                     <h5>✔️ Disponíveis</h5>
-                    <div id="available-resources-list">
-                        <p class="placeholder-text">Selecione uma data para ver os recursos.</p>
-                    </div>
+                    <div class="filter-container" id="disponiveis-filter"></div>
+                    <div id="available-resources-list" class="table-responsive-wrapper"></div>
                 </div>
                 <div class="list-card">
                     <h5>❌ Agendados</h5>
-                    <div id="scheduled-resources-list">
-                         <p class="placeholder-text">Nenhum recurso agendado.</p>
-                    </div>
+                    <div class="filter-container" id="agendados-filter"></div>
+                    <div id="scheduled-resources-list" class="table-responsive-wrapper"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 @endsection
+
+@php
+    function sort_link($coluna, $titulo, $sortBy, $order) {
+        $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
+        $icon = $sortBy == $coluna ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short') : 'fa-sort';
+        $isActive = $sortBy == $coluna ? 'active' : '';
+        $urlParams = array_merge(request()->except('sort_by', 'order'), ['sort_by' => $coluna, 'order' => $newOrder]);
+        return '<a href="?' . http_build_query($urlParams) . '" class="' . $isActive . '">' . $titulo . ' <i class="fas ' . $icon . ' sort-icon"></i></a>';
+    }
+@endphp

@@ -1,6 +1,5 @@
 import './bootstrap';
 import Swal from 'sweetalert2';
-import * as bootstrap from 'bootstrap';
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -11,22 +10,28 @@ document.addEventListener('DOMContentLoaded', function () {
     const calendarContainer = document.getElementById('calendar-container');
     if (!calendarContainer) return;
 
-    const calendarEl = document.getElementById('calendar');
     const availabilitySection = document.getElementById('availability-section');
     const selectedDateDisplay = document.getElementById('selected-date-display');
     const availableResourcesList = document.getElementById('available-resources-list');
     const scheduledResourcesList = document.getElementById('scheduled-resources-list');
-    
+    const disponiveisFilterContainer = document.getElementById('disponiveis-filter');
+    const agendadosFilterContainer = document.getElementById('agendados-filter');
+
     const config = {
         availabilityUrl: calendarContainer.dataset.availabilityUrl,
-        eventsUrl: calendarContainer.dataset.eventsUrl,
+        eventsUrl: '/agendamentos/events',
         baseUrl: calendarContainer.dataset.baseUrl,
-        now: new Date(calendarContainer.dataset.now),
         ofertas: JSON.parse(calendarContainer.dataset.ofertas || '[]'),
     };
     let currentSelectedDate = null;
+    let debounceTimer;
 
-    const calendar = new Calendar(calendarEl, {
+    let state = {
+        disponiveis: { search: '', sort_by: 'nome', order: 'asc' },
+        agendados: { search: '', sort_by: 'data_hora_inicio', order: 'asc' }
+    };
+
+    const calendar = new Calendar(document.getElementById('calendar'), {
         locale: ptBrLocale,
         plugins: [dayGridPlugin, interactionPlugin, listPlugin],
         initialView: 'dayGridMonth',
@@ -37,59 +42,110 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         buttonText: { today: 'Hoje', month: 'Mês', list: 'Agenda' },
         selectable: true,
-        aspectRatio: 1.5, 
+        aspectRatio: 1.5,
         selectAllow: (info) => info.start >= new Date(new Date().setHours(0, 0, 0, 0)),
         dateClick: (info) => {
             currentSelectedDate = info.date;
+            state.disponiveis = { search: '', sort_by: 'nome', order: 'asc' };
+            state.agendados = { search: '', sort_by: 'data_hora_inicio', order: 'asc' };
             fetchAvailability(info.date);
         },
-        events: config.eventsUrl, 
+        events: config.eventsUrl,
     });
     calendar.render();
 
     function fetchAvailability(date, pageUrl = null) {
-        const url = pageUrl || config.availabilityUrl;
+        let url = pageUrl || config.availabilityUrl;
+        
+        let sortState = url.includes('agendados_page') ? state.agendados : state.disponiveis;
+
         selectedDateDisplay.textContent = date.toLocaleDateString('pt-BR', { dateStyle: 'long' });
         availabilitySection.style.display = 'block';
-        availableResourcesList.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div>';
-        scheduledResourcesList.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div>';
+        if (!pageUrl) { 
+            availableResourcesList.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border spinner-border-sm" role="status"></div></div>';
+            scheduledResourcesList.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border spinner-border-sm" role="status"></div></div>';
+        }
 
-        axios.post(url, { date: date.toISOString().split('T')[0] })
+        const payload = {
+            date: date.toISOString().split('T')[0],
+            disponiveis_search: state.disponiveis.search,
+            agendados_search: state.agendados.search,
+            sort_by: sortState.sort_by,
+            order: sortState.order,
+        };
+
+        axios.post(url, payload)
             .then(response => {
-                renderPaginatedList(availableResourcesList, response.data.disponiveis, renderAvailableResourceItem, date);
-                renderPaginatedList(scheduledResourcesList, response.data.agendados, renderScheduledResourceItem, date);
+                renderFilter(disponiveisFilterContainer, 'disponiveis', state.disponiveis.search);
+                renderFilter(agendadosFilterContainer, 'agendados', state.agendados.search);
+                
+                renderPaginatedTable(availableResourcesList, response.data.disponiveis, renderAvailableResourceRow, date, [
+                    { key: 'nome', label: 'Recurso' },
+                    { key: 'quantidade', label: 'Qtd' },
+                    { key: 'acao', label: 'Ação' }
+                ], 'disponiveis');
+                
+                renderPaginatedTable(scheduledResourcesList, response.data.agendados, renderScheduledResourceRow, date, [
+                    { key: 'recurso_nome', label: 'Recurso' },
+                    { key: 'data_hora_inicio', label: 'Horário' },
+                    { key: 'turma_serie', label: 'Turma' },
+                    { key: 'professor_nome', label: 'Professor' },
+                    { key: 'acao', label: 'Ação' }
+                ], 'agendados');
             })
-            .catch(error => {
+            .catch(() => {
                 Swal.fire('Erro!', 'Não foi possível buscar a disponibilidade.', 'error');
             });
     }
 
-    function renderPaginatedList(container, paginatedData, itemRenderer, date) {
+    function renderFilter(container, type, value) {
+        container.innerHTML = `<input type="text" class="filter-input" data-type="${type}" value="${value}" placeholder="Pesquisar...">`;
+    }
+
+    function renderPaginatedTable(container, paginatedData, rowRenderer, date, headers, type) {
         if (!paginatedData || paginatedData.data.length === 0) {
-            const message = container.id.includes('available') ? 'Nenhum recurso disponível.' : 'Nenhum recurso agendado.';
+            const message = type === 'disponiveis' ? 'Nenhum recurso disponível.' : 'Nenhum recurso agendado.';
             container.innerHTML = `<p class="placeholder-text">${message}</p>`;
             return;
         }
-        let itemsHtml = paginatedData.data.map(item => itemRenderer(item, date)).join('');
-        let paginationHtml = createPaginationLinks(paginatedData);
-        container.innerHTML = `<ul class="resource-list">${itemsHtml}</ul>${paginationHtml}`;
+
+        const headerHtml = `<thead><tr>${headers.map(h => `<th><a href="#" class="sort-link" data-type="${type}" data-sort="${h.key}">${h.label} <i class="fas ${getSortIcon(type, h.key)}"></i></a></th>`).join('')}</tr></thead>`;
+        const bodyHtml = `<tbody>${paginatedData.data.map(item => rowRenderer(item, date)).join('')}</tbody>`;
+        const paginationHtml = createPaginationLinks(paginatedData);
+        container.innerHTML = `<table class="table">${headerHtml}${bodyHtml}</table>${paginationHtml}`;
     }
 
-    const renderAvailableResourceItem = (res, date) => `
-        <li>
-            <span>${res.nome} (Qtd: ${res.quantidade})</span>
-            <button class="btn btn-sm btn-success book-btn" data-id="${res.id_recurso}" data-name="${res.nome}" data-date="${date.toISOString().split('T')[0]}">Agendar</button>
-        </li>`;
+    function getSortIcon(type, key) {
+        if (state[type].sort_by === key) {
+            return state[type].order === 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short';
+        }
+        return 'fa-sort';
+    }
 
-    const renderScheduledResourceItem = (ag) => {
+    const renderAvailableResourceRow = (res, date) => `
+        <tr>
+            <td>${res.nome}</td>
+            <td>${res.quantidade}</td>
+            <td><button class="btn btn-sm book-btn" data-id="${res.id_recurso}" data-name="${res.nome}" data-date="${date.toISOString().split('T')[0]}">Agendar</button></td>
+        </tr>`;
+
+    const renderScheduledResourceRow = (ag) => {
         const turma = ag.oferta?.turma?.serie || 'N/A';
-        const professor = ag.oferta?.professor?.nome_completo.split(' ')[0] || 'N/A';
+        const professor = ag.oferta?.professor?.nome_completo || 'N/A';
+        const horaInicio = ag.data_hora_inicio ? ag.data_hora_inicio.slice(11, 16) : '--:--';
+        const horaFim = ag.data_hora_fim ? ag.data_hora_fim.slice(11, 16) : '--:--';
+        const cancelButton = ag.can_cancel
+            ? `<button class="btn-cancel" data-id="${ag.id_agendamento}" data-name="${ag.recurso.nome}">Desagendar</button>`
+            : '';
+
         return `
-        <li class="appointment-list">
-            <div><strong>${ag.recurso.nome}</strong></div>
-            <div class="details">${ag.data_hora_inicio.slice(11, 16)} - ${ag.data_hora_fim.slice(11, 16)} | Turma: ${turma}</div>
-            <div class="details">Prof: ${professor}</div>
-        </li>`;
+        <tr>
+            <td>${ag.recurso.nome}</td>
+            <td>${horaInicio} - ${horaFim}</td>
+            <td>${turma}</td>
+            <td>${professor}</td>
+            <td>${cancelButton}</td>
+        </tr>`;
     };
     
     function createPaginationLinks(data) {
@@ -104,22 +160,67 @@ document.addEventListener('DOMContentLoaded', function () {
         return html;
     }
     
+    document.body.addEventListener('input', e => {
+        if (e.target.matches('.filter-input')) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const type = e.target.dataset.type;
+                state[type].search = e.target.value;
+                fetchAvailability(currentSelectedDate);
+            }, 500); 
+        }
+    });
+
     document.body.addEventListener('click', e => {
         const link = e.target.closest('.page-link');
+        const sortLink = e.target.closest('.sort-link');
+        
         if (link && link.closest('.pagination-links')) {
             e.preventDefault();
             const url = link.dataset.url;
             if (url && currentSelectedDate) fetchAvailability(currentSelectedDate, url);
-        }
-        if (e.target.classList.contains('book-btn')) {
+        } else if (sortLink) {
+            e.preventDefault();
+            const type = sortLink.dataset.type;
+            const sortBy = sortLink.dataset.sort;
+            if (state[type].sort_by === sortBy) {
+                state[type].order = state[type].order === 'asc' ? 'desc' : 'asc';
+            } else {
+                state[type].sort_by = sortBy;
+                state[type].order = 'asc';
+            }
+            fetchAvailability(currentSelectedDate);
+        } else if (e.target.classList.contains('book-btn')) {
             openBookingModal(e.target.dataset.id, e.target.dataset.name, e.target.dataset.date);
+        } else if (e.target.classList.contains('btn-cancel')) {
+            const id = e.target.dataset.id;
+            const name = e.target.dataset.name;
+            Swal.fire({
+                title: 'Deseja cancelar o agendamento?',
+                text: `Recurso: ${name}`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, cancelar agendamento!',
+                cancelButtonText: 'Não cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete(`${config.baseUrl}/${id}`)
+                        .then(() => {
+                            Swal.fire('Cancelado!', 'O agendamento foi cancelado com sucesso.', 'success');
+                            calendar.refetchEvents();
+                            fetchAvailability(currentSelectedDate);
+                        }).catch(err => Swal.fire('Erro!', err.response?.data?.message || 'Não foi possível cancelar.', 'error'));
+                }
+            });
         }
     });
 
     function openBookingModal(resourceId, resourceName, date) {
         let ofertasOptions = config.ofertas.length > 0
-            ? config.ofertas.map(o => `<option value="${o.id_oferta}">${o.turma.serie} / ${o.componente_curricular.nome}</option>`).join('')
-            : '<option value="" disabled>Nenhuma turma/disciplina encontrada para seu usuário.</option>';
+            ? config.ofertas.map(o => `<option value="${o.id_oferta}">${o.turma.serie} / ${o.componente_curricular.nome} (${o.professor.nome_completo})</option>`).join('')
+            : '<option value="" disabled>Nenhuma turma/disciplina encontrada.</option>';
 
         Swal.fire({
             title: `Agendar: ${resourceName}`,

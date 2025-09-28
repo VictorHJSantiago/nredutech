@@ -30,19 +30,37 @@ class AppointmentController extends Controller
         } elseif ($authUser->tipo_usuario === 'professor') {
             $ofertasQuery->where('id_professor', $authUser->id_usuario);
         }
-
         $ofertas = $ofertasQuery->get();
 
-        $meusAgendamentos = Agendamento::with(['recurso', 'oferta.turma'])
+        $sortBy = $request->query('sort_by', 'data_hora_inicio');
+        $order = $request->query('order', 'asc');
+        $allowedSorts = ['recurso_nome', 'data_hora_inicio', 'turma_serie'];
+
+        $meusAgendamentosQuery = Agendamento::with(['recurso', 'oferta.turma'])
             ->whereHas('oferta', fn ($query) => $query->where('id_professor', $authUser->id_usuario))
-            ->where('data_hora_inicio', '>=', now())
-            ->orderBy('data_hora_inicio', 'asc')
-            ->paginate(5, ['*'], 'meus_agendamentos_page');
+            ->where('data_hora_inicio', '>=', now());
+
+        if (in_array($sortBy, $allowedSorts)) {
+            if ($sortBy === 'recurso_nome') {
+                $meusAgendamentosQuery->join('recursos_didaticos', 'agendamentos.id_recurso', '=', 'recursos_didaticos.id_recurso')
+                    ->orderBy('recursos_didaticos.nome', $order);
+            } elseif ($sortBy === 'turma_serie') {
+                $meusAgendamentosQuery->join('oferta_componentes', 'agendamentos.id_oferta', '=', 'oferta_componentes.id_oferta')
+                    ->join('turmas', 'oferta_componentes.id_turma', '=', 'turmas.id_turma')
+                    ->orderBy('turmas.serie', $order);
+            } else {
+                $meusAgendamentosQuery->orderBy($sortBy, $order);
+            }
+        }
+
+        $meusAgendamentos = $meusAgendamentosQuery->select('agendamentos.*')->paginate(5, ['*'], 'meus_agendamentos_page');
 
         return view('appointments.index', [
             'ofertas' => $ofertas,
             'meusAgendamentos' => $meusAgendamentos,
             'now' => now()->toIso8601String(),
+            'sortBy' => $sortBy,
+            'order' => $order
         ]);
     }
 
