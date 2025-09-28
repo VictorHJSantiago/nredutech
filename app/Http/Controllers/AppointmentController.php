@@ -8,157 +8,120 @@ use App\Http\Resources\AppointmentResource;
 use App\Models\Agendamento;
 use App\Models\OfertaComponente;
 use App\Models\RecursoDidatico;
-use App\Models\Usuario; 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use App\Models\Notificacao;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NotificationMail;
+use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
-    /**
-     *
-     * @param Request $request
-     * @return View|AnonymousResourceCollection
-     */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $authUser = Auth::user();
-        $domainUser = $authUser ? Usuario::where('email', $authUser->email)->first() : null;
-        $escolaId = null;
+        $ofertasQuery = OfertaComponente::with(['componenteCurricular', 'turma', 'professor']);
 
-        if ($domainUser && $domainUser->tipo_usuario !== 'administrador' && $domainUser->id_escola) {
-            $escolaId = $domainUser->id_escola;
-        }
-
-        if ($request->wantsJson()) {
-            $request->validate([
-                'start' => 'required|date',
-                'end' => 'required|date|after_or_equal:start',
-            ]);
-
-            $query = Agendamento::query()
-                ->with(['recurso', 'oferta.turma', 'oferta.professor', 'oferta.componenteCurricular'])
-                ->whereHas('recurso') 
-                ->whereHas('oferta.turma'); 
-
-            if ($escolaId) {
-                $query->whereHas('oferta.turma', function ($q) use ($escolaId) {
-                    $q->where('id_escola', $escolaId);
-                });
-            }
-
-            $query->where('data_hora_inicio', '<', $request->end)
-                  ->where('data_hora_fim', '>', $request->start);
-
-            $agendamentos = $query->get();
-
-            return AppointmentResource::collection($agendamentos);
-        }
-
-        $recursos = RecursoDidatico::where('status', 'funcionando')->get();
-        $ofertasQuery = OfertaComponente::with(['componenteCurricular', 'turma', 'professor'])
-                        ->whereHas('turma')
-                        ->whereHas('componenteCurricular');
-
-        if ($escolaId) {
-            $ofertasQuery->whereHas('turma', function ($q) use ($escolaId) {
-                $q->where('id_escola', $escolaId);
-            });
+        if ($authUser->tipo_usuario === 'diretor' && $authUser->id_escola) {
+            $ofertasQuery->whereHas('turma', fn($q) => $q->where('id_escola', $authUser->id_escola));
+        } elseif ($authUser->tipo_usuario === 'professor') {
+            $ofertasQuery->where('id_professor', $authUser->id_usuario);
         }
 
         $ofertas = $ofertasQuery->get();
-        $reservadosQuery = Agendamento::query()
-            ->with(['recurso', 'oferta.professor', 'oferta.turma'])
-            ->where('status', 'agendado') 
+
+        $meusAgendamentos = Agendamento::with(['recurso', 'oferta.turma'])
+            ->whereHas('oferta', fn ($query) => $query->where('id_professor', $authUser->id_usuario))
             ->where('data_hora_inicio', '>=', now())
-            ->orderBy('data_hora_inicio', 'asc');
-
-        $disponiveisQuery = Agendamento::query()
-            ->with(['recurso', 'oferta.professor'])
-            ->where('status', 'livre') 
-            ->where('data_hora_inicio', '>=', now())
-            ->orderBy('data_hora_inicio', 'asc');
-
-        if ($escolaId) {
-            $reservadosQuery->whereHas('oferta.turma', function ($q) use ($escolaId) {
-                $q->where('id_escola', $escolaId);
-            });
-            $disponiveisQuery->whereHas('oferta.turma', function ($q) use ($escolaId) {
-                $q->where('id_escola', $escolaId);
-            });
-        }
-
-        $reservados = $reservadosQuery->paginate(5, ['*'], 'reservados_page');
-        $disponiveis = $disponiveisQuery->paginate(5, ['*'], 'disponiveis_page');
+            ->orderBy('data_hora_inicio', 'asc')
+            ->paginate(5, ['*'], 'meus_agendamentos_page');
 
         return view('appointments.index', [
-            'recursos' => $recursos,
             'ofertas' => $ofertas,
+            'meusAgendamentos' => $meusAgendamentos,
             'now' => now()->toIso8601String(),
-            'reservados' => $reservados,     
-            'disponiveis' => $disponiveis, 
         ]);
     }
 
-    public function store(StoreAppointmentRequest $request): AppointmentResource
+    public function getCalendarEvents(Request $request): AnonymousResourceCollection
     {
-        $agendamento = Agendamento::create($request->validated());
-        $agendamento->load(['recurso', 'oferta.professor']);
+        $authUser = Auth::user();
+        $query = Agendamento::query()
+            ->with(['recurso', 'oferta.turma.escola', 'oferta.professor', 'oferta.componenteCurricular'])
+            ->whereBetween('data_hora_inicio', [$request->start, $request->end]);
 
-        if ($agendamento->oferta && $agendamento->oferta->professor) {
-            Notificacao::create([
-                'titulo' => 'Novo Agendamento Criado',
-                'mensagem' => "Um novo agendamento para o recurso '{$agendamento->recurso->nome}' foi criado.",
-                'data_envio' => now(),
-                'status_mensagem' => 'enviada',
-                'id_usuario' => $agendamento->oferta->id_professor,
-            ]);
+        if ($authUser->tipo_usuario !== 'administrador' && $authUser->id_escola) {
+            $query->whereHas('oferta.turma', function ($q) use ($authUser) {
+                $q->where('id_escola', $authUser->id_escola);
+            });
         }
-        return new AppointmentResource($agendamento);
+        $agendamentos = $query->get();
+        return AppointmentResource::collection($agendamentos);
     }
 
-    public function show(Agendamento $agendamento): AppointmentResource
+    public function getAvailabilityForDate(Request $request): JsonResponse
     {
-        $agendamento->load(['recurso', 'oferta.turma', 'oferta.professor']);
-        return new AppointmentResource($agendamento);
-    }
+        $request->validate(['date' => 'required|date']);
+        $date = Carbon::parse($request->date)->setTimezone(config('app.timezone'));
+        $startOfDay = $date->copy()->startOfDay();
+        $endOfDay = $date->copy()->endOfDay();
+        $authUser = Auth::user();
 
-    public function update(UpdateAppointmentRequest $request, Agendamento $agendamento): AppointmentResource
-    {
-        $agendamento->update($request->validated());
-        $agendamento->load(['recurso', 'oferta.professor']);
+        $recursosQuery = RecursoDidatico::query();
+        $agendamentosQuery = Agendamento::query();
 
-        if ($agendamento->oferta && $agendamento->oferta->professor) {
-            Notificacao::create([
-                'titulo' => 'Agendamento Atualizado',
-                'mensagem' => "O agendamento para o recurso '{$agendamento->recurso->nome}' foi atualizado.",
-                'data_envio' => now(),
-                'status_mensagem' => 'enviada',
-                'id_usuario' => $agendamento->oferta->id_professor,
-            ]);
-        }
-        return new AppointmentResource($agendamento->fresh());
-    }
-
-    public function destroy(Agendamento $agendamento): JsonResponse
-    {
-        $agendamento->load(['recurso', 'oferta.professor']);
-        $professorId = $agendamento->oferta->id_professor;
-
-        if ($agendamento->oferta && $agendamento->oferta->professor) {
-            Notificacao::create([
-                'titulo' => 'Agendamento Cancelado',
-                'mensagem' => "O agendamento para o recurso '{$agendamento->recurso->nome}' foi cancelado.",
-                'data_envio' => now(),
-                'status_mensagem' => 'enviada',
-                'id_usuario' => $professorId,
-            ]);
+        if ($authUser->tipo_usuario !== 'administrador' && $authUser->id_escola) {
+            $escolaId = $authUser->id_escola;
+            $agendamentosQuery->whereHas('oferta.turma', fn($q) => $q->where('id_escola', $escolaId));
         }
 
-        $agendamento->delete();
-        return response()->json(null, 204);
+        $agendamentosDoDia = $agendamentosQuery
+            ->whereBetween('data_hora_inicio', [$startOfDay, $endOfDay])
+            ->get();
+            
+        $recursosAgendadosIds = $agendamentosDoDia->pluck('id_recurso')->unique()->toArray();
+        
+        $recursosDisponiveis = $recursosQuery->where('status', 'funcionando')
+             ->whereNotIn('id_recurso', $recursosAgendadosIds)
+             ->paginate(5, ['id_recurso', 'nome', 'quantidade'], 'disponiveis_page');
+
+        $agendadosPaginados = Agendamento::with(['recurso', 'oferta.turma', 'oferta.professor', 'oferta.componenteCurricular'])
+            ->whereIn('id_agendamento', $agendamentosDoDia->pluck('id_agendamento'))
+            ->orderBy('data_hora_inicio')
+            ->paginate(5, ['*'], 'agendados_page');
+
+        return response()->json([
+            'disponiveis' => $recursosDisponiveis,
+            'agendados' => $agendadosPaginados
+        ]);
+    }
+
+    public function store(StoreAppointmentRequest $request): JsonResponse
+    {
+        $validatedData = $request->validated();
+        $inicio = Carbon::parse($validatedData['data_hora_inicio']);
+
+        if ($inicio->hour >= 23 || $inicio->hour < 6) {
+            return response()->json(['message' => 'Não é permitido criar agendamentos entre 23:00 e 06:00.'], 422);
+        }
+        
+        $validatedData['status'] = 'agendado';
+
+        $agendamento = Agendamento::create($validatedData);
+        
+        if ($agendamento->oferta && $professor = $agendamento->oferta->professor) {
+            $titulo = 'Novo Agendamento Criado';
+            $mensagem = "Um novo agendamento para o recurso '{$agendamento->recurso->nome}' foi criado para o professor(a) {$professor->nome_completo}.";
+            
+            Notificacao::create(['titulo' => $titulo, 'mensagem' => $mensagem, 'data_envio' => now(), 'status_mensagem' => 'enviada', 'id_usuario' => $professor->id_usuario]);
+            if ($professor->preferencias && $professor->preferencias->notif_email) {
+                Mail::to($professor->email)->send(new NotificationMail($titulo, $mensagem));
+            }
+        }
+        
+        return response()->json(['message' => 'Agendamento criado com sucesso!'], 201);
     }
 }

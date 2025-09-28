@@ -17,7 +17,6 @@ class StoreAppointmentRequest extends FormRequest
         return [
             'data_hora_inicio' => ['required', 'date', 'after:' . now()->addMinutes(10)->toDateTimeString()],
             'data_hora_fim' => 'required|date|after:data_hora_inicio',
-            'status' => 'required|in:agendado,livre',
             'id_recurso' => ['required', 'exists:recursos_didaticos,id_recurso', $this->regraConflito()],
             'id_oferta' => 'required|exists:oferta_componentes,id_oferta',
         ];

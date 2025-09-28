@@ -131,7 +131,6 @@ class SettingsController extends Controller
     public function initiateBackup(Request $request): HttpRedirectResponse
     {
         try {
-            // Removido ['--only-db' => true] para executar um backup completo (arquivos + banco)
             Artisan::call('backup:run');
             $request->session()->forget('auth.password_confirmed_at');
 

@@ -16,31 +16,29 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\NotificationController;
 
 Route::middleware(['auth'])->group(function () {
-
     Route::get('/', [DashboardController::class, 'index'])->name('index');
+
+
     Route::get('/dashboard', fn() => redirect()->route('index'))->name('dashboard');
-
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::delete('/notifications/{notificacao}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
-    Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
-
+    Route::get('/notificacoes', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::delete('/notificacoes/{notificacao}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::post('/notificacoes/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
-    Route::patch('/settings/preferences', [SettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
-
-    Route::get('/settings/backup/initiate', [SettingsController::class, 'initiateBackup'])->name('settings.backup.initiate')->middleware('password.confirm');
-    Route::get('/settings/backup/download/latest', [SettingsController::class, 'downloadLatestBackup'])->name('settings.backup.download.latest');
-    Route::get('/settings/backup/download-file/{filename}', [SettingsController::class, 'downloadFile'])->name('settings.backup.download-file');
-
+    Route::get('/configuracoes', [SettingsController::class, 'index'])->name('settings');
+    Route::patch('/configuracoes/preferences', [SettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
+    Route::get('/configuracoes/backup/initiate', [SettingsController::class, 'initiateBackup'])->name('settings.backup.initiate')->middleware('password.confirm');
+    Route::get('/configuracoes/backup/download/latest', [SettingsController::class, 'downloadLatestBackup'])->name('settings.backup.download.latest');
+    Route::get('/configuracoes/backup/download-file/{filename}', [SettingsController::class, 'downloadFile'])->name('settings.backup.download-file');
     Route::middleware(['password.confirm'])->group(function () {
-        Route::get('/settings/backup/download/{filename}', [SettingsController::class, 'downloadBackup'])->name('settings.backup.download');
-        Route::post('/settings/backup/restore', [SettingsController::class, 'uploadAndRestore'])->name('settings.backup.restore');
+        Route::get('/configuracoes/backup/download/{filename}', [SettingsController::class, 'downloadBackup'])->name('settings.backup.download');
+        Route::post('/configuracoes/backup/restore', [SettingsController::class, 'uploadAndRestore'])->name('settings.backup.restore');
     });
 
-
+        
+    Route::get('/agendamentos/events', [AppointmentController::class, 'getCalendarEvents'])->name('appointments.events');
+    Route::post('/agendamentos/availability', [AppointmentController::class, 'getAvailabilityForDate'])->name('appointments.availability');
     Route::resource('agendamentos', AppointmentController::class);
     Route::resource('componentes', CurricularComponentController::class);
     Route::resource('escolas', SchoolController::class)->parameters(['escolas' => 'escola']);
@@ -50,10 +48,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('recursos-didaticos', DidacticResourceController::class)
         ->parameters(['recursos-didaticos' => 'recursoDidatico'])
         ->names('resources');
-
     Route::resource('usuarios', UserController::class);
-
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/relatorios', [ReportController::class, 'index'])->name('reports.index');
 });
 
 require __DIR__.'/auth.php';

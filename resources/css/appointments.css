@@ -1,95 +1,137 @@
-.calendar-card {
-    max-width: 900px;
-    margin: 0 auto;
+.appointments-container {
+    display: grid;
+    grid-template-columns: 1fr; 
+    gap: 2rem;
+    padding: 1rem;
 }
 
-#calendar-container {
-    padding: 1.5rem;
+@media (min-width: 1024px) {
+    .appointments-container {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
-.fc-event {
-    cursor: pointer;
+.calendar-card .card-title {
+    font-size: 1.5rem;
+    color: var(--azul-principal);
+    text-align: center;
 }
 
-.lists-container {
-     max-width: 900px;
-     margin: 2rem auto 0;
-     display: grid;
-     grid-template-columns: 1fr;
-     gap: 2rem;
+.availability-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+.availability-title span {
+    color: var(--azul-principal);
+    font-weight: 700;
+}
+
+.availability-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
 }
 
 .list-card {
-    background: #fff;
+    background: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
     padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
 }
-.list-card h4 {
+
+.list-card h4, .list-card h5 {
     color: var(--azul-principal);
     margin-bottom: 1rem;
+    font-size: 1.2rem;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.75rem;
+}
+
+.resource-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+.resource-list li {
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.resource-list li:last-child {
+    border-bottom: none;
+}
+.resource-list .details {
+    color: #6c757d;
+    font-size: 0.85em;
+    display: block;
+}
+
+.placeholder-text {
+    padding: 1rem;
+    text-align: center;
+    font-style: italic;
+    color: #6c757d;
+}
+
+.pagination-links {
+    margin-top: auto;
+    padding-top: 1rem;
 }
 .pagination-links nav {
     display: flex;
     justify-content: center;
-    margin-top: 1rem;
-}
-.table {
-    width: 100%;
-    font-size: 0.9rem;
-}
-.table th {
-    text-align: left;
-    padding: 0.75rem;
-    border-bottom: 2px solid #eee;
-}
- .table td {
-    padding: 0.75rem;
-    border-bottom: 1px solid #f4f4f4;
-    vertical-align: middle;
 }
 
-#recurso-select-wrapper {
-    display: none;
+.swal2-container {
+    z-index: 1060;
 }
-
-#resource-availability-container {
-    display: none; 
+.swal2-popup {
+    width: 28rem;
 }
-.resource-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1rem;
+.swal2-html-container {
+    text-align: left !important;
+}
+.swal-form-group {
     margin-bottom: 1rem;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
-.resource-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-.resource-card h5 {
-    color: #0169b4;
-    font-weight: 600;
-}
-.resource-card .bookings-list {
-    font-size: 0.9rem;
-    padding-left: 1.2rem;
-    margin-top: 10px;
-}
-.resource-card .bookings-list li {
-    color: #555;
-    margin-bottom: 4px;
-}
-.resource-card .no-bookings {
-    color: #198754; 
-    font-style: italic;
+.swal-form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
     font-weight: 500;
 }
+.swal-form-group .form-control,
+.swal-form-group .form-select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
 
-.pagination {
+.fc-daygrid-day-frame {
+    min-height: 110px;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1.5em;
+}
+
+.fc-event-title {
+    font-size: 0.8em !important;
+    white-space: normal !important;
+}
+
+.calendar-card {
+    min-height: 650px;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
+}
+
+.calendar-card .card-body {
+    flex-grow: 1;
 }
