@@ -1,5 +1,4 @@
 import './bootstrap'; 
-import 'bootstrap/dist/css/bootstrap.min.css'; 
 import Swal from 'sweetalert2';
 import * as bootstrap from 'bootstrap';
 import { Calendar } from '@fullcalendar/core';

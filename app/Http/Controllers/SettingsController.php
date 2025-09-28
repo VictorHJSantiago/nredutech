@@ -131,7 +131,8 @@ class SettingsController extends Controller
     public function initiateBackup(Request $request): HttpRedirectResponse
     {
         try {
-            Artisan::call('backup:run', ['--only-db' => true]);
+            // Removido ['--only-db' => true] para executar um backup completo (arquivos + banco)
+            Artisan::call('backup:run');
             $request->session()->forget('auth.password_confirmed_at');
 
             $latestBackup = $this->findLatestBackupFile();
@@ -145,7 +146,7 @@ class SettingsController extends Controller
             $backupDate = Carbon::createFromTimestamp($timestamp)->setTimezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i');
 
             return redirect()->route('settings')
-                ->with('success', "BACKUP DO DIA {$backupDate} REALIZADO COM SUCESSO!")
+                ->with('success', "BACKUP COMPLETO (ARQUIVOS + BANCO) DO DIA {$backupDate} REALIZADO COM SUCESSO!")
                 ->with('download_backup_url', route('settings.backup.download.latest'));
 
         } catch (\Exception $e) {
