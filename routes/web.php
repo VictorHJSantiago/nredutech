@@ -31,9 +31,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/configuracoes/backup/initiate', [SettingsController::class, 'initiateBackup'])->name('settings.backup.initiate')->middleware('password.confirm');
     Route::get('/configuracoes/backup/download/latest', [SettingsController::class, 'downloadLatestBackup'])->name('settings.backup.download.latest');
     Route::get('/configuracoes/backup/download-file/{filename}', [SettingsController::class, 'downloadFile'])->name('settings.backup.download-file');
+    Route::post('/configuracoes/backup/restore-upload', [SettingsController::class, 'uploadAndRestore'])->name('settings.backup.restore-upload');
     Route::middleware(['password.confirm'])->group(function () {
         Route::get('/configuracoes/backup/download/{filename}', [SettingsController::class, 'downloadBackup'])->name('settings.backup.download');
-        Route::post('/configuracoes/backup/restore', [SettingsController::class, 'uploadAndRestore'])->name('settings.backup.restore');
+        Route::get('/configuracoes/backup/restore', [SettingsController::class, 'showRestorePage'])->name('settings.backup.restore');
     });
 
         

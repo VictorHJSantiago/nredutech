@@ -6,12 +6,14 @@ use App\Http\Requests\StoreAppointmentRequest;
 use App\Models\Agendamento;
 use App\Models\OfertaComponente;
 use App\Models\RecursoDidatico;
+use App\Models\Usuario; 
+use App\Models\Notificacao;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log; 
 use Illuminate\View\View;
-use App\Models\Notificacao;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NotificationMail;
 use Carbon\Carbon;
@@ -141,6 +143,7 @@ class AppointmentController extends Controller
         }
 
         $agendadosPaginados = $agendadosQuery->select('agendamentos.*')->paginate(5, ['*'], 'agendados_page');
+
         $agendadosPaginados->getCollection()->transform(function ($agendamento) use ($authUser) {
             $agendamento->can_cancel = $authUser->can('cancelar-agendamento', $agendamento);
             return $agendamento;
@@ -160,31 +163,77 @@ class AppointmentController extends Controller
         if ($inicio->hour >= 23 || $inicio->hour < 6) {
             return response()->json(['message' => 'Não é permitido criar agendamentos entre 23:00 e 06:00.'], 422);
         }
-        
+         
         $validatedData['status'] = 'agendado';
         $agendamento = Agendamento::create($validatedData);
-        
-        if ($agendamento->oferta && $professor = $agendamento->oferta->professor) {
-            $titulo = 'Novo Agendamento Criado';
-            $mensagem = "Um novo agendamento para o recurso '{$agendamento->recurso->nome}' foi criado para o professor(a) {$professor->nome_completo}.";
-            
-            Notificacao::create(['titulo' => $titulo, 'mensagem' => $mensagem, 'data_envio' => now(), 'status_mensagem' => 'enviada', 'id_usuario' => $professor->id_usuario]);
-            if ($professor->preferencias && $professor->preferencias->notif_email) {
-                Mail::to($professor->email)->send(new NotificationMail($titulo, $mensagem));
-            }
-        }
-        
+        $titulo = 'Novo Agendamento Realizado';
+        $mensagemTemplate = "Novo agendamento do recurso '{recurso_nome}' para {data_hora}, solicitado por {professor_nome}.";
+        $this->notifyRelatedUsers($agendamento, $titulo, $mensagemTemplate);
         return response()->json(['message' => 'Agendamento criado com sucesso!'], 201);
     }
 
-    /**
-     * @param  \App\Models\Agendamento  $agendamento
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function destroy(Agendamento $agendamento)
     {
         Gate::authorize('cancelar-agendamento', $agendamento);
+        $titulo = 'Agendamento Cancelado';
+        $autorAcao = Auth::user()->nome_completo;
+        $mensagemTemplate = "O agendamento do recurso '{recurso_nome}' para {data_hora} (de {professor_nome}) foi cancelado por {$autorAcao}.";
+        $this->notifyRelatedUsers($agendamento, $titulo, $mensagemTemplate);
         $agendamento->delete();
         return response()->json(['message' => 'Agendamento cancelado com sucesso.']);
+    }
+
+    /**
+     *
+     * @param Agendamento $agendamento
+     * @param string $titulo
+     * @param string $mensagemTemplate
+     */
+    private function notifyRelatedUsers(Agendamento $agendamento, string $titulo, string $mensagemTemplate)
+    {
+        if (!$agendamento->oferta || !$agendamento->oferta->professor || !$agendamento->oferta->turma) {
+            return;
+        }
+
+        $professor = $agendamento->oferta->professor;
+        $escolaId = $agendamento->oferta->turma->id_escola;
+        $admins = Usuario::where('tipo_usuario', 'administrador')->get();
+        $diretor = Usuario::where('tipo_usuario', 'diretor')
+                          ->where('id_escola', $escolaId)
+                          ->first();
+
+        $usersToNotify = collect($admins);
+        if ($diretor) {
+            $usersToNotify->push($diretor);
+        }
+
+        $usersToNotify->push($professor);
+        $uniqueUsers = $usersToNotify->unique('id_usuario');
+        $recursoNome = $agendamento->recurso->nome;
+        $agendamentoData = Carbon::parse($agendamento->data_hora_inicio)->format('d/m/Y \à\s H:i');
+        
+        foreach ($uniqueUsers as $user) {
+            $mensagem = str_replace(
+                ['{recurso_nome}', '{professor_nome}', '{data_hora}'],
+                [$recursoNome, $professor->nome_completo, $agendamentoData],
+                $mensagemTemplate
+            );
+
+            Notificacao::create([
+                'titulo' => $titulo,
+                'mensagem' => $mensagem,
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $user->id_usuario
+            ]);
+
+            if ($user->preferencias && $user->preferencias->notif_email && $user->email) {
+                try {
+                    Mail::to($user->email)->send(new NotificationMail($titulo, $mensagem));
+                } catch (\Exception $e) {
+                    Log::error("Falha ao enviar e-mail de notificação para {$user->email}: " . $e->getMessage());
+                }
+            }
+        }
     }
 }

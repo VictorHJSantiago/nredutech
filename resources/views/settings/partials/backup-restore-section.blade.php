@@ -32,32 +32,24 @@
 
         <form method="GET" action="{{ route('settings.backup.initiate') }}" class="mb-4">
             <p class="help-text">
-                Clique no botão abaixo para gerar um backup instantâneo <strong>apenas do banco de dados</strong>.
+                Clique no botão abaixo para gerar um backup instantâneo <strong>do banco de dados e de todo o sistema</strong>.
             </p>
             <button type="submit" class="btn btn-info">
-                Executar Backup do Banco de Dados Agora
+                Executar Backup Agora
             </button>
         </form>
 
-        <form method="POST" action="{{ route('settings.backup.restore') }}" enctype="multipart/form-data">
-            @csrf
+        <div>
             <h3 class="section-subtitle-sm">Restaurar de um Arquivo</h3>
             <p class="help-text">
-                Envie um arquivo <code>.sql</code> para restaurar o banco de dados. A senha será solicitada para confirmar.
+                Para restaurar o banco de dados a partir de um arquivo <code>.sql</code>, você precisará confirmar sua senha.
                 <br>
-                <strong>Nota:</strong> Se você baixou um backup <code>.zip</code>, você deve <strong>extrair o arquivo <code>.sql</code></strong> de dentro dele primeiro (geralmente fica numa pasta <code>db-dumps</code>).
+                <strong>Nota:</strong> Esta ação é irreversível e substituirá todos os dados atuais.
             </p>
-
-            <div class="form-group">
-                <label for="backup_file" class="form-label">Arquivo de Backup (.sql):</label>
-                <input type="file" name="backup_file" id="backup_file" required accept=".sql" class="form-input">
-            </div>
-
-            <button type="submit" class="btn btn-danger"
-                    onclick="return confirm('ATENÇÃO! Você tem certeza que deseja restaurar este backup? TODOS OS DADOS ATUAIS SERÃO APAGADOS E SUBSTITUÍDOS PERMANENTEMENTE. Esta ação não pode ser desfeita.')">
-                Restaurar Banco de Dados
-            </button>
-        </form>
+            <a href="{{ route('settings.backup.restore') }}" class="btn btn-danger">
+                Iniciar Restauração
+            </a>
+        </div>
 
         <div class="backup-list-wrapper">
             <h3 class="section-subtitle-sm">Backups Salvos no Servidor</h3>

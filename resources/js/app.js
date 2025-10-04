@@ -6,6 +6,7 @@ import './appointments-calendar';
 import './reports';
 import './settings-modal';
 import './backup-download';
+import './restore';
 
 import Alpine from 'alpinejs';
 

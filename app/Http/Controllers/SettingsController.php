@@ -15,8 +15,9 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Usuario;
 use App\Models\UsuarioPreferencia;
-use Illuminate\Http\RedirectResponse as HttpRedirectResponse; 
+use Illuminate\Http\RedirectResponse as HttpRedirectResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class SettingsController extends Controller
 {
@@ -145,7 +146,7 @@ class SettingsController extends Controller
             $backupDate = Carbon::createFromTimestamp($timestamp)->setTimezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i');
 
             return redirect()->route('settings')
-                ->with('success', "BACKUP COMPLETO (ARQUIVOS + BANCO) DO DIA {$backupDate} REALIZADO COM SUCESSO!")
+                ->with('success', "BACKUP DO DIA {$backupDate} REALIZADO COM SUCESSO!")
                 ->with('download_backup_url', route('settings.backup.download.latest'));
 
         } catch (\Exception $e) {
@@ -199,56 +200,96 @@ class SettingsController extends Controller
         return $disk->download($fullPath);
     }
 
+    public function showRestorePage(): View
+    {
+        return view('settings.restore');
+    }
+
     public function uploadAndRestore(Request $request)
     {
         $request->session()->forget('auth.password_confirmed_at');
-
+    
         $request->validate([
-            'backup_file' => 'required|file|mimetypes:text/plain,application/sql,application/x-sql,text/sql',
+            'backup_file' => 'required|file|mimetypes:text/plain,application/sql,application/x-sql,text/sql,application/octet-stream',
         ], [
             'backup_file.required' => 'Você precisa enviar um arquivo.',
-            'backup_file.mimetypes' => 'O arquivo de restauração deve ser um arquivo .sql válido (texto plano). Se você tiver certeza de que é um .sql, o tipo de arquivo pode estar sendo reportado incorretamente.',
+            'backup_file.mimetypes' => 'O arquivo de restauração deve ser um arquivo .sql válido.',
         ]);
-
+    
         $file = $request->file('backup_file');
         
         $dbDriver = config('database.default', 'mysql');
         $dbConfig = config('database.connections.' . $dbDriver);
         
-        $dbHost = $dbConfig['host'];
-        $dbName = $dbConfig['database'];
-        $dbUser = $dbConfig['username'];
-        $dbPass = $dbConfig['password'] ?? ''; 
-        $filePath = $file->getRealPath();
-
-        $command = sprintf(
-            'mysql -h %s -u %s -p"%s" %s < %s',
-            escapeshellarg($dbHost),
-            escapeshellarg($dbUser),
-            $dbPass, 
-            escapeshellarg($dbName),
-            escapeshellarg($filePath)
-        );
-
         if ($dbDriver === 'sqlite') {
-            Log::error('Falha na restauração: A restauração por upload de SQL só está configurada para MySQL/MariaDB, mas o driver padrão é SQLite.');
-            return Redirect::route('settings')->with('error', 'Falha na restauração: O sistema está configurado para SQLite, mas a restauração tentou usar comandos do MySQL.');
+            $dbPath = $dbConfig['database'];
+            $filePath = $file->getRealPath();
+            $backupPath = $dbPath . '.bak.' . time();
+    
+            try {
+                if (file_exists($dbPath)) {
+                    copy($dbPath, $backupPath);
+                }
+                
+                $command = sprintf('sqlite3 %s < %s', escapeshellarg($dbPath), escapeshellarg($filePath));
+                $process = Process::fromShellCommandline($command);
+    
+                $process->mustRun();
+    
+                Log::info('Banco de dados SQLite restaurado com sucesso a partir do arquivo: ' . $file->getClientOriginalName());
+                return Redirect::route('settings')->with('success', 'Banco de dados restaurado com sucesso.');
+    
+            } catch (ProcessFailedException $exception) {
+                if (file_exists($backupPath)) {
+                    rename($backupPath, $dbPath);
+                }
+                Log::error('Falha na restauração do banco de dados SQLite: ' . $exception->getMessage());
+                return Redirect::route('settings')->with('error', 'Falha na restauração do SQLite: ' . $exception->getMessage());
+            } catch (\Exception $e) {
+                 if (file_exists($backupPath)) {
+                    rename($backupPath, $dbPath);
+                }
+                Log::error('Falha na restauração (Exception Geral): ' . $e->getMessage());
+                return Redirect::route('settings')->with('error', 'Falha na restauração: ' . $e->getMessage());
+            }
         }
-
-        $process = Process::fromShellCommandline($command);
-
-        try {
-            $process->mustRun();
-            Log::info('Banco de dados restaurado com sucesso a partir do arquivo: ' . $file->getClientOriginalName());
-            return Redirect::route('settings')->with('success', 'Banco de dados restaurado com sucesso.');
-
-        } catch (ProcessFailedException $exception) {
-            Log::error('Falha na restauração do banco de dados (ProcessFailedException): ' . $exception->getMessage());
-            return Redirect::route('settings')->with('error', 'Falha na restauração: ' . $exception->getMessage());
-        } catch (\Exception $e) {
-             Log::error('Falha na restauração (Exception Geral): ' . $e->getMessage());
-            return Redirect::route('settings')->with('error', 'Falha na restauração: ' . $e->getMessage());
+    
+        if ($dbDriver === 'mysql' || $dbDriver === 'mariadb') {
+            $dbHost = $dbConfig['host'];
+            $dbName = $dbConfig['database'];
+            $dbUser = $dbConfig['username'];
+            $dbPass = $dbConfig['password'] ?? '';
+            $filePath = $file->getRealPath();
+    
+            $commandTool = ($dbDriver === 'mariadb') ? 'mariadb' : 'mysql';
+    
+            $command = sprintf(
+                '%s -h %s -u %s -p"%s" %s < %s',
+                $commandTool,
+                escapeshellarg($dbHost),
+                escapeshellarg($dbUser),
+                $dbPass,
+                escapeshellarg($dbName),
+                escapeshellarg($filePath)
+            );
+    
+            $process = Process::fromShellCommandline($command);
+    
+            try {
+                $process->mustRun();
+                Log::info('Banco de dados restaurado com sucesso a partir do arquivo: ' . $file->getClientOriginalName());
+                return Redirect::route('settings')->with('success', 'Banco de dados restaurado com sucesso.');
+    
+            } catch (ProcessFailedException $exception) {
+                Log::error("Falha na restauração do banco de dados (ProcessFailedException) com o driver {$dbDriver}: " . $exception->getMessage());
+                return Redirect::route('settings')->with('error', "Falha na restauração: Ocorreu um erro ao executar o comando de importação do banco de dados. Verifique os logs para mais detalhes.");
+            } catch (\Exception $e) {
+                 Log::error("Falha na restauração (Exception Geral) com o driver {$dbDriver}: " . $e->getMessage());
+                return Redirect::route('settings')->with('error', 'Falha na restauração: ' . $e->getMessage());
+            }
         }
+    
+        return Redirect::route('settings')->with('error', "A restauração para o tipo de banco de dados '{$dbDriver}' não é suportada por este método.");
     }
 
     private function formatBytes($bytes, $precision = 2)
