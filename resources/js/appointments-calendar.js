@@ -56,9 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function fetchAvailability(date, pageUrl = null) {
         let url = pageUrl || config.availabilityUrl;
-        
-        let sortState = url.includes('agendados_page') ? state.agendados : state.disponiveis;
-
+    
         selectedDateDisplay.textContent = date.toLocaleDateString('pt-BR', { dateStyle: 'long' });
         availabilitySection.style.display = 'block';
         if (!pageUrl) { 
@@ -69,9 +67,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const payload = {
             date: date.toISOString().split('T')[0],
             disponiveis_search: state.disponiveis.search,
+            disponiveis_sort_by: state.disponiveis.sort_by,
+            disponiveis_order: state.disponiveis.order,
             agendados_search: state.agendados.search,
-            sort_by: sortState.sort_by,
-            order: sortState.order,
+            agendados_sort_by: state.agendados.sort_by,
+            agendados_order: state.agendados.order,
         };
 
         axios.post(url, payload)
@@ -86,10 +86,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 ], 'disponiveis');
                 
                 renderPaginatedTable(scheduledResourcesList, response.data.agendados, renderScheduledResourceRow, date, [
-                    { key: 'recurso_nome', label: 'Recurso' },
+                    { key: 'recurso.nome', label: 'Recurso' },
                     { key: 'data_hora_inicio', label: 'Horário' },
-                    { key: 'turma_serie', label: 'Turma' },
-                    { key: 'professor_nome', label: 'Professor' },
+                    { key: 'oferta.turma.serie', label: 'Turma' },
+                    { key: 'oferta.professor.nome_completo', label: 'Professor' },
                     { key: 'acao', label: 'Ação' }
                 ], 'agendados');
             })
@@ -109,7 +109,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const headerHtml = `<thead><tr>${headers.map(h => `<th><a href="#" class="sort-link" data-type="${type}" data-sort="${h.key}">${h.label} <i class="fas ${getSortIcon(type, h.key)}"></i></a></th>`).join('')}</tr></thead>`;
+        const headerHtml = `<thead><tr>${headers.map(h => {
+            if (h.key === 'acao') {
+                return `<th>${h.label}</th>`;
+            }
+            return `<th><a href="#" class="sort-link" data-type="${type}" data-sort="${h.key}">${h.label} <i class="fas ${getSortIcon(type, h.key)}"></i></a></th>`;
+        }).join('')}</tr></thead>`;
+
         const bodyHtml = `<tbody>${paginatedData.data.map(item => rowRenderer(item, date)).join('')}</tbody>`;
         const paginationHtml = createPaginationLinks(paginatedData);
         container.innerHTML = `<table class="table">${headerHtml}${bodyHtml}</table>${paginationHtml}`;
@@ -192,26 +198,27 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchAvailability(currentSelectedDate);
         } else if (e.target.classList.contains('book-btn')) {
             openBookingModal(e.target.dataset.id, e.target.dataset.name, e.target.dataset.date);
-        } else if (e.target.classList.contains('btn-cancel')) {
+        } 
+        else if (e.target.classList.contains('btn-cancel')) {
             const id = e.target.dataset.id;
             const name = e.target.dataset.name;
             Swal.fire({
-                title: 'Deseja cancelar o agendamento?',
-                text: `Recurso: ${name}`,
+                title: 'Atenção! Ação Irreversível',
+                html: `Você tem certeza que deseja cancelar o agendamento do recurso: <br><strong>${name}</strong>?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Sim, cancelar agendamento!',
-                cancelButtonText: 'Não cancelar'
+                cancelButtonText: 'Manter Agendamento'
             }).then((result) => {
                 if (result.isConfirmed) {
                     axios.delete(`${config.baseUrl}/${id}`)
                         .then(() => {
-                            Swal.fire('Cancelado!', 'O agendamento foi cancelado com sucesso.', 'success');
-                            calendar.refetchEvents();
-                            fetchAvailability(currentSelectedDate);
-                        }).catch(err => Swal.fire('Erro!', err.response?.data?.message || 'Não foi possível cancelar.', 'error'));
+                            Swal.fire('Cancelado!', 'O agendamento foi removido com sucesso.', 'success');
+                            calendar.refetchEvents(); 
+                            fetchAvailability(currentSelectedDate); 
+                        }).catch(err => Swal.fire('Erro!', err.response?.data?.message || 'Não foi possível cancelar o agendamento.', 'error'));
                 }
             });
         }
@@ -266,7 +273,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire('Sucesso!', 'Agendamento salvo!', 'success').then(() => window.location.reload());
+                Swal.fire('Sucesso!', 'Agendamento salvo!', 'success').then(() => {
+                    calendar.refetchEvents();
+                    fetchAvailability(currentSelectedDate);
+                });
             }
         });
     }

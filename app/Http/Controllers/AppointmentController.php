@@ -3,20 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointmentRequest;
-use App\Http\Requests\UpdateAppointmentRequest;
-use App\Http\Resources\AppointmentResource;
 use App\Models\Agendamento;
 use App\Models\OfertaComponente;
 use App\Models\RecursoDidatico;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use App\Models\Notificacao;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NotificationMail;
 use Carbon\Carbon;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Http\Resources\AppointmentResource;
+
 
 class AppointmentController extends Controller
 {
@@ -88,28 +89,62 @@ class AppointmentController extends Controller
         $endOfDay = $date->copy()->endOfDay();
         $authUser = Auth::user();
 
-        $recursosQuery = RecursoDidatico::query();
-        $agendamentosQuery = Agendamento::query();
-
+        $agendamentosDoDiaQuery = Agendamento::query()->whereBetween('data_hora_inicio', [$startOfDay, $endOfDay]);
         if ($authUser->tipo_usuario !== 'administrador' && $authUser->id_escola) {
-            $escolaId = $authUser->id_escola;
-            $agendamentosQuery->whereHas('oferta.turma', fn($q) => $q->where('id_escola', $escolaId));
+            $agendamentosDoDiaQuery->whereHas('oferta.turma', fn($q) => $q->where('id_escola', $authUser->id_escola));
+        }
+        $recursosAgendadosIds = $agendamentosDoDiaQuery->pluck('id_recurso')->unique();
+
+        $recursosDisponiveisQuery = RecursoDidatico::query()
+            ->where('status', 'funcionando')
+            ->whereNotIn('id_recurso', $recursosAgendadosIds);
+
+        if ($request->disponiveis_search) {
+            $recursosDisponiveisQuery->where('nome', 'like', '%' . $request->disponiveis_search . '%');
         }
 
-        $agendamentosDoDia = $agendamentosQuery
-            ->whereBetween('data_hora_inicio', [$startOfDay, $endOfDay])
-            ->get();
-            
-        $recursosAgendadosIds = $agendamentosDoDia->pluck('id_recurso')->unique()->toArray();
-        
-        $recursosDisponiveis = $recursosQuery->where('status', 'funcionando')
-             ->whereNotIn('id_recurso', $recursosAgendadosIds)
-             ->paginate(5, ['id_recurso', 'nome', 'quantidade'], 'disponiveis_page');
+        $recursosDisponiveisQuery->orderBy(
+            $request->input('disponiveis_sort_by', 'nome'),
+            $request->input('disponiveis_order', 'asc')
+        );
+        $recursosDisponiveis = $recursosDisponiveisQuery->paginate(5, ['*'], 'disponiveis_page');
 
-        $agendadosPaginados = Agendamento::with(['recurso', 'oferta.turma', 'oferta.professor', 'oferta.componenteCurricular'])
-            ->whereIn('id_agendamento', $agendamentosDoDia->pluck('id_agendamento'))
-            ->orderBy('data_hora_inicio')
-            ->paginate(5, ['*'], 'agendados_page');
+        $agendadosQuery = Agendamento::with(['recurso', 'oferta.turma', 'oferta.professor', 'oferta.componenteCurricular'])
+            ->whereBetween('data_hora_inicio', [$startOfDay, $endOfDay]);
+
+        if ($authUser->tipo_usuario !== 'administrador' && $authUser->id_escola) {
+            $agendadosQuery->whereHas('oferta.turma', fn($q) => $q->where('id_escola', $authUser->id_escola));
+        }
+
+        if ($request->agendados_search) {
+            $agendadosQuery->whereHas('recurso', function($q) use ($request) {
+                $q->where('nome', 'like', '%' . $request->agendados_search . '%');
+            });
+        }
+
+        $agendadosSortBy = $request->input('agendados_sort_by', 'data_hora_inicio');
+        $agendadosOrder = $request->input('agendados_order', 'asc');
+
+        if ($agendadosSortBy === 'recurso.nome') {
+            $agendadosQuery->join('recursos_didaticos', 'agendamentos.id_recurso', '=', 'recursos_didaticos.id_recurso')
+                ->orderBy('recursos_didaticos.nome', $agendadosOrder);
+        } elseif ($agendadosSortBy === 'oferta.turma.serie') {
+            $agendadosQuery->join('oferta_componentes', 'agendamentos.id_oferta', '=', 'oferta_componentes.id_oferta')
+                ->join('turmas', 'oferta_componentes.id_turma', '=', 'turmas.id_turma')
+                ->orderBy('turmas.serie', $agendadosOrder);
+        } elseif ($agendadosSortBy === 'oferta.professor.nome_completo') {
+            $agendadosQuery->join('oferta_componentes', 'agendamentos.id_oferta', '=', 'oferta_componentes.id_oferta')
+                ->join('usuarios', 'oferta_componentes.id_professor', '=', 'usuarios.id_usuario')
+                ->orderBy('usuarios.nome_completo', $agendadosOrder);
+        } else {
+            $agendadosQuery->orderBy($agendadosSortBy, $agendadosOrder);
+        }
+
+        $agendadosPaginados = $agendadosQuery->select('agendamentos.*')->paginate(5, ['*'], 'agendados_page');
+        $agendadosPaginados->getCollection()->transform(function ($agendamento) use ($authUser) {
+            $agendamento->can_cancel = $authUser->can('cancelar-agendamento', $agendamento);
+            return $agendamento;
+        });
 
         return response()->json([
             'disponiveis' => $recursosDisponiveis,
@@ -127,7 +162,6 @@ class AppointmentController extends Controller
         }
         
         $validatedData['status'] = 'agendado';
-
         $agendamento = Agendamento::create($validatedData);
         
         if ($agendamento->oferta && $professor = $agendamento->oferta->professor) {
@@ -141,5 +175,16 @@ class AppointmentController extends Controller
         }
         
         return response()->json(['message' => 'Agendamento criado com sucesso!'], 201);
+    }
+
+    /**
+     * @param  \App\Models\Agendamento  $agendamento
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy(Agendamento $agendamento)
+    {
+        Gate::authorize('cancelar-agendamento', $agendamento);
+        $agendamento->delete();
+        return response()->json(['message' => 'Agendamento cancelado com sucesso.']);
     }
 }

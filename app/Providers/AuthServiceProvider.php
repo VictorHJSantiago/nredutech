@@ -18,19 +18,19 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('cancelar-agendamento', function (Usuario $user, Agendamento $agendamento) {
-            if ($user->tipo_usuario === 'administrador') {
+            if (strtolower(trim($user->tipo_usuario)) === 'administrador') {
                 return true;
             }
-            if (!$agendamento->oferta || !$agendamento->oferta->turma) {
+            if (!$agendamento->oferta || !$agendamento->oferta->turma || !$agendamento->oferta->professor) {
                 return false;
             }
+
             if ($user->id_usuario === $agendamento->oferta->id_professor) {
                 return true;
             }
-            if ($user->tipo_usuario === 'diretor' && $user->id_escola === $agendamento->oferta->turma->id_escola) {
+            if (strtolower(trim($user->tipo_usuario)) === 'diretor' && $user->id_escola === $agendamento->oferta->turma->id_escola) {
                 return true;
             }
-
             return false;
         });
     }
