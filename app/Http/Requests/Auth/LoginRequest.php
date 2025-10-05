@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Usuario; 
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -11,44 +12,11 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
-    /**
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function authenticate(): void
+    public function authorize(): bool
     {
-        $this->ensureIsNotRateLimited();
-
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey()); 
-
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'), 
-            ]);
-        }
-        $user = Auth::user();
-
-        if ($user->status_aprovacao !== 'ativo') {
-            Auth::logout(); 
-
-            $this->session()->invalidate();
-            $this->session()->regenerateToken();
-
-            $message = $user->status_aprovacao === 'pendente'
-                ? 'Seu cadastro ainda está pendente de aprovação por um administrador.'
-                : 'Este usuário está bloqueado ou inativo.';
-
-            throw ValidationException::withMessages([
-                'email' => $message,
-            ]);
-        }
-        RateLimiter::clear($this->throttleKey());
+        return true;
     }
 
-    /**
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
@@ -57,6 +25,56 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    /**
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function authenticate(): void
+    {
+        $this->ensureIsNotRateLimited();
+
+        $user = Usuario::where('email', $this->input('email'))->first();
+
+        if (!$user || $user->status_aprovacao === 'bloqueado') {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            if (RateLimiter::attempts($this->throttleKey()) >= 5) {
+                $user->status_aprovacao = 'bloqueado';
+                $user->save();
+                RateLimiter::clear($this->throttleKey());
+
+                throw ValidationException::withMessages([
+                    'email' => 'Sua conta foi bloqueada por excesso de tentativas de login. Contate um administrador.',
+                ]);
+            }
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        $authenticatedUser = Auth::user();
+        if ($authenticatedUser->status_aprovacao !== 'ativo') {
+            Auth::logout();
+            $this->session()->invalidate();
+            $this->session()->regenerateToken();
+
+            $message = $authenticatedUser->status_aprovacao === 'pendente'
+                ? 'Seu cadastro ainda está pendente de aprovação.'
+                : 'Este usuário está bloqueado ou inativo.';
+
+            throw ValidationException::withMessages(['email' => $message]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+    }
 
     /**
      *
@@ -64,7 +82,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -82,6 +100,8 @@ class LoginRequest extends FormRequest
 
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        // Nota: os métodos string() e ip() podem ser marcados como erro pelo Intelephense,
+        // mas eles funcionam corretamente pois são herdados da classe Request do Laravel.
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

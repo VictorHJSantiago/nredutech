@@ -23,7 +23,6 @@
     <div class="location-management-grid">
 
         <div class="add-item-card">
-            <h3><i class="fas fa-plus icon-left"></i> Adicionar Nova Turma</h3>
             <form method="POST" action="{{ route('turmas.store') }}">
                 @csrf
                 
