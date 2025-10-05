@@ -3,64 +3,62 @@
 @section('title', 'Login')
 
 @push('scripts')
-    @vite('resources/js/password-toogle.js')
+  @vite('resources/js/password-toogle.js')
 @endpush
 
 @section('content')
 
-<div class="box">
-  @if (session('success'))
-    <div class="alert alert-success">
+  <div class="box">
+    @if (session('success'))
+      <div class="alert alert-success">
         {{ session('success') }}
-    </div>
-  @endif
+      </div>
+    @endif
 
-  <h2>Entrar</h2>
-  
-  @error('email')
-    <div class="alert alert-danger">
+    <h2>Entrar</h2>
+
+    @error('email')
+      <div class="alert alert-danger">
         {{ $message }}
+      </div>
+    @enderror
+
+    <form method="POST" action="{{ route('login') }}">
+      @csrf
+
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" placeholder="Digite seu e-mail" value="{{ old('email') }}" required
+        autofocus />
+
+      <label for="password">Senha</label>
+      <div class="password-wrapper">
+        <input type="password" id="password" name="password" placeholder="Digite sua senha" required />
+        <i class="fas fa-eye toggle-password"></i>
+      </div>
+
+      <button type="submit" class="btn">Entrar</button>
+    </form>
+
+
+    <p class="forgot-password-link">
+      <a href="{{ route('password.request') }}">Esqueci minha senha</a>
+    </p>
+
+    <p>
+      Não tem uma conta?
+      <a href="{{ route('register') }}">Cadastre-se</a>
+    </p>
+  </div>
+
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
     </div>
-  @enderror
-
-  <form method="POST" action="{{ route('login') }}">
-    @csrf  
-
-    <label for="email">E-mail</label>
-    <input
-      type="email"
-      id="email"
-      name="email"
-      placeholder="Digite seu e-mail"
-      value="{{ old('email') }}"
-      required
-      autofocus
-    />
-
-    <label for="password">Senha</label>
-    <div class="password-wrapper">
-      <input
-        type="password"
-        id="password"
-        name="password"
-        placeholder="Digite sua senha"
-        required
-      />
-      <i class="fas fa-eye toggle-password"></i>
-    </div>
-
-    <button type="submit" class="btn">Entrar</button>
-  </form>
-
-  
-  <p class="forgot-password-link">
-    <a href="{{ route('password.request') }}">Esqueci minha senha</a>
-  </p>
-
-  <p>
-    Não tem uma conta?
-    <a href="{{ route('register') }}">Cadastre-se</a>
-  </p>
-</div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+  </script>
 
 @endsection
