@@ -2,15 +2,37 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Usuario;
+use App\Rules\RgValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Models\Usuario; 
+use Carbon\Carbon;
 
+/**
+ * @mixin \Illuminate\Http\Request
+ * @property \App\Models\Usuario $usuario
+ */
 class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
         return true;
+    }
+
+    /**
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        if ($this->has('data_nascimento')) {
+            try {
+                $this->merge([
+                    'data_nascimento' => Carbon::parse($this->data_nascimento)->format('Y-m-d'),
+                ]);
+            } catch (\Exception $e) {
+            }
+        }
     }
 
     public function rules(): array
@@ -21,13 +43,14 @@ class UpdateUserRequest extends FormRequest
             'nome_completo' => 'sometimes|required|string|max:255',
             'username' => ['sometimes', 'required', 'string', 'max:80', Rule::unique('usuarios')->ignore($userId, 'id_usuario')],
             'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('usuarios')->ignore($userId, 'id_usuario')],
-            'data_nascimento' => 'nullable|date_format:Y-m-d',
-            'cpf' => ['nullable', 'string', 'max:14', Rule::unique('usuarios')->ignore($userId, 'id_usuario')],
-            'rg' => ['nullable', 'string', 'max:20', Rule::unique('usuarios')->ignore($userId, 'id_usuario')],
-            'rco_siape' => ['nullable', 'string', 'max:50', Rule::unique('usuarios')->ignore($userId, 'id_usuario')],
-            'telefone' => 'nullable|string|max:20',
-            'formacao' => 'nullable|string|max:255',
-            'area_formacao' => 'nullable|string|max:255',
+            'data_nascimento' => 'sometimes|required|date_format:Y-m-d|after:1930-12-31|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
+            'cpf' => ['sometimes', 'required', 'cpf', Rule::unique('usuarios')->ignore($userId, 'id_usuario')],
+            'rg' => ['sometimes', 'required', new RgValido, Rule::unique('usuarios')->ignore($userId, 'id_usuario')],
+            'rco_siape' => ['sometimes', 'required', 'string', 'max:50', Rule::unique('usuarios')->ignore($userId, 'id_usuario')],
+            'telefone' => 'sometimes|required|celular_com_ddd',
+            'formacao' => 'sometimes|required|string|max:255',
+            'area_formacao' => 'sometimes|required|string|max:255',
+            
             'status_aprovacao' => 'sometimes|required|in:ativo,pendente,bloqueado',
             'tipo_usuario' => 'sometimes|required|in:administrador,diretor,professor',
             'id_escola' => [
@@ -77,6 +100,15 @@ class UpdateUserRequest extends FormRequest
                     }
                 },
             ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'data_nascimento.after' => 'O ano de nascimento deve ser posterior a 1930.',
+            'data_nascimento.before_or_equal' => 'O usuário deve ter pelo menos 18 anos de idade.',
+            'data_nascimento.date_format' => 'O formato da data de nascimento é inválido.',
         ];
     }
 }

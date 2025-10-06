@@ -14,6 +14,7 @@
         "spatie/laravel-backup": "^9.3"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.6",
         "fakerphp/faker": "^1.24",
         "laravel-lang/lang": "^15.22",
         "laravel/breeze": "^2.3",

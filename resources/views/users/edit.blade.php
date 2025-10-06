@@ -67,43 +67,43 @@
                 </div>
                 <div class="form-group">
                     <label for="data_nascimento">Data de Nascimento</label>
-                    <input type="date" id="data_nascimento" name="data_nascimento" value="{{ old('data_nascimento', $usuario->data_nascimento) }}"/>
+                    <input type="date" id="data_nascimento" name="data_nascimento" value="{{ old('data_nascimento', $usuario->data_nascimento ? $usuario->data_nascimento->format('Y-m-d') : '') }}" required/>
                     @error('data_nascimento')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
                 
                 <div class="form-group">
                     <label for="cpf">CPF</label>
-                    <input type="text" id="cpf" name="cpf" value="{{ old('cpf', $usuario->cpf) }}" />
+                    <input type="text" id="cpf" name="cpf" value="{{ old('cpf', $usuario->cpf) }}" required />
                     @error('cpf')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label for="rg">RG</label>
-                    <input type="text" id="rg" name="rg" value="{{ old('rg', $usuario->rg) }}" />
+                    <input type="text" id="rg" name="rg" value="{{ old('rg', $usuario->rg) }}" required />
                     @error('rg')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
                 
                 <div class="form-group">
                     <label for="rco_siape">Registro (SIAPE ou RCO)</label>
-                    <input type="text" id="rco_siape" name="rco_siape" value="{{ old('rco_siape', $usuario->rco_siape) }}" />
+                    <input type="text" id="rco_siape" name="rco_siape" value="{{ old('rco_siape', $usuario->rco_siape) }}" required />
                     @error('rco_siape')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label for="telefone">Telefone</label>
-                    <input type="tel" id="telefone" name="telefone" value="{{ old('telefone', $usuario->telefone) }}"/>
+                    <input type="tel" id="telefone" name="telefone" value="{{ old('telefone', $usuario->telefone) }}" required/>
                     @error('telefone')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label for="formacao">Formação</label>
-                    <input type="text" id="formacao" name="formacao" value="{{ old('formacao', $usuario->formacao) }}" />
+                    <input type="text" id="formacao" name="formacao" value="{{ old('formacao', $usuario->formacao) }}" required />
                     @error('formacao')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label for="area_formacao">Área de Formação</label>
-                    <input type="text" id="area_formacao" name="area_formacao" value="{{ old('area_formacao', $usuario->area_formacao) }}" />
+                    <input type="text" id="area_formacao" name="area_formacao" value="{{ old('area_formacao', $usuario->area_formacao) }}" required />
                     @error('area_formacao')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
             </div>
