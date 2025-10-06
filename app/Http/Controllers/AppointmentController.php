@@ -37,16 +37,17 @@ class AppointmentController extends Controller
 
         $sortBy = $request->query('sort_by', 'data_hora_inicio');
         $order = $request->query('order', 'asc');
-        $allowedSorts = ['recurso_nome', 'data_hora_inicio', 'turma_serie'];
+        $allowedSorts = ['recurso_nome', 'data_hora_inicio', 'turma_serie', 'recurso_quantidade'];
 
         $meusAgendamentosQuery = Agendamento::with(['recurso', 'oferta.turma'])
             ->whereHas('oferta', fn ($query) => $query->where('id_professor', $authUser->id_usuario))
             ->where('data_hora_inicio', '>=', now());
 
         if (in_array($sortBy, $allowedSorts)) {
-            if ($sortBy === 'recurso_nome') {
-                $meusAgendamentosQuery->join('recursos_didaticos', 'agendamentos.id_recurso', '=', 'recursos_didaticos.id_recurso')
-                    ->orderBy('recursos_didaticos.nome', $order);
+            if ($sortBy === 'recurso_nome' || $sortBy === 'recurso_quantidade') {
+                $meusAgendamentosQuery->join('recursos_didaticos', 'agendamentos.id_recurso', '=', 'recursos_didaticos.id_recurso');
+                $sortField = ($sortBy === 'recurso_nome') ? 'recursos_didaticos.nome' : 'recursos_didaticos.quantidade';
+                $meusAgendamentosQuery->orderBy($sortField, $order);
             } elseif ($sortBy === 'turma_serie') {
                 $meusAgendamentosQuery->join('oferta_componentes', 'agendamentos.id_oferta', '=', 'oferta_componentes.id_oferta')
                     ->join('turmas', 'oferta_componentes.id_turma', '=', 'turmas.id_turma')
@@ -127,9 +128,10 @@ class AppointmentController extends Controller
         $agendadosSortBy = $request->input('agendados_sort_by', 'data_hora_inicio');
         $agendadosOrder = $request->input('agendados_order', 'asc');
 
-        if ($agendadosSortBy === 'recurso.nome') {
-            $agendadosQuery->join('recursos_didaticos', 'agendamentos.id_recurso', '=', 'recursos_didaticos.id_recurso')
-                ->orderBy('recursos_didaticos.nome', $agendadosOrder);
+        if ($agendadosSortBy === 'recurso.nome' || $agendadosSortBy === 'recurso.quantidade') {
+            $agendadosQuery->join('recursos_didaticos', 'agendamentos.id_recurso', '=', 'recursos_didaticos.id_recurso');
+            $sortField = ($agendadosSortBy === 'recurso.nome') ? 'recursos_didaticos.nome' : 'recursos_didaticos.quantidade';
+            $agendadosQuery->orderBy($sortField, $agendadosOrder);
         } elseif ($agendadosSortBy === 'oferta.turma.serie') {
             $agendadosQuery->join('oferta_componentes', 'agendamentos.id_oferta', '=', 'oferta_componentes.id_oferta')
                 ->join('turmas', 'oferta_componentes.id_turma', '=', 'turmas.id_turma')
@@ -145,7 +147,24 @@ class AppointmentController extends Controller
         $agendadosPaginados = $agendadosQuery->select('agendamentos.*')->paginate(5, ['*'], 'agendados_page');
 
         $agendadosPaginados->getCollection()->transform(function ($agendamento) use ($authUser) {
-            $agendamento->can_cancel = $authUser->can('cancelar-agendamento', $agendamento);
+            $podeCancelar = false;
+
+            if ($authUser->tipo_usuario === 'administrador') {
+                $podeCancelar = true;
+            }
+
+            elseif ($agendamento->oferta && $agendamento->oferta->professor && $agendamento->oferta->turma) {
+                
+                if ($authUser->id_usuario == $agendamento->oferta->id_professor) {
+                    $podeCancelar = true;
+                }
+                
+                elseif ($authUser->tipo_usuario === 'diretor' && $authUser->id_escola == $agendamento->oferta->turma->id_escola) {
+                    $podeCancelar = true;
+                }
+            }
+
+            $agendamento->can_cancel = $podeCancelar;
             return $agendamento;
         });
 
@@ -154,6 +173,7 @@ class AppointmentController extends Controller
             'agendados' => $agendadosPaginados
         ]);
     }
+
 
     public function store(StoreAppointmentRequest $request): JsonResponse
     {
@@ -172,9 +192,13 @@ class AppointmentController extends Controller
         return response()->json(['message' => 'Agendamento criado com sucesso!'], 201);
     }
 
+
     public function destroy(Agendamento $agendamento)
     {
-        Gate::authorize('cancelar-agendamento', $agendamento);
+        $agendamento->load(['oferta.professor', 'oferta.turma', 'recurso']);
+
+        // Gate::authorize('cancelar-agendamento', $agendamento);
+
         $titulo = 'Agendamento Cancelado';
         $autorAcao = Auth::user()->nome_completo;
         $mensagemTemplate = "O agendamento do recurso '{recurso_nome}' para {data_hora} (de {professor_nome}) foi cancelado por {$autorAcao}.";

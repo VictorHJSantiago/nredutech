@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 
                 renderPaginatedTable(scheduledResourcesList, response.data.agendados, renderScheduledResourceRow, date, [
                     { key: 'recurso.nome', label: 'Recurso' },
+                    { key: 'recurso.quantidade', label: 'Qtd' },
                     { key: 'data_hora_inicio', label: 'Horário' },
                     { key: 'oferta.turma.serie', label: 'Turma' },
                     { key: 'oferta.professor.nome_completo', label: 'Professor' },
@@ -140,17 +141,23 @@ document.addEventListener('DOMContentLoaded', function () {
         const professor = ag.oferta?.professor?.nome_completo || 'N/A';
         const horaInicio = ag.data_hora_inicio ? ag.data_hora_inicio.slice(11, 16) : '--:--';
         const horaFim = ag.data_hora_fim ? ag.data_hora_fim.slice(11, 16) : '--:--';
-        const cancelButton = ag.can_cancel
-            ? `<button class="btn-cancel" data-id="${ag.id_agendamento}" data-name="${ag.recurso.nome}">Desagendar</button>`
-            : '';
+        const quantidade = ag.recurso?.quantidade || 'N/A';
+        
+        const isDisabled = !ag.can_cancel;
+        const disabledAttr = isDisabled ? 'disabled title="Você não tem permissão para cancelar este agendamento."' : '';
 
         return `
         <tr>
             <td>${ag.recurso.nome}</td>
+            <td>${quantidade}</td>
             <td>${horaInicio} - ${horaFim}</td>
             <td>${turma}</td>
             <td>${professor}</td>
-            <td>${cancelButton}</td>
+            <td>
+                <button class="btn-cancel" data-id="${ag.id_agendamento}" data-name="${ag.recurso.nome}" ${disabledAttr}>
+                    Desagendar
+                </button>
+            </td>
         </tr>`;
     };
     
@@ -199,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (e.target.classList.contains('book-btn')) {
             openBookingModal(e.target.dataset.id, e.target.dataset.name, e.target.dataset.date);
         } 
-        else if (e.target.classList.contains('btn-cancel')) {
+        else if (e.target.classList.contains('btn-cancel') && !e.target.disabled) {
             const id = e.target.dataset.id;
             const name = e.target.dataset.name;
             Swal.fire({

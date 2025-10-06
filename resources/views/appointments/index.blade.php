@@ -31,6 +31,7 @@
                     <thead>
                         <tr>
                             <th>{!! sort_link('recurso_nome', 'Recurso', $sortBy, $order) !!}</th>
+                            <th>{!! sort_link('recurso_quantidade', 'Qtd', $sortBy, $order) !!}</th>
                             <th>{!! sort_link('data_hora_inicio', 'Data/Hora', $sortBy, $order) !!}</th>
                             <th>{!! sort_link('turma_serie', 'Turma', $sortBy, $order) !!}</th>
                         </tr>
@@ -38,12 +39,13 @@
                     <tbody>
                         @forelse ($meusAgendamentos as $agendamento)
                             <tr>
-                                <td>{{ $agendamento->recurso->nome }}<br><small class="text-muted">Qtd: {{ $agendamento->recurso->quantidade }}</small></td>
+                                <td>{{ $agendamento->recurso->nome }}</td>
+                                <td>{{ $agendamento->recurso->quantidade }}</td>
                                 <td>{{ \Carbon\Carbon::parse($agendamento->data_hora_inicio)->format('d/m H:i') }}</td>
                                 <td>{{ $agendamento->oferta->turma->serie ?? 'N/A' }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="3" class="text-center placeholder-text">Você não possui agendamentos futuros.</td></tr>
+                            <tr><td colspan="4" class="text-center placeholder-text">Você não possui agendamentos futuros.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
