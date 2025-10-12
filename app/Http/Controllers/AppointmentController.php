@@ -199,6 +199,10 @@ class AppointmentController extends Controller
 
         // Gate::authorize('cancelar-agendamento', $agendamento);
 
+        if (now()->diffInMinutes($agendamento->data_hora_inicio, false) < 10) {
+            return response()->json(['message' => 'Agendamentos não podem ser cancelados com menos de 10 minutos de antecedência do seu início para fins de log do sistema.'], 422);
+        }
+
         $titulo = 'Agendamento Cancelado';
         $autorAcao = Auth::user()->nome_completo;
         $mensagemTemplate = "O agendamento do recurso '{recurso_nome}' para {data_hora} (de {professor_nome}) foi cancelado por {$autorAcao}.";
