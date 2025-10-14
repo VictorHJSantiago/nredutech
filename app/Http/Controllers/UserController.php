@@ -19,7 +19,14 @@ class UserController extends Controller
 {
     public function index(Request $request): View
     {
+        $user = Auth::user();
         $query = Usuario::query()->with('escola');
+
+        if ($user->tipo_usuario === 'diretor' && $user->id_escola) {
+            $query->where('id_escola', $user->id_escola)
+                  ->where('tipo_usuario', '!=', 'administrador');
+        }
+
         $query->when($request->query('search'), function ($q, $search) {
             return $q->where(function ($subQ) use ($search) {
                 $subQ->where('nome_completo', 'like', "%{$search}%")
@@ -116,7 +123,7 @@ class UserController extends Controller
                 'id_usuario' => $admin->id_usuario,
             ]);
 
-            if ($admin->preferencias && $admin->preferencias->receber_notificacoes_email) {
+            if ($admin->preferencias && $admin->preferencias->notif_email) {
                 Mail::to($admin->email)->send(new NotificationMail($titulo, $mensagem));
             }
         }
@@ -131,9 +138,13 @@ class UserController extends Controller
         return view('users.index', compact('usuario'));
     }
 
-    public function edit(Usuario $usuario): View
+    public function edit(Usuario $usuario): View|RedirectResponse
     {
         $userAutenticado = Auth::user();
+        if ($userAutenticado->tipo_usuario === 'administrador' && $usuario->tipo_usuario === 'administrador' && $userAutenticado->id_usuario !== $usuario->id_usuario && $usuario->status_aprovacao === 'ativo') {
+            return redirect()->route('usuarios.index')->with('error', 'Administradores não podem editar outros administradores ativos.');
+        }
+
         $perfilUsuarioLogado = Usuario::where('email', $userAutenticado->email)->first();
 
         $escolas = collect();
@@ -149,8 +160,18 @@ class UserController extends Controller
 
      public function update(UpdateUserRequest $request, Usuario $usuario): RedirectResponse
     {
+        $authUser = Auth::user();
+        if ($authUser->tipo_usuario === 'administrador' && $usuario->tipo_usuario === 'administrador' && $authUser->id_usuario !== $usuario->id_usuario && $usuario->status_aprovacao === 'ativo') {
+            return redirect()->route('usuarios.index')->with('error', 'Administradores não podem editar outros administradores ativos.');
+        }
+
         $validatedData = $request->validated();
         
+        if (Auth::user()->tipo_usuario === 'diretor') {
+            unset($validatedData['tipo_usuario']);
+            unset($validatedData['id_escola']);
+        }
+
         if (isset($validatedData['status_aprovacao']) && $usuario->status_aprovacao !== $validatedData['status_aprovacao']) {
             $status = $validatedData['status_aprovacao'];
             $titulo = 'Status da Sua Conta Atualizado';
@@ -165,7 +186,7 @@ class UserController extends Controller
             ]);
             
             $usuario->load('preferencias'); 
-            if ($usuario->preferencias && $usuario->preferencias->receber_notificacoes_email) {
+            if ($usuario->preferencias && $usuario->preferencias->notif_email) {
                 Mail::to($usuario->email)->send(new NotificationMail($titulo, $mensagem));
             }
         }
@@ -176,6 +197,20 @@ class UserController extends Controller
 
     public function destroy(Usuario $usuario): RedirectResponse
     {
+        $authUser = Auth::user();
+
+        if ($usuario->id_usuario === $authUser->id_usuario) {
+            return redirect()->route('usuarios.index')->with('error', 'Você não pode excluir sua própria conta.');
+        }
+
+        if ($authUser->tipo_usuario === 'diretor' && $usuario->tipo_usuario === 'administrador') {
+            return redirect()->route('usuarios.index')->with('error', 'Você não tem permissão para excluir este usuário.');
+        }
+
+        if ($authUser->tipo_usuario === 'diretor' && $usuario->id_escola !== $authUser->id_escola) {
+            return redirect()->route('usuarios.index')->with('error', 'Você só pode excluir usuários da sua própria escola.');
+        }
+
         $nomeUsuario = $usuario->nome_completo;
         $escolaId = $usuario->id_escola;
         $usuario->delete();
@@ -201,7 +236,7 @@ class UserController extends Controller
                 'id_usuario' => $user->id_usuario,
             ]);
 
-            if ($user->preferencias && $user->preferencias->receber_notificacoes_email) {
+            if ($user->preferencias && $user->preferencias->notif_email) {
                 Mail::to($user->email)->send(new NotificationMail($titulo, $mensagem));
             }
         }

@@ -36,7 +36,9 @@
                 <div class="form-group">
                     <label for="tipo_usuario">Tipo de Usuário</label>
                     <select id="tipo_usuario" name="tipo_usuario" required>
+                        @if(Auth::user()->tipo_usuario === 'administrador')
                         <option value="administrador" {{ old('tipo_usuario', $usuario->tipo_usuario) == 'administrador' ? 'selected' : '' }}>Administrador</option>
+                        @endif
                         <option value="diretor" {{ old('tipo_usuario', $usuario->tipo_usuario) == 'diretor' ? 'selected' : '' }}>Diretor</option>
                         <option value="professor" {{ old('tipo_usuario', $usuario->tipo_usuario) == 'professor' ? 'selected' : '' }}>Professor</option>
                     </select>
@@ -55,7 +57,7 @@
 
                 <div class="form-group">
                     <label for="id_escola">Escola/Instituição (Obrigatório para Diretor/Professor)</label>
-                    <select id="id_escola" name="id_escola">
+                    <select id="id_escola" name="id_escola" @if(Auth::user()->tipo_usuario === 'diretor') disabled @endif>
                         <option value="">Nenhuma (Somente Administradores)</option>
                         @foreach($escolas as $escola)
                             <option value="{{ $escola->id_escola }}" {{ old('id_escola', $usuario->id_escola) == $escola->id_escola ? 'selected' : '' }}>

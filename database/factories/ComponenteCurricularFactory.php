@@ -13,19 +13,24 @@ class ComponenteCurricularFactory extends Factory
     public function definition(): array
     {
         $disciplinas = [
-            'Matemática Avançada' => 'Estudo de cálculo diferencial e integral, álgebra linear e equações diferenciais.',
-            'Língua Portuguesa e Literatura' => 'Análise aprofundada da gramática normativa e estudo dos principais movimentos da literatura brasileira e portuguesa.',
-            'História do Brasil' => 'Análise do período colonial, império e república, com foco nos aspectos sociais, políticos e econômicos.',
-            'Geografia Mundial' => 'Estudo da geopolítica contemporânea, globalização, blocos econômicos e questões ambientais.',
-            'Ciências da Natureza' => 'Introdução aos conceitos fundamentais de Biologia, Física e Química para o ensino fundamental.',
-            'Física Moderna' => 'Abordagem da teoria da relatividade, mecânica quântica e física de partículas.',
-            'Química Orgânica' => 'Estudo das estruturas, propriedades e reações dos compostos de carbono.',
-            'Biologia Celular' => 'Análise das estruturas e funções das células, o bloco de construção da vida.',
-            'Artes Visuais' => 'Exploração prática e teórica da pintura, escultura, desenho e história da arte.',
-            'Filosofia e Sociologia' => 'Discussão sobre as correntes do pensamento filosófico e as estruturas sociais ao longo da história.',
+            'Matemática' => 'Estudo de cálculo, álgebra e geometria.',
+            'Português' => 'Análise da gramática e literatura.',
+            'História' => 'Estudo dos eventos passados da humanidade.',
+            'Geografia' => 'Estudo da superfície terrestre e suas características.',
+            'Ciências' => 'Introdução à Biologia, Física e Química.',
+            'Física' => 'Estudo dos fenômenos naturais e das propriedades da matéria.',
+            'Química' => 'Estudo da composição e propriedades da matéria.',
+            'Biologia' => 'Estudo dos seres vivos e seus processos vitais.',
+            'Artes' => 'Exploração de formas de expressão visual e plástica.',
+            'Filosofia' => 'Discussão sobre questões fundamentais da existência.',
+            'Sociologia' => 'Estudo das estruturas e relações sociais.',
+            'Inglês' => 'Aprendizado da língua inglesa.',
+            'Programação' => 'Introdução à lógica e desenvolvimento de algoritmos.',
         ];
-        $nome = $this->faker->randomElement(array_keys($disciplinas));
-        $descricao = $disciplinas[$nome];
+        
+        $baseNome = $this->faker->randomElement(array_keys($disciplinas));
+        $descricao = $disciplinas[$baseNome];
+        $nome = $baseNome . ' ' . $this->faker->unique()->numberBetween(1000, 9999);
 
         return [
             'nome' => $nome,

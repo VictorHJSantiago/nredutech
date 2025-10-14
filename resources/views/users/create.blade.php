@@ -40,7 +40,9 @@
                     <label for="tipo_usuario">Tipo de Usuário</label>
                     <select id="tipo_usuario" name="tipo_usuario" required>
                         <option value="" disabled selected>Selecione o tipo</option>
+                        @if(Auth::user()->tipo_usuario === 'administrador')
                         <option value="administrador" {{ old('tipo_usuario') == 'administrador' ? 'selected' : '' }}>Administrador</option>
+                        @endif
                         <option value="diretor" {{ old('tipo_usuario') == 'diretor' ? 'selected' : '' }}>Diretor</option>
                         <option value="professor" {{ old('tipo_usuario') == 'professor' ? 'selected' : '' }}>Professor</option>
                     </select>

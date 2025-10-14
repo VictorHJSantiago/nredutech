@@ -14,6 +14,11 @@
             {{ session('success') }}
         </div>
     @endif
+    @if (session('error'))
+        <div class="alert alert-danger mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
 
     <div class="page-actions-container">
         <a href="{{ route('usuarios.create') }}" class="btn-primary">+ Cadastrar Usuário</a>
@@ -145,12 +150,29 @@
                                     <button type="submit" class="btn-reject" title="Rejeitar Cadastro">❌</button>
                                 </form>
                             @else
-                                <a href="{{ route('usuarios.edit', $usuario) }}" class="btn-edit" title="Editar Usuário">✏️</a>
-                                <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-delete" title="Excluir Usuário">🗑️</button>
-                                </form>
+                                @php
+                                    $authUser = Auth::user();
+                                    $canManage = false;
+                        
+                                    if ($authUser->id_usuario !== $usuario->id_usuario) {
+                                        if ($authUser->tipo_usuario === 'administrador') {
+                                            $canManage = true;
+                                        } elseif ($authUser->tipo_usuario === 'diretor') {
+                                            if ($usuario->tipo_usuario !== 'administrador' && $usuario->id_escola === $authUser->id_escola) {
+                                                $canManage = true;
+                                            }
+                                        }
+                                    }
+                                @endphp
+                        
+                                @if($canManage)
+                                    <a href="{{ route('usuarios.edit', $usuario) }}" class="btn-edit" title="Editar Usuário">✏️</a>
+                                    <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-delete" title="Excluir Usuário">🗑️</button>
+                                    </form>
+                                @endif
                             @endif
                         </td>
                     </tr>

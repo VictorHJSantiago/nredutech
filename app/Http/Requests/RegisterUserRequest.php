@@ -55,9 +55,10 @@ class RegisterUserRequest extends FormRequest
                     if ($tipo === 'diretor') {
                         $directorCount = Usuario::where('id_escola', $value)
                                                 ->where('tipo_usuario', 'diretor')
+                                                ->where('status_aprovacao', 'ativo')
                                                 ->count();
                         if ($directorCount >= 2) {
-                            $fail('Esta escola já atingiu o limite de 2 (dois) diretores cadastrados.');
+                            $fail('Esta escola já atingiu o limite de 2 (dois) diretores ativos cadastrados.');
                         }
                     }
 

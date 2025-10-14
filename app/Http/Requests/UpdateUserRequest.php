@@ -77,14 +77,15 @@ class UpdateUserRequest extends FormRequest
                         }
                     }
 
-                    if ($value && $tipo_usuario === 'diretor') {
+                    if ($value && $tipo_usuario === 'diretor' && $this->input('status_aprovacao') === 'ativo') {
                         $directorCount = Usuario::where('id_escola', $value)
                                                 ->where('tipo_usuario', 'diretor')
+                                                ->where('status_aprovacao', 'ativo')
                                                 ->where('id_usuario', '!=', $userId) 
                                                 ->count();
                         
                         if ($directorCount >= 2) {
-                            $fail('Esta escola já atingiu o limite de 2 (dois) diretores cadastrados.');
+                            $fail('Esta escola já atingiu o limite de 2 (dois) diretores ativos cadastrados.');
                         }
                     }
 
