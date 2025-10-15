@@ -1,61 +1,150 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
 
-## About Laravel
+NREduTech - Sistema de Gestão de Recursos Pedagógicos
+NREduTech é um sistema web robusto e completo, desenvolvido como parte de um Trabalho de Conclusão de Curso (TCC), com o objetivo de otimizar a gestão de recursos didáticos, agendamentos e componentes curriculares em um Núcleo Regional de Educação (NRE). A plataforma centraliza informações, automatiza processos e facilita a comunicação entre diretores, professores e administradores, promovendo um uso mais eficiente dos recursos educacionais disponíveis.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+O sistema foi projetado com uma arquitetura escalável e segura, utilizando o framework Laravel, e incorpora funcionalidades avançadas como um sistema de agendamento em tempo real, geração de relatórios dinâmicos e um robusto mecanismo de backup e restauração.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+📜 Índice
+Introdução e Justificativa
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Funcionalidades Principais
 
-## Learning Laravel
+Perfis de Usuário e Permissões
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Professor
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Diretor
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Administrador
 
-## Laravel Sponsors
+Destaque: Módulo de Agendamentos
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Tecnologias Utilizadas
 
-### Premium Partners
+Licença
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+📜 Introdução e Justificativa
+A gestão de recursos educacionais em ambientes escolares frequentemente enfrenta desafios como a falta de visibilidade sobre a disponibilidade de materiais, conflitos de agendamento, comunicação descentralizada e a dificuldade na geração de dados consolidados para análise. O NREduTech surge como uma solução tecnológica para suprir essa lacuna, oferecendo uma plataforma intuitiva e poderosa para o gerenciamento integrado de todos os recursos pedagógicos.
 
-## Contributing
+A escolha do framework Laravel como base tecnológica garante segurança, escalabilidade e manutenibilidade, seguindo as melhores práticas de desenvolvimento de software para criar uma aplicação confiável e de alto desempenho.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+✨ Funcionalidades Principais
+Gestão de Usuários: Sistema completo com 3 níveis de acesso (Professor, Diretor e Administrador).
 
-## Code of Conduct
+Catálogo de Recursos: Cadastro e gerenciamento de todos os recursos didáticos e laboratórios.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Sistema de Agendamento: Calendário interativo para agendar recursos de forma simples e visual.
 
-## Security Vulnerabilities
+Disponibilidade em Tempo Real: Verificação assíncrona que impede conflitos de agendamento.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Central de Relatórios: Geração de relatórios dinâmicos com filtros avançados.
 
-## License
+Exportação Múltipla: Exporte relatórios em PDF, XLSX, CSV, ODS, HTML ou um arquivo .zip consolidado.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Gestão de Localidades: Cadastro de Municípios, Escolas e Turmas.
+
+Moderação de Conteúdo: Administradores aprovam novas disciplinas sugeridas por professores.
+
+Backup e Restauração: Ferramenta segura para criar e restaurar backups completos da aplicação.
+
+Segurança: Autenticação robusta, validação de dados com Form Requests e hashing de senhas com Argon2id.
+
+👤 Perfis de Usuário e Permissões
+O NREduTech opera com três níveis de acesso principais para garantir a segurança e a organização dos dados.
+
+Professor
+Visualiza o catálogo de recursos e laboratórios.
+
+Realiza agendamentos de recursos para suas turmas através de um calendário interativo.
+
+Gerencia (visualiza e cancela) seus próprios agendamentos.
+
+Recebe notificações sobre o status de seus agendamentos.
+
+Diretor
+Possui todas as permissões de um Professor.
+
+Gerencia usuários (professores) vinculados à sua instituição.
+
+Tem uma visão abrangente de todos os agendamentos realizados em sua escola.
+
+Pode cancelar agendamentos de qualquer professor de sua escola.
+
+Cadastra e gerencia as turmas de sua escola.
+
+Gera relatórios específicos de sua instituição.
+
+Administrador
+Acesso irrestrito a todas as funcionalidades do sistema.
+
+Realiza a gestão completa de cadastros essenciais (Usuários, Municípios, Escolas, Recursos, Disciplinas).
+
+Aprova novos cadastros e gerencia o status de todos os usuários.
+
+Acessa a Central de Relatórios com filtros avançados e visão global.
+
+Gerencia as configurações do sistema, incluindo a rotina de backup e restauração.
+
+📅 Módulo de Agendamentos (Destaque)
+O coração do sistema é seu módulo de agendamentos, projetado para ser intuitivo e à prova de falhas:
+
+Calendário Interativo: Construído com FullCalendar.js, exibe todos os agendamentos de forma clara. Ao clicar em uma data, o sistema dispara uma requisição assíncrona para o back-end.
+
+Verificação em Tempo Real: A resposta da requisição atualiza a interface exibindo os recursos disponíveis e os já agendados para aquele dia, sem recarregar a página.
+
+Prevenção de Conflitos: A lógica no back-end (utilizando Form Requests) impede a criação de agendamentos conflitantes para o mesmo recurso e horário.
+
+Notificações Automáticas: Usuários relevantes são notificados sobre novos agendamentos e cancelamentos, mantendo todos informados.
+
+🛠️ Tecnologias Utilizadas
+Back-end
+Framework: Laravel
+
+Linguagem: PHP
+
+Banco de Dados: SQLite (padrão), com suporte a MySQL, MariaDB, PostgreSQL.
+
+Build Tool: Vite.js
+
+Dependências Principais (Back-end)
+spatie/laravel-backup: Solução robusta para a funcionalidade de backup e restauração.
+
+maatwebsite/excel: Biblioteca para importação e exportação de planilhas (XLSX, CSV, ODS).
+
+barryvdh/laravel-dompdf: Wrapper do DomPDF para a geração de relatórios em PDF.
+
+Front-end
+Estilização: CSS puro com arquitetura modular.
+
+JavaScript:
+
+Vanilla JS: Para a maior parte da interatividade.
+
+Alpine.js: Para reatividade em componentes específicos.
+
+Axios: Para requisições assíncronas (AJAX).
+
+Bibliotecas Externas (Front-end)
+FullCalendar.js: Para a criação do calendário de agendamentos.
+
+Chart.js: Para a visualização de dados em gráficos.
+
+SweetAlert2: Para a criação de alertas e modais interativos.
+
+🚀 Instalação e Configuração
+Siga os passos abaixo para configurar o ambiente de desenvolvimento local.
+
+Pré-requisitos:
+
+PHP >= 8.1
+
+Composer
+
+Node.js e NPM
+
+Um banco de dados (SQLite, MySQL, etc.)
+
+
+📄 Licença
+Este projeto é distribuído sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
