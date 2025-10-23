@@ -4,17 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSchoolClassRequest;
 use App\Http\Requests\UpdateSchoolClassRequest;
-use App\Http\Resources\SchoolClassResource;
 use App\Models\Turma;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Usuario;
 use App\Models\ComponenteCurricular;
-use App\Models\Escola; 
-use App\Models\Notificacao; 
-use Illuminate\Http\RedirectResponse; 
+use App\Models\Escola;
+use App\Models\Notificacao;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect; 
 
 class SchoolClassController extends Controller
 {
@@ -28,7 +27,7 @@ class SchoolClassController extends Controller
             $queryTurmas->where('id_escola', $usuarioLogado->id_escola);
             $queryEscolas->where('id_escola', $usuarioLogado->id_escola);
         }
-        
+
         $queryTurmas->when($request->query('ano_letivo'), function ($q, $ano) {
             return $q->where('ano_letivo', $ano);
         });
@@ -47,7 +46,7 @@ class SchoolClassController extends Controller
                         ->select('turmas.*', 'escolas.nome as escola_nome');
             $sortColumn = 'escolas.nome';
         }
-        
+
         $queryTurmas->orderBy($sortColumn, $order);
 
 
@@ -56,7 +55,6 @@ class SchoolClassController extends Controller
 
         return view('classes.index', compact('turmas', 'escolas', 'sortBy', 'order'));
     }
-
 
     public function store(StoreSchoolClassRequest $request): RedirectResponse
     {
@@ -82,8 +80,8 @@ class SchoolClassController extends Controller
     {
         $this->authorizeTurmaAccess($turma);
         $turma->load([
-            'escola', 
-            'ofertasComponentes.professor', 
+            'escola',
+            'ofertasComponentes.professor',
             'ofertasComponentes.componenteCurricular'
         ]);
 
@@ -96,36 +94,53 @@ class SchoolClassController extends Controller
 
         $professores = $queryProfessores->orderBy('nome_completo')->get();
         $componentes = $queryComponentes->orderBy('nome')->get();
-        
+
         return view('classes.show', compact('turma', 'professores', 'componentes'));
     }
 
-    private function authorizeTurmaAccess(Turma $turma)
+    public function edit(Turma $turma): View
     {
+        $this->authorizeTurmaAccess($turma);
         $usuarioLogado = Auth::user();
-        if ($usuarioLogado->tipo_usuario === 'administrador') {
-            return;
+        $queryEscolas = Escola::query();
+
+        if ($usuarioLogado->tipo_usuario !== 'administrador' && $usuarioLogado->id_escola) {
+            $queryEscolas->where('id_escola', $usuarioLogado->id_escola);
         }
-        if ($usuarioLogado->id_escola !== $turma->id_escola) {
-            abort(403, 'Acesso não autorizado a esta turma.');
-        }
+        $escolas = $queryEscolas->orderBy('nome')->get();
+
+        return view('classes.edit', compact('turma', 'escolas'));
     }
 
-    public function update(UpdateSchoolClassRequest $request, Turma $turma): SchoolClassResource
+    public function update(UpdateSchoolClassRequest $request, Turma $turma): RedirectResponse 
     {
         $this->authorizeTurmaAccess($turma);
         $turma->update($request->validated());
-        return new SchoolClassResource($turma->fresh()->load('escola'));
-    }
 
-    public function destroy(Turma $turma): JsonResponse
-    {
-        $this->authorizeTurmaAccess($turma);
-        
-        if ($turma->ofertasComponentes()->exists()) {
-             return response()->json(['message' => 'Não é possível excluir. Esta turma já possui professores/disciplinas vinculados.'], 422);
+        $diretores = Usuario::where('id_escola', $turma->id_escola)
+                            ->where('tipo_usuario', 'diretor')
+                            ->get();
+        foreach ($diretores as $diretor) {
+            Notificacao::create([
+                'titulo' => 'Turma Atualizada',
+                'mensagem' => "Os dados da turma '{$turma->serie} - {$turma->turno}' foram atualizados.",
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $diretor->id_usuario,
+            ]);
         }
         
+        return Redirect::route('turmas.index')->with('success', 'Turma atualizada com sucesso!');
+    }
+
+    public function destroy(Turma $turma): RedirectResponse 
+    {
+        $this->authorizeTurmaAccess($turma);
+
+        if ($turma->ofertasComponentes()->exists()) {
+             return Redirect::back()->with('error', 'Não é possível excluir. Esta turma já possui professores/disciplinas vinculados.');
+        }
+
         $nomeTurma = "{$turma->serie} ({$turma->turno})";
         $escolaId = $turma->id_escola;
         $turma->delete();
@@ -142,7 +157,17 @@ class SchoolClassController extends Controller
                 'id_usuario' => $diretor->id_usuario,
             ]);
         }
-        
-        return response()->json(null, 204);
+        return Redirect::route('turmas.index')->with('success', 'Turma excluída com sucesso!');
+    }
+
+    private function authorizeTurmaAccess(Turma $turma)
+    {
+        $usuarioLogado = Auth::user();
+        if ($usuarioLogado->tipo_usuario === 'administrador') {
+            return;
+        }
+        if ($usuarioLogado->id_escola !== $turma->id_escola) {
+            abort(403, 'Acesso não autorizado a esta turma.');
+        }
     }
 }
