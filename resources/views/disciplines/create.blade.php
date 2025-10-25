@@ -2,12 +2,7 @@
 
 @section('title', 'Cadastro de Componente Curricular – NREduTech')
 
-@section('content')
-    <header class="header-section">
-        <h1>Cadastro de Componente Curricular</h1>
-        <p class="subtitle">Preencha os dados para cadastrar um novo componente</p>
-    </header>
-
+@section('content') 
     <section class="form-section">
         <form class="disciplina-form" method="POST" action="{{ route('componentes.store') }}">
             @csrf
@@ -32,16 +27,27 @@
 
                 @if(Auth::user()->tipo_usuario === 'administrador')
                     <div class="form-group">
+                        <label for="id_escola">Associar à Escola (Opcional)</label>
+                        <select id="id_escola" name="id_escola">
+                            <option value="">Global (Todas as Escolas)</option>
+                            @foreach($escolas as $escola)
+                                <option value="{{ $escola->id_escola }}" {{ old('id_escola') == $escola->id_escola ? 'selected' : '' }}>
+                                    {{ $escola->nome }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('id_escola')<span class="error-message">{{ $message }}</span>@enderror
+                    </div>
+
+                    <div class="form-group">
                         <label for="status">Status</label>
                         <select id="status" name="status" required>
-                            <option value="pendente" {{ old('status') == 'pendente' ? 'selected' : '' }}>Pendente</option>
-                            <option value="aprovado" {{ old('status') == 'aprovado' ? 'selected' : '' }}>Aprovado</option>
-                            <option value="reprovado" {{ old('status') == 'reprovado' ? 'selected' : '' }}>Reprovado</option>
+                            <option value="pendente" {{ old('status', 'aprovado') == 'pendente' ? 'selected' : '' }}>Pendente</option>
+                            <option value="aprovado" {{ old('status', 'aprovado') == 'aprovado' ? 'selected' : '' }}>Aprovado</option>
+                            <option value="reprovado" {{ old('status', 'aprovado') == 'reprovado' ? 'selected' : '' }}>Reprovado</option>
                         </select>
                         @error('status')<span class="error-message">{{ $message }}</span>@enderror
                     </div>
-                @else
-                    <input type="hidden" name="status" value="pendente">
                 @endif
             </div>
 

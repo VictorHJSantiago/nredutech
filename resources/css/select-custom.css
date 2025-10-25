@@ -1,6 +1,6 @@
 
 .select2-container .select2-selection--single {
-    height: calc(1.5em + 1.5rem + 2px); /* Ajusta altura para combinar com inputs */
+    height: calc(1.5em + 1.5rem + 2px); 
     padding: 0.75rem 0.75rem;
     border: 1px solid #ced4da;
     border-radius: 0.25rem;

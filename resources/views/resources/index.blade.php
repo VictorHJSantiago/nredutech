@@ -14,6 +14,11 @@
                 {{ session('success') }}
             </div>
         @endif
+         @if (session('error')) 
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <div class="form-actions">
             <a href="{{ route('resources.create') }}" class="btn-primary">+ Cadastrar Item</a>
@@ -21,15 +26,15 @@
 
         <section class="filter-bar">
             <form action="{{ route('resources.index') }}" method="GET" class="filter-form">
-                <input type="text" 
-                       name="search_nome" 
-                       placeholder="Buscar por nome..." 
-                       value="{{ request('search_nome') }}" 
+                <input type="text"
+                       name="search_nome"
+                       placeholder="Buscar por nome..."
+                       value="{{ request('search_nome') }}"
                        class="filter-input-text" />
-                <input type="text" 
-                       name="search_marca" 
-                       placeholder="Buscar por marca..." 
-                       value="{{ request('search_marca') }}" 
+                <input type="text"
+                       name="search_marca"
+                       placeholder="Buscar por marca..."
+                       value="{{ request('search_marca') }}"
                        class="filter-input-text" />
                 <select name="status" class="filter-select">
                     <option value="">Todos os Status</option>
@@ -41,15 +46,15 @@
                 <button type="submit" class="btn-search">🔍 Filtrar</button>
             </form>
         </section>
-        
+
         <section class="table-section">
             <table class="recursos-table">
                 <thead>
                     <tr>
-                        @php 
+                        @php
                             function sort_link($coluna, $titulo, $sortBy, $order) {
                                 $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
-                                $icon = $sortBy == $coluna 
+                                $icon = $sortBy == $coluna
                                     ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
                                     : 'fa-sort';
                                 $isActive = $sortBy == $coluna ? 'active' : '';
@@ -64,11 +69,13 @@
                         {!! sort_link('nome', 'Nome do Item', $sortBy, $order) !!}
                         {!! sort_link('marca', 'Marca', $sortBy, $order) !!}
                         {!! sort_link('numero_serie', 'N.º de Série', $sortBy, $order) !!}
-                        {!! sort_link('quantidade', 'Quantidade', $sortBy, $order) !!}
+                        {!! sort_link('quantidade', 'Qtd', $sortBy, $order) !!}
                         {!! sort_link('tipo', 'Tipo', $sortBy, $order) !!}
+                        {!! sort_link('escola_nome', 'Escola', $sortBy, $order) !!}           
+                        {!! sort_link('criador_nome', 'Cadastrado Por', $sortBy, $order) !!} 
                         {!! sort_link('status', 'Status', $sortBy, $order) !!}
-                        {!! sort_link('data_aquisicao', 'Data de Aquisição', $sortBy, $order) !!}
-                        <th>Ações</th> 
+                        {!! sort_link('data_aquisicao', 'Data Aquisição', $sortBy, $order) !!}
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -80,25 +87,27 @@
                             <td>{{ $recurso->numero_serie ?? 'N/A' }}</td>
                             <td>{{ $recurso->quantidade }}</td>
                             <td>{{ $recurso->tipo === 'didatico' ? 'Recurso Didático' : 'Laboratório' }}</td>
+                            <td>{{ $recurso->escola_nome ?? 'Global' }}</td>           
+                            <td>{{ $recurso->criador_nome ?? 'N/A' }}</td>               
                             <td><span class="status-{{ \Illuminate\Support\Str::slug($recurso->status) }}">{{ ucfirst(str_replace('_', ' ', $recurso->status)) }}</span></td>
                             <td>{{ $recurso->data_aquisicao ? \Carbon\Carbon::parse($recurso->data_aquisicao)->format('d/m/Y') : 'N/A' }}</td>
                             <td class="actions-cell">
-                                <a href="{{ route('resources.edit', $recurso->id_recurso) }}" class="btn-edit">✏️ Editar</a>
-                                <form action="{{ route('resources.destroy', $recurso->id_recurso) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este recurso?');">
+                                <a href="{{ route('resources.edit', $recurso->id_recurso) }}" class="btn-edit" title="Editar Recurso">✏️ Editar</a>
+                                <form action="{{ route('resources.destroy', $recurso->id_recurso) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este recurso?');" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn-delete">🗑️ Excluir</button>
+                                    <button type="submit" class="btn-delete" title="Excluir Recurso">🗑️ Excluir</button>
                                 </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9">Nenhum recurso ou laboratório encontrado.</td>
+                            <td colspan="11">Nenhum recurso ou laboratório encontrado com os filtros aplicados.</td> 
                         </tr>
                     @endforelse
                 </tbody>
             </table>
-            
+
             <div class="pagination-links">
                 {{ $recursos->links() }}
             </div>

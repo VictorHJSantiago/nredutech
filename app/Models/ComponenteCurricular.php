@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ComponenteCurricular extends Model
 {
     use HasFactory;
@@ -18,6 +18,7 @@ class ComponenteCurricular extends Model
         'carga_horaria',
         'status',
         'id_usuario_criador', 
+        'id_escola',
     ];
 
     public function ofertas()
@@ -28,5 +29,10 @@ class ComponenteCurricular extends Model
     public function criador()
     {
         return $this->belongsTo(Usuario::class, 'id_usuario_criador', 'id_usuario');
+    }
+
+    public function escola(): BelongsTo
+    {
+        return $this->belongsTo(Escola::class, 'id_escola', 'id_escola');
     }
 }

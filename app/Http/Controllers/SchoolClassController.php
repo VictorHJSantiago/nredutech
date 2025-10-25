@@ -87,14 +87,19 @@ class SchoolClassController extends Controller
 
         $queryProfessores = Usuario::whereIn('tipo_usuario', ['professor', 'diretor']);
         $queryComponentes = ComponenteCurricular::where('status', 'aprovado');
-
-        if (Auth::user()->tipo_usuario !== 'administrador') {
-             $queryProfessores->where('id_escola', $turma->id_escola);
+        $user = Auth::user();
+        if ($user->tipo_usuario !== 'administrador' && $turma->id_escola) {
+            $turmaEscolaId = $turma->id_escola; 
+            $queryComponentes->where(function ($q) use ($turmaEscolaId) {
+                $q->where('id_escola', $turmaEscolaId)
+                ->orWhereNull('id_escola'); 
+            });
+            $queryProfessores->where('id_escola', $turma->id_escola);
+        } elseif ($user->tipo_usuario !== 'administrador') {
+            $queryComponentes->whereNull('id_escola');
         }
-
         $professores = $queryProfessores->orderBy('nome_completo')->get();
-        $componentes = $queryComponentes->orderBy('nome')->get();
-
+        $componentes = $queryComponentes->orderBy('nome')->get(); 
         return view('classes.show', compact('turma', 'professores', 'componentes'));
     }
 

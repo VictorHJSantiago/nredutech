@@ -2,16 +2,7 @@
 
 @section('title', 'Cadastrar Recurso ou Laboratório – NREduTech')
 
-@push('scripts')
-    @vite('resources/js/resource-create-prompt.js')
-@endpush
-
-@section('content')
-    <header class="header-section">
-        <h1>Cadastrar Recurso ou Laboratório</h1>
-        <p class="subtitle">Preencha os dados para cadastrar um novo item</p>
-    </header>
-
+@section('content') 
     <section class="form-section">
         <form class="material-form" method="POST" action="{{ route('resources.store') }}">
             @csrf
@@ -22,8 +13,7 @@
                     <input type="text" id="nome" name="nome" placeholder="Ex: Projetor Multimídia ou Laboratório de Química" value="{{ old('nome') }}" required />
                     @error('nome')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
-
-                <div class="form-group">
+                 <div class="form-group">
                     <label for="tipo">Tipo de Item</label>
                     <select id="tipo" name="tipo" required>
                         <option value="didatico" {{ old('tipo', 'didatico') == 'didatico' ? 'selected' : '' }}>Recurso Didático</option>
@@ -67,6 +57,20 @@
                     @error('data_aquisicao')<span class="error-message">{{ $message }}</span>@enderror
                 </div>
 
+                @if(Auth::user()->tipo_usuario === 'administrador')
+                <div class="form-group">
+                    <label for="id_escola">Associar à Escola (Opcional)</label>
+                    <select id="id_escola" name="id_escola">
+                        <option value="">Global (Todas as Escolas)</option>
+                        @foreach($escolas as $escola)
+                            <option value="{{ $escola->id_escola }}" {{ old('id_escola') == $escola->id_escola ? 'selected' : '' }}>
+                                {{ $escola->nome }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('id_escola')<span class="error-message">{{ $message }}</span>@enderror
+                </div>
+                @endif
                 <div class="form-group full-width">
                     <label for="observacoes">Observações</label>
                     <textarea id="observacoes" name="observacoes" rows="3" placeholder="Qualquer detalhe adicional sobre o item">{{ old('observacoes') }}</textarea>
@@ -81,4 +85,3 @@
         </form>
     </section>
 @endsection
-
