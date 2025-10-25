@@ -124,7 +124,7 @@ class UserController extends Controller
             ]);
 
             if ($admin->preferencias && $admin->preferencias->notif_email) {
-                Mail::to($admin->email)->send(new NotificationMail($titulo, $mensagem));
+                //Mail::to($admin->email)->send(new NotificationMail($titulo, $mensagem));
             }
         }
 

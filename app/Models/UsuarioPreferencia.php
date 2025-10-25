@@ -19,6 +19,7 @@ class UsuarioPreferencia extends Model
         'notif_popup',
         'tema',
         'tamanho_fonte',
+        'backup_frequency', 
     ];
 
     public function usuario()

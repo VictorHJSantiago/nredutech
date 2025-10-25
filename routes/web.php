@@ -26,18 +26,28 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Rotas de Configurações (Acessíveis apenas se autenticado)
     Route::get('/configuracoes', [SettingsController::class, 'index'])->name('settings');
     Route::patch('/configuracoes/preferences', [SettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
-    Route::get('/configuracoes/backup/initiate', [SettingsController::class, 'initiateBackup'])->name('settings.backup.initiate')->middleware('password.confirm');
-    Route::get('/configuracoes/backup/download/latest', [SettingsController::class, 'downloadLatestBackup'])->name('settings.backup.download.latest');
-    Route::get('/configuracoes/backup/download-file/{filename}', [SettingsController::class, 'downloadFile'])->name('settings.backup.download-file');
-    Route::post('/configuracoes/backup/restore-upload', [SettingsController::class, 'uploadAndRestore'])->name('settings.backup.restore-upload');
-    Route::middleware(['password.confirm'])->group(function () {
-        Route::get('/configuracoes/backup/download/{filename}', [SettingsController::class, 'downloadBackup'])->name('settings.backup.download');
-        Route::get('/configuracoes/backup/restore', [SettingsController::class, 'showRestorePage'])->name('settings.backup.restore');
+
+    // Rotas de Backup e Restore (Apenas Administradores)
+    Route::middleware(['can:administrador'])->group(function() {
+        Route::patch('/configuracoes/backup/schedule', [SettingsController::class, 'updateBackupSchedule'])->name('settings.backup.schedule.update');
+        Route::get('/configuracoes/backup/download-file/{filename}', [SettingsController::class, 'downloadFile'])->name('settings.backup.download-file');
+        Route::get('/configuracoes/backup/download/latest', [SettingsController::class, 'downloadLatestBackup'])->name('settings.backup.download.latest');
+
+        // Rotas que exigem confirmação de senha
+        Route::middleware(['password.confirm'])->group(function () {
+            Route::get('/configuracoes/backup/initiate', [SettingsController::class, 'initiateBackup'])->name('settings.backup.initiate');
+            Route::get('/configuracoes/backup/download/{filename}', [SettingsController::class, 'downloadBackup'])->name('settings.backup.download');
+            Route::get('/configuracoes/backup/restore', [SettingsController::class, 'showRestorePage'])->name('settings.backup.restore');
+            Route::post('/configuracoes/backup/restore-upload', [SettingsController::class, 'uploadAndRestore'])->name('settings.backup.restore-upload');
+        });
     });
 
-        
+
+    // Rotas de Recursos CRUD
     Route::get('/agendamentos/events', [AppointmentController::class, 'getCalendarEvents'])->name('appointments.events');
     Route::post('/agendamentos/availability', [AppointmentController::class, 'getAvailabilityForDate'])->name('appointments.availability');
     Route::resource('agendamentos', AppointmentController::class);
@@ -50,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
         ->parameters(['recursos-didaticos' => 'recursoDidatico'])
         ->names('resources');
     Route::resource('usuarios', UserController::class);
+
     Route::get('/relatorios', [ReportController::class, 'index'])->name('reports.index');
 });
 

@@ -2,11 +2,6 @@
 
 @section('title', 'Cadastro de Usuário – NREduTech')
 
-@push('scripts')
-    @vite('resources/js/')
-@endpush
-
-
 @section('content')
 <div class="main-content">
     <header class="header-section">
@@ -18,7 +13,7 @@
         <form class="usuario-form" method="POST" action="{{ route('usuarios.store') }}">
             @csrf
             <div class="form-grid">
-                <div class="form-group">
+                 <div class="form-group">
                     <label for="nome_completo">Nome Completo</label>
                     <input type="text" id="nome_completo" name="nome_completo" placeholder="Digite o nome completo" value="{{ old('nome_completo') }}" required />
                     @error('nome_completo')<span class="error-message">{{ $message }}</span>@enderror
@@ -50,6 +45,21 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="id_escola">Escola/Instituição (Obrigatório para Diretor/Professor)</label>
+                    <select id="id_escola" name="id_escola" style="width: 100%;">
+                        <option value="">Nenhuma (Somente Administradores)</option>
+                        @isset($escolas)
+                            @foreach($escolas as $escola)
+                                <option value="{{ $escola->id_escola }}" {{ old('id_escola') == $escola->id_escola ? 'selected' : '' }}>
+                                    {{ $escola->nome }}
+                                </option>
+                            @endforeach
+                        @endisset
+                    </select>
+                    @error('id_escola')<span class="error-message">{{ $message }}</span>@enderror
+                </div>
+
+                 <div class="form-group">
                     <label for="status_aprovacao">Status</label>
                     <select id="status_aprovacao" name="status_aprovacao" required>
                         <option value="pendente" {{ old('status_aprovacao', 'pendente') == 'pendente' ? 'selected' : '' }}>Pendente</option>

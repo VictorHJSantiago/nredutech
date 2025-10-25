@@ -7,6 +7,7 @@ import './reports';
 import './settings-modal';
 import './backup-download';
 import './restore';
+import './user-create';
 
 import Alpine from 'alpinejs';
 
