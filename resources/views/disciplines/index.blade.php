@@ -86,6 +86,9 @@
                         {!! sort_link('criador_nome', 'Cadastrado por', $sortBy, $order) !!}
                         {!! sort_link('carga_horaria', 'Carga Horária', $sortBy, $order) !!}
                         {!! sort_link('status', 'Status', $sortBy, $order) !!}
+                        
+                        {!! sort_link('escola_nome', 'Instituição', $sortBy, $order) !!}
+
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -99,6 +102,10 @@
                             <td>{{ $componente->carga_horaria }}</td>
                             <td><span class="status-{{ \Illuminate\Support\Str::slug($componente->status) }}">{{ ucfirst($componente->status) }}</span></td>
                             
+                            <td>
+                                {{ $componente->escola_nome ?? 'Global' }}
+                            </td>
+
                             <td class="actions-cell">
                                 @if ($componente->status == 'pendente')
                                     <form action="{{ route('componentes.update', $componente) }}" method="POST" class="d-inline">
@@ -125,7 +132,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7">Nenhuma disciplina encontrada com os filtros aplicados.</td>
+                            <td colspan="8">Nenhuma disciplina encontrada com os filtros aplicados.</td>
                         </tr>
                     @endforelse
                 </tbody>
