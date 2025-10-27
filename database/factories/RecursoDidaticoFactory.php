@@ -4,6 +4,8 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\RecursoDidatico;
+use App\Models\Usuario; 
+use App\Models\Escola;  
 
 class RecursoDidaticoFactory extends Factory
 {
@@ -19,19 +21,38 @@ class RecursoDidaticoFactory extends Factory
             'Globo Terrestre Político Interativo' => ['Tecnodidattica', '30cm de diâmetro com iluminação interna (bivolt).'],
             'Kit de Química Orgânica' => ['QNS', 'Conjunto para montagem de moléculas. Contém 116 peças.'],
             'Lousa Digital Interativa' => ['Smart Board', 'Tela de 75 polegadas sensível ao toque. Requer projetor (não incluso).'],
+            'Tablet Educacional' => ['Positivo', 'Modelo Tab Q10, 32GB, Android 11. Capa protetora inclusa.'],
+            'Conjunto de Mapas Históricos' => ['Editora Moderna', 'Coleção Brasil Colônia e Império, 10 mapas laminados.'],
+            'Kit de Primeiros Socorros Escolar' => ['Paramédico', 'Completo com itens básicos para atendimento emergencial.'],
         ];
         $nome = $this->faker->randomElement(array_keys($recursos));
         $detalhes = $recursos[$nome];
 
+        $criador = Usuario::inRandomOrder()->first();
+        $escolaId = null;
+        $status = 'funcionando';
+
+        if ($criador) {
+            if ($criador->tipo_usuario !== 'administrador') {
+                $escolaId = $criador->id_escola;
+                $status = $this->faker->randomElement(['funcionando', 'funcionando', 'em_manutencao', 'quebrado']);
+            } else {
+                $escolaId = null;
+                $status = 'funcionando';
+            }
+        }
+
         return [
-            'nome' => $nome,
+            'nome' => $nome . ' ' . $this->faker->unique()->randomNumber(4), 
             'tipo' => $this->faker->randomElement(['didatico', 'laboratorio']),
             'marca' => $detalhes[0],
-            'numero_serie' => $this->faker->unique()->ean13(),
-            'quantidade' => $this->faker->numberBetween(1, 10),
+            'numero_serie' => $this->faker->optional()->ean13(), 
+            'quantidade' => $this->faker->numberBetween(1, 5), 
             'observacoes' => $detalhes[1],
-            'data_aquisicao' => $this->faker->date(),
-            'status' => $this->faker->randomElement(['funcionando', 'em_manutencao', 'quebrado']),
+            'data_aquisicao' => $this->faker->dateTimeBetween('-3 years', 'now')->format('Y-m-d'),
+            'status' => $status, 
+            'id_usuario_criador' => $criador?->id_usuario, 
+            'id_escola' => $escolaId, 
         ];
     }
 }

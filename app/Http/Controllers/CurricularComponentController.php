@@ -268,11 +268,17 @@ class CurricularComponentController extends Controller
     {
         $user = Auth::user();
         if ($user->tipo_usuario === 'administrador') {
-            return;
+            return; 
+        }
+
+        if ($user->tipo_usuario === 'professor') {
+            if ($componente->id_usuario_criador !== $user->id_usuario) {
+                abort(403, 'Acesso não autorizado. Professores só podem modificar as disciplinas que cadastraram.');
+            }
         }
         $componente->loadMissing('escola'); 
         if ($user->id_escola && ($componente->id_escola === null || $componente->id_escola === $user->id_escola)) {
-            return;
+            return; 
         }
         abort(403, 'Acesso não autorizado a esta disciplina.');
     }

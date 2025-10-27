@@ -293,11 +293,16 @@ class DidacticResourceController extends Controller
     {
         $user = Auth::user();
         if ($user->tipo_usuario === 'administrador') {
-            return;
+            return; 
+        }
+        if ($user->tipo_usuario === 'professor') {
+            if ($recurso->id_usuario_criador !== $user->id_usuario) {
+                abort(403, 'Acesso não autorizado. Professores só podem modificar os recursos que cadastraram.');
+            }
         }
         $recurso->loadMissing('escola');
         if ($user->id_escola && ($recurso->id_escola === null || $recurso->id_escola === $user->id_escola)) {
-            return;
+            return; 
         }
         abort(403, 'Acesso não autorizado a este recurso.');
     }

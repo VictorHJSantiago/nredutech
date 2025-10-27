@@ -27,11 +27,8 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Rotas de Configurações (Acessíveis apenas se autenticado)
     Route::get('/configuracoes', [SettingsController::class, 'index'])->name('settings');
     Route::patch('/configuracoes/preferences', [SettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
-
-    // Rotas de Backup e Restore (Apenas Administradores)
     Route::middleware(['can:administrador'])->group(function() {
         Route::patch('/configuracoes/backup/schedule', [SettingsController::class, 'updateBackupSchedule'])->name('settings.backup.schedule.update');
         Route::get('/configuracoes/backup/download-file/{filename}', [SettingsController::class, 'downloadFile'])->name('settings.backup.download-file');
@@ -47,21 +44,23 @@ Route::middleware(['auth'])->group(function () {
     });
 
 
-    // Rotas de Recursos CRUD
+    // Rotas de Recursos CRUD (Acesso Geral, controlado nos controllers)
     Route::get('/agendamentos/events', [AppointmentController::class, 'getCalendarEvents'])->name('appointments.events');
     Route::post('/agendamentos/availability', [AppointmentController::class, 'getAvailabilityForDate'])->name('appointments.availability');
     Route::resource('agendamentos', AppointmentController::class);
     Route::resource('componentes', CurricularComponentController::class);
-    Route::resource('escolas', SchoolController::class)->parameters(['escolas' => 'escola']);
-    Route::resource('municipios', CityController::class);
     Route::resource('turmas', SchoolClassController::class);
     Route::resource('ofertas', CourseOfferingController::class)->parameters(['ofertas' => 'ofertaComponente']);
     Route::resource('recursos-didaticos', DidacticResourceController::class)
         ->parameters(['recursos-didaticos' => 'recursoDidatico'])
         ->names('resources');
-    Route::resource('usuarios', UserController::class);
+    Route::resource('usuarios', UserController::class); 
 
-    Route::get('/relatorios', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/relatorios', [ReportController::class, 'index'])->name('reports.index'); 
+    Route::middleware(['can:administrador'])->group(function () {
+        Route::resource('escolas', SchoolController::class)->parameters(['escolas' => 'escola']);
+        Route::resource('municipios', CityController::class);
+    });
 });
 
 require __DIR__.'/auth.php';
