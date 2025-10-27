@@ -67,6 +67,7 @@
                         @endphp
                         {!! sort_link('id_recurso', 'ID', $sortBy, $order) !!}
                         {!! sort_link('nome', 'Nome do Item', $sortBy, $order) !!}
+                        <th>Observações</th>
                         {!! sort_link('marca', 'Marca', $sortBy, $order) !!}
                         {!! sort_link('numero_serie', 'N.º de Série', $sortBy, $order) !!}
                         {!! sort_link('quantidade', 'Qtd', $sortBy, $order) !!}
@@ -83,6 +84,7 @@
                         <tr>
                             <td>{{ $recurso->id_recurso }}</td>
                             <td>{{ $recurso->nome }}</td>
+                            <td>{{ \Illuminate\Support\Str::limit($recurso->observacoes, 50) ?? 'N/A' }}</td>
                             <td>{{ $recurso->marca ?? 'N/A' }}</td>
                             <td>{{ $recurso->numero_serie ?? 'N/A' }}</td>
                             <td>{{ $recurso->quantidade }}</td>
@@ -91,18 +93,29 @@
                             <td>{{ $recurso->criador_nome ?? 'N/A' }}</td>               
                             <td><span class="status-{{ \Illuminate\Support\Str::slug($recurso->status) }}">{{ ucfirst(str_replace('_', ' ', $recurso->status)) }}</span></td>
                             <td>{{ $recurso->data_aquisicao ? \Carbon\Carbon::parse($recurso->data_aquisicao)->format('d/m/Y') : 'N/A' }}</td>
+                            
                             <td class="actions-cell">
-                                <a href="{{ route('resources.edit', $recurso->id_recurso) }}" class="btn-edit" title="Editar Recurso">✏️ Editar</a>
-                                <form action="{{ route('resources.destroy', $recurso->id_recurso) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este recurso?');" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-delete" title="Excluir Recurso">🗑️ Excluir</button>
-                                </form>
+                                @php
+                                    $user = Auth::user();
+                                    $isCreator = $user->id_usuario == $recurso->id_usuario_criador;
+                                    $canManage = $user->tipo_usuario == 'administrador' ||
+                                                 $user->tipo_usuario == 'diretor' ||
+                                                 ($user->tipo_usuario == 'professor' && $isCreator);
+                                @endphp
+
+                                @if($canManage)
+                                    <a href="{{ route('resources.edit', $recurso->id_recurso) }}" class="btn-edit" title="Editar Recurso">✏️ Editar</a>
+                                    <form action="{{ route('resources.destroy', $recurso->id_recurso) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este recurso?');" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-delete" title="Excluir Recurso">🗑️ Excluir</button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11">Nenhum recurso ou laboratório encontrado com os filtros aplicados.</td> 
+                            <td colspan="12">Nenhum recurso ou laboratório encontrado com os filtros aplicados.</td> 
                         </tr>
                     @endforelse
                 </tbody>

@@ -37,14 +37,14 @@ class DidacticResourceController extends Controller
                 ->leftJoin('usuarios', 'recursos_didaticos.id_usuario_criador', '=', 'usuarios.id_usuario') 
                 ->select('recursos_didaticos.*', 'escolas.nome as escola_nome', 'usuarios.nome_completo as criador_nome'); 
 
-        if ($user->tipo_usuario !== 'administrador' && $user->id_escola) {
-            $userSchoolId = $user->id_escola;
+        if ($user->tipo_usuario !== 'administrador') {
+            $userSchoolId = $user->id_escola; 
             $query->where(function ($q) use ($userSchoolId) {
-                $q->where('recursos_didaticos.id_escola', $userSchoolId)
-                  ->orWhereNull('recursos_didaticos.id_escola'); 
+                if ($userSchoolId) {
+                    $q->where('recursos_didaticos.id_escola', $userSchoolId);
+                }
+                $q->orWhereNull('recursos_didaticos.id_escola');
             });
-        } elseif ($user->tipo_usuario !== 'administrador') {
-             $query->whereNull('recursos_didaticos.id_escola'); 
         }
 
          $query->when($request->query('status'), function ($q, $status) {
@@ -295,14 +295,20 @@ class DidacticResourceController extends Controller
         if ($user->tipo_usuario === 'administrador') {
             return; 
         }
+
         if ($user->tipo_usuario === 'professor') {
             if ($recurso->id_usuario_criador !== $user->id_usuario) {
                 abort(403, 'Acesso não autorizado. Professores só podem modificar os recursos que cadastraram.');
             }
         }
+
         $recurso->loadMissing('escola');
         if ($user->id_escola && ($recurso->id_escola === null || $recurso->id_escola === $user->id_escola)) {
             return; 
+        }
+        
+        if (!$user->id_escola && $recurso->id_escola === null) {
+            return;
         }
         abort(403, 'Acesso não autorizado a este recurso.');
     }

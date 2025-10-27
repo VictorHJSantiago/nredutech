@@ -155,23 +155,18 @@ class CurricularComponentController extends Controller
         $oldStatus = $componente->status;
         $oldEscolaId = $componente->id_escola;
         $criador = $componente->criador; 
-
-        if ($actor->tipo_usuario === 'administrador') {
-            if ($request->has('id_escola')) {
+        if ($actor->tipo_usuario !== 'administrador') {
+             unset($validatedData['id_escola']);
+        } else {
+             if ($request->has('id_escola')) {
                  $validatedData['id_escola'] = $request->input('id_escola') ?: null;
             }
-        } else {
-             unset($validatedData['id_escola']);
-             unset($validatedData['status']); 
         }
-
         $componente->update($validatedData);
         $componente->refresh()->loadMissing(['escola', 'criador']);
-
         $newStatus = $componente->status;
         $newEscolaId = $componente->id_escola;
         $escolaNome = $componente->escola ? $componente->escola->nome : 'Global';
-
         $administradores = Usuario::where('tipo_usuario', 'administrador')->where('status_aprovacao', 'ativo')->get();
         $diretoresNovaEscola = collect();
          if ($newEscolaId) {

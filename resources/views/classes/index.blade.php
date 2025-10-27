@@ -124,7 +124,7 @@
                                     <td data-label="Escola">{{ $turma->escola->nome ?? 'N/A' }}</td>
                                     
                                     <td class="actions-cell" data-label="Ações">
-                                        <a href="{{ route('turmas.show', $turma->id_turma) }}" class="btn-primary btn-sm" title="Gerenciar Ofertas (Professores/Disciplinas)">
+                                        <a href="{{ route('turmas.show', $turma->id_turma) }}" class="btn-primary btn-sm">
                                             <i class="fas fa-tasks icon-left-sm"></i> Ofertas
                                         </a>
                                         <a href="{{ route('turmas.edit', $turma->id_turma) }}" class="btn-edit btn-sm" title="Editar Turma">
