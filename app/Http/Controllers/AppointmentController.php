@@ -50,8 +50,8 @@ class AppointmentController extends Controller
                 $meusAgendamentosQuery->orderBy($sortField, $order);
             } elseif ($sortBy === 'turma_serie') {
                 $meusAgendamentosQuery->join('oferta_componentes', 'agendamentos.id_oferta', '=', 'oferta_componentes.id_oferta')
-                    ->join('turmas', 'oferta_componentes.id_turma', '=', 'turmas.id_turma')
-                    ->orderBy('turmas.serie', $order);
+                        ->join('turmas', 'oferta_componentes.id_turma', '=', 'turmas.id_turma')
+                        ->orderBy('turmas.serie', $order);
             } else {
                 $meusAgendamentosQuery->orderBy($sortBy, $order);
             }
@@ -101,6 +101,15 @@ class AppointmentController extends Controller
         $recursosDisponiveisQuery = RecursoDidatico::query()
             ->where('status', 'funcionando')
             ->whereNotIn('id_recurso', $recursosAgendadosIds);
+        if ($authUser->tipo_usuario !== 'administrador') {
+            $userSchoolId = $authUser->id_escola;
+            $recursosDisponiveisQuery->where(function ($q) use ($userSchoolId) {
+                if ($userSchoolId) {
+                    $q->where('id_escola', $userSchoolId);
+                }
+                $q->orWhereNull('id_escola'); 
+            });
+        }
 
         if ($request->disponiveis_search) {
             $recursosDisponiveisQuery->where('nome', 'like', '%' . $request->disponiveis_search . '%');
@@ -134,12 +143,12 @@ class AppointmentController extends Controller
             $agendadosQuery->orderBy($sortField, $agendadosOrder);
         } elseif ($agendadosSortBy === 'oferta.turma.serie') {
             $agendadosQuery->join('oferta_componentes', 'agendamentos.id_oferta', '=', 'oferta_componentes.id_oferta')
-                ->join('turmas', 'oferta_componentes.id_turma', '=', 'turmas.id_turma')
-                ->orderBy('turmas.serie', $agendadosOrder);
+                    ->join('turmas', 'oferta_componentes.id_turma', '=', 'turmas.id_turma')
+                    ->orderBy('turmas.serie', $agendadosOrder);
         } elseif ($agendadosSortBy === 'oferta.professor.nome_completo') {
             $agendadosQuery->join('oferta_componentes', 'agendamentos.id_oferta', '=', 'oferta_componentes.id_oferta')
-                ->join('usuarios', 'oferta_componentes.id_professor', '=', 'usuarios.id_usuario')
-                ->orderBy('usuarios.nome_completo', $agendadosOrder);
+                    ->join('usuarios', 'oferta_componentes.id_professor', '=', 'usuarios.id_usuario')
+                    ->orderBy('usuarios.nome_completo', $agendadosOrder);
         } else {
             $agendadosQuery->orderBy($agendadosSortBy, $agendadosOrder);
         }
@@ -183,7 +192,7 @@ class AppointmentController extends Controller
         if ($inicio->hour >= 23 || $inicio->hour < 6) {
             return response()->json(['message' => 'Não é permitido criar agendamentos entre 23:00 e 06:00.'], 422);
         }
-         
+        
         $validatedData['status'] = 'agendado';
         $agendamento = Agendamento::create($validatedData);
         $titulo = 'Novo Agendamento Realizado';
@@ -212,11 +221,11 @@ class AppointmentController extends Controller
     }
 
     /**
-     *
-     * @param Agendamento $agendamento
-     * @param string $titulo
-     * @param string $mensagemTemplate
-     */
+    *
+    * @param Agendamento $agendamento
+    * @param string $titulo
+    * @param string $mensagemTemplate
+    */
     private function notifyRelatedUsers(Agendamento $agendamento, string $titulo, string $mensagemTemplate)
     {
         if (!$agendamento->oferta || !$agendamento->oferta->professor || !$agendamento->oferta->turma) {
@@ -227,8 +236,8 @@ class AppointmentController extends Controller
         $escolaId = $agendamento->oferta->turma->id_escola;
         $admins = Usuario::where('tipo_usuario', 'administrador')->get();
         $diretor = Usuario::where('tipo_usuario', 'diretor')
-                          ->where('id_escola', $escolaId)
-                          ->first();
+                            ->where('id_escola', $escolaId)
+                            ->first();
 
         $usersToNotify = collect($admins);
         if ($diretor) {

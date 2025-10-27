@@ -1,10 +1,15 @@
 @extends('layouts.app')
 
 @section('title', 'Agendamento de Recursos')
-
-@push('styles')
-    @vite('resources/css/appointments.css')
-@endpush
+@php
+    function sort_link($coluna, $titulo, $sortBy, $order) {
+        $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
+        $icon = $sortBy == $coluna ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short') : 'fa-sort';
+        $isActive = $sortBy == $coluna ? 'active' : '';
+        $urlParams = array_merge(request()->except('sort_by', 'order'), ['sort_by' => $coluna, 'order' => $newOrder]);
+        return '<a href="?' . http_build_query($urlParams) . '" class="' . $isActive . '">' . $titulo . ' <i class="fas ' . $icon . ' sort-icon"></i></a>';
+    }
+@endphp
 
 @section('content')
 <div class="appointments-container">
@@ -73,13 +78,3 @@
     </div>
 </div>
 @endsection
-
-@php
-    function sort_link($coluna, $titulo, $sortBy, $order) {
-        $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
-        $icon = $sortBy == $coluna ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short') : 'fa-sort';
-        $isActive = $sortBy == $coluna ? 'active' : '';
-        $urlParams = array_merge(request()->except('sort_by', 'order'), ['sort_by' => $coluna, 'order' => $newOrder]);
-        return '<a href="?' . http_build_query($urlParams) . '" class="' . $isActive . '">' . $titulo . ' <i class="fas ' . $icon . ' sort-icon"></i></a>';
-    }
-@endphp
