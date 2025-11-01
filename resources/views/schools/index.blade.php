@@ -2,6 +2,10 @@
 
 @section('title', 'Gestão de Escolas e Municípios')
 
+@push('styles')
+    @vite('resources/css/schools.css')
+@endpush
+
 @section('content')
     <div class="header-section">
         <h1 class="text-2xl font-semibold text-gray-800">Gestão de Escolas e Municípios</h1>
@@ -125,7 +129,7 @@
         </div>
 
         <section class="filter-bar filter-bar-escolas">
-             <form action="{{ route('escolas.index') }}" method="GET" class="filter-form">
+             <form action="{{ route('escolas.index') }}" method="GET" class="filter-form js-clean-get-form">
                 <div class="filter-group search-main">
                     <label for="search_nome">Buscar por Nome da Escola ou Diretor</label>
                     <input type="text" id="search_nome" name="search_nome"
@@ -186,7 +190,8 @@
                             ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
                             : 'fa-sort';
                         $isActive = $sortBy == $coluna ? 'active' : '';
-                        $url = route('escolas.index', array_merge(request()->except(['page']), [
+                        $queryParams = array_filter(request()->except(['page']));
+                        $url = route('escolas.index', array_merge($queryParams, [
                             'sort_by' => $coluna,
                             'order' => $newOrder
                         ]));
@@ -267,7 +272,7 @@
                     </table>
                 </div>
                 <div class="pagination-container">
-                    {{ $escolas->links() }}
+                    {{ $escolas->withQueryString()->links() }}
                 </div>
             </div>
         </div>
