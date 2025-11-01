@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Rules;
 
 use Tests\TestCase;
 use App\Rules\RgValido;

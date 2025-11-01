@@ -13,6 +13,7 @@ return [
                 'exclude' => [
                     base_path('vendor'),
                     base_path('node_modules'),
+                    storage_path(),
                 ],
 
                 'follow_links' => false,
@@ -36,7 +37,7 @@ return [
         'database_dump_file_extension' => '',
 
         'destination' => [
-            'compression_method' => ZipArchive::CM_DEFAULT,
+            'compression_method' => \ZipArchive::CM_DEFAULT,
 
             'compression_level' => 9,
 
@@ -60,10 +61,11 @@ return [
 
     'notifications' => [
         'notifications' => [
+            \Spatie\Backup\Notifications\Notifications\BackupWasSuccessfulNotification::class => [],
             \Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification::class => ['mail'],
             \Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotification::class => ['mail'],
             \Spatie\Backup\Notifications\Notifications\CleanupHasFailedNotification::class => ['mail'],
-            //\App\Notifications\CustomBackupWasSuccessfulNotification::class => ['mail'],
+            \App\Notifications\CustomBackupWasSuccessfulNotification::class => ['mail', 'database'],
             \Spatie\Backup\Notifications\Notifications\HealthyBackupWasFoundNotification::class => ['mail'],
             \Spatie\Backup\Notifications\Notifications\CleanupWasSuccessfulNotification::class => ['mail'],
         ],
@@ -75,25 +77,20 @@ return [
 
             'from' => [
                 'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-                'name' => env('MAIL_FROM_NAME', 'Example'),
+                'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'NREduTech')),
             ],
         ],
 
         'slack' => [
             'webhook_url' => '',
-
             'channel' => null,
-
             'username' => null,
-
             'icon' => null,
         ],
 
         'discord' => [
             'webhook_url' => '',
-
             'username' => '',
-
             'avatar_url' => '',
         ],
     ],
@@ -107,17 +104,6 @@ return [
                 \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes::class => 5000,
             ],
         ],
-
-        /*
-        [
-            'name' => 'name of the second app',
-            'disks' => ['local', 's3'],
-            'health_checks' => [
-                \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays::class => 1,
-                \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes::class => 5000,
-            ],
-        ],
-        */
     ],
 
     'cleanup' => [

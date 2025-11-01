@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Backup;
 
 use Tests\TestCase;
 use App\Notifications\CustomBackupWasSuccessfulNotification;
