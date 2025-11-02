@@ -7,18 +7,6 @@ function toggleDropdown() {
     }
 }
 
-window.onclick = function(event) {
-    if (!event.target.matches('.btn-download-toggle, .btn-download-toggle *')) {
-        const dropdowns = document.getElementsByClassName("dropdown-content");
-        for (let i = 0; i < dropdowns.length; i++) {
-            const openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains('show')) {
-                openDropdown.classList.remove('show');
-            }
-        }
-    }
-}
-
 let recursosStatusChartInstance = null;
 let usuariosMunicipioChartInstance = null;
 let usuariosTipoChartInstance = null;
@@ -201,6 +189,77 @@ function renderComponentesStatusChart(chartData) {
     }, { set instance(val) { componentesStatusChartInstance = val; }, get instance() { return componentesStatusChartInstance; } });
 }
 
+
+function closeAllMultiSelects(exceptThisOne = null) {
+    document.querySelectorAll('.custom-multiselect.active').forEach(container => {
+        if (container !== exceptThisOne) {
+            container.classList.remove('active');
+        }
+    });
+}
+
+function initializeMultiSelects() {
+    const containers = document.querySelectorAll('.custom-multiselect');
+
+    containers.forEach(container => {
+        const button = container.querySelector('.multiselect-toggle');
+        const dropdown = container.querySelector('.multiselect-dropdown');
+        const span = button.querySelector('span');
+        const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+        const defaultText = span.textContent || 'Selecione...';
+
+        function updateButtonText() {
+            const checked = dropdown.querySelectorAll('input[type="checkbox"]:checked');
+            if (checked.length === 0) {
+                span.textContent = defaultText;
+                span.classList.add('default-text'); 
+            } else if (checked.length === 1) {
+                const label = checked[0].nextElementSibling;
+                span.textContent = label ? label.textContent : '1 selecionado';
+                span.classList.remove('default-text'); 
+            } else {
+                span.textContent = `${checked.length} selecionados`;
+                span.classList.remove('default-text'); 
+            }
+        }
+
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeAllMultiSelects(container);
+            container.classList.toggle('active');
+        });
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateButtonText);
+        });
+
+        dropdown.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'LABEL' && e.target.tagName !== 'INPUT') {
+                e.stopPropagation();
+            }
+        });
+
+        updateButtonText();
+    });
+}
+
+window.addEventListener('click', function(event) {
+    if (!event.target.matches('.btn-download-toggle, .btn-download-toggle *')) {
+        const dropdowns = document.getElementsByClassName("dropdown-content");
+        for (let i = 0; i < dropdowns.length; i++) {
+            const openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+
+    if (!event.target.closest('.custom-multiselect')) {
+        closeAllMultiSelects(null);
+    }
+});
+
+
 document.addEventListener('DOMContentLoaded', function () {
     const downloadBtn = document.querySelector('.btn-download-toggle');
     if (downloadBtn) {
@@ -217,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 recursosPorStatus: JSON.parse(chartDataEl.dataset.recursosStatus || '{}'),
                 usuariosPorMunicipio: JSON.parse(chartDataEl.dataset.usuariosMunicipio || '{}'),
                 usuariosTipo: JSON.parse(chartDataEl.dataset.usuariosTipo || '{}'),
-                turmasPorTurno: JSON.parse(chartDataEl.dataset.turmasTurno || '{}'),
+                turmasPorTurno: JSON.parse(chartDataEl.dataset.turmasPorTurno || '{}'),
                 componentesPorStatus: JSON.parse(chartDataEl.dataset.componentesStatus || '{}')
             };
 
@@ -233,5 +292,33 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     } else {
         document.querySelectorAll('.chart-container').forEach(container => container.style.display = 'none');
+    }
+
+    initializeMultiSelects();
+    const downloadDropdown = document.getElementById('downloadDropdownMenu');
+    const downloadMessage = document.getElementById('download-message');
+
+    if (downloadDropdown && downloadMessage) {
+        const links = downloadDropdown.querySelectorAll('a.download-link');
+        
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                downloadMessage.style.display = 'flex'; 
+                
+                toggleDropdown();
+
+                const url = this.href;
+
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 100);
+
+                setTimeout(() => {
+                     downloadMessage.style.display = 'none';
+                }, 10000); 
+            });
+        });
     }
 });

@@ -27,6 +27,7 @@ use Maatwebsite\Excel\Excel as ExcelWriterType;
 use ZipArchive;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 
 class ReportController extends Controller
 {
@@ -35,15 +36,28 @@ class ReportController extends Controller
     public function index(Request $request): View|BinaryFileResponse|Response|RedirectResponse
     {
         $user = Auth::user();
-        list($municipios, $escolas) = $this->getLocationFilters($user);
+        list($municipios, $escolas, $disciplinas, $marcas) = $this->getLocationFiltersAndOptions($user);
 
         $validatedInputs = $request->validate([
-            'id_municipio' => 'nullable|exists:municipios,id_municipio',
-            'id_escola' => 'nullable|exists:escolas,id_escola',
-            'nivel_ensino' => 'nullable|string|in:colegio_estadual,escola_tecnica,escola_municipal',
-            'tipo_escola' => 'nullable|string|in:urbana,rural',
-            'user_type' => 'nullable|string|in:administrador,diretor,professor',
-            'resource_status' => 'nullable|string|in:funcionando,em_manutencao,quebrado,descartado',
+            'id_municipio' => 'nullable|array',
+            'id_municipio.*' => 'exists:municipios,id_municipio',
+            'id_escola' => 'nullable|array',
+            'id_escola.*' => 'exists:escolas,id_escola',
+            'nivel_ensino' => 'nullable|array',
+            'nivel_ensino.*' => 'string|in:colegio_estadual,escola_tecnica,escola_municipal',
+            'tipo_escola' => 'nullable|array',
+            'tipo_escola.*' => 'string|in:urbana,rural',
+            'user_type' => 'nullable|array',
+            'user_type.*' => 'string|in:administrador,diretor,professor',
+            'resource_status' => 'nullable|array',
+            'resource_status.*' => 'string|in:funcionando,em_manutencao,quebrado,descartado',
+            'id_disciplina' => 'nullable|array',
+            'id_disciplina.*' => 'exists:componentes_curriculares,id_componente',
+            'turma_serie' => 'nullable|string',
+            'recurso_marca' => 'nullable|array',
+            'recurso_marca.*' => 'string',
+            'recurso_qtd_min' => 'nullable|integer|min:0',
+            'recurso_qtd_max' => 'nullable|integer|min:0|gte:recurso_qtd_min',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'report_type' => 'nullable|string|in:'.implode(',', $this->allReportTypes),
@@ -84,9 +98,11 @@ class ReportController extends Controller
             }
         }
 
-        return view('reports.index', compact('reportData', 'columns', 'municipios', 'escolas', 'inputs', 'chartData', 'stats', 'sortBy', 'order', 'selectedReportType'));
+        return view('reports.index', compact(
+            'reportData', 'columns', 'municipios', 'escolas', 'disciplinas', 'marcas', 
+            'inputs', 'chartData', 'stats', 'sortBy', 'order', 'selectedReportType'
+        ));
     }
-
 
     private function handleDownload($validatedInputs, $user): BinaryFileResponse|RedirectResponse|Response
     {
@@ -104,6 +120,9 @@ class ReportController extends Controller
             $typesToGenerate = array_diff($typesToGenerate, ['escolas']);
         }
 
+        $stats = $this->getStats($user, $validatedInputs);
+        $chartData = $this->getChartData($validatedInputs, $user);
+
         $hasAnyData = false;
         foreach($typesToGenerate as $type) {
             $query = $this->buildQuery(['report_type' => $type] + $validatedInputs, $user);
@@ -112,8 +131,8 @@ class ReportController extends Controller
                 break;
             }
         }
-
-        if (!$hasAnyData) {
+        
+        if (!$hasAnyData && empty(array_filter($stats)) && empty(array_filter($chartData, fn($c) => $c->isNotEmpty()))) {
             $redirectInputs = Arr::except($validatedInputs, ['format']);
             return redirect()->route('reports.index', $redirectInputs)->with('error', 'Nenhum dado encontrado para exportar com os filtros aplicados.');
         }
@@ -123,16 +142,16 @@ class ReportController extends Controller
 
         try {
             if ($format === 'csv') {
-                return $this->streamCsvReportsToZip($typesToGenerate, $validatedInputs, $user, $filenameBase);
+                return $this->streamCsvReportsToZip($typesToGenerate, $validatedInputs, $user, $filenameBase, $stats, $chartData);
             }
 
             if ($format === 'pdf') {
-                return $this->generatePdfReports($typesToGenerate, $validatedInputs, $user, $filenameBase, $fileNameSuffix, $isSingleReport);
+                return $this->generatePdfReports($typesToGenerate, $validatedInputs, $user, $filenameBase, $fileNameSuffix, $isSingleReport, $stats, $chartData);
             }
             
             $reportsToExport = $this->fetchAllReportData($typesToGenerate, $validatedInputs, $user);
 
-            if (empty($reportsToExport)) {
+            if (empty($reportsToExport) && empty(array_filter($stats)) && empty(array_filter($chartData, fn($c) => $c->isNotEmpty()))) {
                  $redirectInputs = Arr::except($validatedInputs, ['format']);
                  return redirect()->route('reports.index', $redirectInputs)->with('error', 'Nenhum dado encontrado para exportar com os filtros aplicados.');
             }
@@ -142,12 +161,17 @@ class ReportController extends Controller
                 $fileExtension = $format === 'xlsx' ? '.xlsx' : '.ods';
                 $writerType = $format === 'xlsx' ? ExcelWriterType::XLSX : ExcelWriterType::ODS;
                 $fileName = $filenameBase . $fileNameSuffix . $fileExtension;
-                return Excel::download(new AllReportsExport($reportsToExport), $fileName, $writerType);
+                
+                return Excel::download(new AllReportsExport($reportsToExport, $stats, $chartData), $fileName, $writerType);
             }
             
             if ($format === 'html') {
                 if (!view()->exists('reports.partials.html_multi')) throw new \Exception('A view reports.partials.html_multi não foi encontrada.');
-                $htmlContent = view('reports.partials.html_multi', ['reports' => $reportsToExport])->render();
+                $htmlContent = view('reports.partials.html_multi', [
+                    'reports' => $reportsToExport,
+                    'stats' => $stats,
+                    'chartData' => $chartData
+                ])->render();
                 $fileName = $filenameBase . $fileNameSuffix . '.html';
                 return response($htmlContent)
                     ->header('Content-Type', 'text/html')
@@ -176,9 +200,7 @@ class ReportController extends Controller
                 Log::warning("ReportController->fetchAllReportData: Falha ao construir query para tipo '{$type}'.");
                 continue;
             }
-            
             $data = $query->get();
-
             if ($data->isNotEmpty()) {
                 $reportsToExport[$type] = [
                     'data' => $data,
@@ -190,55 +212,108 @@ class ReportController extends Controller
         return $reportsToExport;
     }
     
-    private function generatePdfReports($typesToGenerate, $validatedInputs, $user, $filenameBase, $fileNameSuffix, $isSingleReport): BinaryFileResponse|Response
+    private function generatePdfReports($typesToGenerate, $validatedInputs, $user, $filenameBase, $fileNameSuffix, $isSingleReport, $stats = [], $chartData = []): BinaryFileResponse|Response
     {
-        set_time_limit(300);
+        set_time_limit(300); 
         ini_set('memory_limit', '512M');
-        
-        $reportsToExport = $this->fetchAllReportData($typesToGenerate, $validatedInputs, $user);
 
-        if (empty($reportsToExport)) {
+        $chunkSize = 1000; 
+
+        $hasAnyData = false;
+        if (!empty(array_filter($stats))) {
+            $hasAnyData = true;
+        } else if (!empty(array_filter($chartData, fn($c) => $c->isNotEmpty()))) {
+            $hasAnyData = true;
+        } else {
+            foreach($typesToGenerate as $type) {
+                $query = $this->buildQuery(['report_type' => $type] + $validatedInputs, $user);
+                if ($query && $query->exists()) {
+                    $hasAnyData = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$hasAnyData) {
             throw new \Exception("Não foram encontrados dados para gerar o PDF.");
         }
 
-        if ($isSingleReport) {
-            $pdf = Pdf::loadView('reports.partials.pdf_multi', ['reports' => $reportsToExport])->setPaper('a4', 'landscape');
-            $fileName = $filenameBase . $fileNameSuffix . '.pdf';
-            return $pdf->download($fileName);
-        } else {
-            if (!class_exists('ZipArchive')) throw new \Exception('A extensão ZipArchive do PHP é necessária para exportar múltiplos PDFs.');
+        if (!class_exists('ZipArchive')) {
+            throw new \Exception('A extensão ZipArchive do PHP é necessária para exportar múltiplos PDFs.');
+        }
 
-            $zip = new ZipArchive;
-            $zipFileName = $filenameBase . '_pdf_reports.zip';
-            $tempZipPath = storage_path('app/temp/' . $zipFileName);
-            File::ensureDirectoryExists(dirname($tempZipPath));
+        $zip = new ZipArchive;
+        $zipFileName = $isSingleReport ? $filenameBase . $fileNameSuffix . '.zip' : $filenameBase . '_pdf_reports.zip';
+        $tempZipPath = storage_path('app/temp/' . $zipFileName);
+        File::ensureDirectoryExists(dirname($tempZipPath));
 
-            if ($zip->open($tempZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
-                throw new \Exception("Não foi possível criar o arquivo ZIP para os PDFs.");
-            }
+        if ($zip->open($tempZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+            throw new \Exception("Não foi possível criar o arquivo ZIP para os PDFs.");
+        }
 
-            $tempPdfDir = storage_path('app/temp/pdf_temp_' . uniqid());
-            File::ensureDirectoryExists($tempPdfDir);
+        $tempPdfDir = storage_path('app/temp/pdf_temp_' . uniqid());
+        File::ensureDirectoryExists($tempPdfDir);
 
-            foreach ($reportsToExport as $type => $reportData) {
-                $pdf = Pdf::loadView('reports.partials.pdf_multi', ['reports' => [$type => $reportData]])->setPaper('a4', 'landscape');
-                $pdfFileNameOnly = Str::snake($reportData['title']) . '.pdf';
+        if (!empty(array_filter($stats)) || !empty(array_filter($chartData, fn($c) => $c->isNotEmpty()))) {
+            try {
+                $statsPdf = Pdf::loadView('reports.partials.pdf_multi', [
+                    'reports' => [], 
+                    'stats' => $stats,
+                    'chartData' => $chartData
+                ])->setPaper('a4', 'portrait');
+                
+                $pdfFileNameOnly = '00_Resumo_KPIs_e_Graficos.pdf';
                 $pdfAbsolutePath = $tempPdfDir . '/' . $pdfFileNameOnly;
-                $pdf->save($pdfAbsolutePath);
+                $statsPdf->save($pdfAbsolutePath);
 
                 if (File::exists($pdfAbsolutePath)) {
                     $zip->addFile($pdfAbsolutePath, $pdfFileNameOnly);
                 }
+                unset($statsPdf); 
+            } catch (\Exception $e) {
+                Log::error("Falha ao gerar PDF de Stats: " . $e->getMessage());
             }
-
-            $zip->close();
-            File::deleteDirectory($tempPdfDir);
-
-            return response()->download($tempZipPath, $zipFileName)->deleteFileAfterSend(true);
         }
+
+        foreach ($typesToGenerate as $type) {
+            $query = $this->buildQuery(['report_type' => $type] + $validatedInputs, $user);
+            if (!$query) continue;
+
+            $columns = $this->getColumns($type);
+            $title = Str::ucfirst(str_replace('_', ' ', $type));
+            $basePdfName = Str::snake($title);
+            $chunkIndex = 1;
+
+            $query->chunkById($chunkSize, function($results) use (&$zip, $tempPdfDir, $type, $columns, $title, $basePdfName, &$chunkIndex) {
+                if ($results->isEmpty()) {
+                    return;
+                }
+                $reportData = [
+                    'data' => $results,
+                    'columns' => $columns,
+                    'title' => $title . " (Parte $chunkIndex)"
+                ];
+                $pdf = Pdf::loadView('reports.partials.pdf_multi', ['reports' => [$type => $reportData]])->setPaper('a4', 'landscape');
+                $pdfFileNameOnly = $basePdfName . '_parte_' . $chunkIndex . '.pdf';
+                $pdfAbsolutePath = $tempPdfDir . '/' . $pdfFileNameOnly;
+                $pdf->save($pdfAbsolutePath);
+                if (File::exists($pdfAbsolutePath)) {
+                    $zip->addFile($pdfAbsolutePath, $pdfFileNameOnly);
+                }
+                $chunkIndex++;
+                unset($pdf); 
+                unset($reportData);
+                unset($results);
+            });
+        }
+
+        $zip->close();
+        File::deleteDirectory($tempPdfDir);
+
+        return response()->download($tempZipPath, $zipFileName)->deleteFileAfterSend(true);
     }
 
-    private function streamCsvReportsToZip($typesToGenerate, $validatedInputs, $user, $filenameBase): BinaryFileResponse
+    private function streamCsvReportsToZip($typesToGenerate, $validatedInputs, $user, $filenameBase, $stats = [], $chartData = []): BinaryFileResponse
     {
         if (!class_exists('ZipArchive')) throw new \Exception('A extensão ZipArchive do PHP é necessária para exportar múltiplos CSVs.');
 
@@ -253,6 +328,47 @@ class ReportController extends Controller
 
         $tempCsvDir = storage_path('app/temp/csv_temp_' . uniqid());
         File::ensureDirectoryExists($tempCsvDir);
+
+        if (!empty(array_filter($stats)) || !empty(array_filter($chartData, fn($c) => $c->isNotEmpty()))) {
+            $csvAbsolutePath = $tempCsvDir . '/00_Resumo_KPIs_e_Graficos.csv';
+            $handle = fopen($csvAbsolutePath, 'w');
+            
+            if (!empty(array_filter($stats))) {
+                fputcsv($handle, ['Indicador (KPI)', 'Valor']);
+                foreach ($stats as $key => $value) {
+                    $formattedKey = preg_replace('/(?<=\\w)(?=[A-Z])/', " $1", Str::ucfirst(Str::camel($key)));
+                    $formattedKey = str_replace('Total ', 'Total de ', $formattedKey);
+                    fputcsv($handle, [$formattedKey, $value]);
+                }
+            }
+
+            if (!empty(array_filter($chartData, fn($c) => $c->isNotEmpty()))) {
+                fputcsv($handle, []); 
+                fputcsv($handle, ['Dados dos Gráficos']);
+                fputcsv($handle, ['Indicador', 'Categoria', 'Valor']);
+                
+                foreach ($chartData as $chartKey => $data) {
+                    if ($data->isNotEmpty()) {
+                        $title = match($chartKey) {
+                            'recursosPorStatus' => 'Recursos por Status',
+                            'usuariosPorTipo' => 'Usuários por Tipo',
+                            'usuariosPorMunicipio' => 'Usuários por Localização',
+                            'turmasPorTurno' => 'Turmas por Turno',
+                            'componentesPorStatus' => 'Disciplinas por Status',
+                            default => Str::ucfirst($chartKey)
+                        };
+                        foreach($data as $key => $value) {
+                            fputcsv($handle, [$title, $key, $value]);
+                        }
+                    }
+                }
+            }
+            
+            fclose($handle);
+            if (File::exists($csvAbsolutePath)) {
+                $zip->addFile($csvAbsolutePath, '00_Resumo_KPIs_e_Graficos.csv');
+            }
+        }
 
         foreach ($typesToGenerate as $type) {
             $query = $this->buildQuery(['report_type' => $type] + $validatedInputs, $user);
@@ -308,7 +424,7 @@ class ReportController extends Controller
         };
     }
 
-    private function getLocationFilters($user): array {
+    private function getLocationFiltersAndOptions($user): array {
         $municipios = Municipio::orderBy('nome')->get();
         $escolas = collect();
         if ($user->tipo_usuario === 'administrador') {
@@ -316,7 +432,13 @@ class ReportController extends Controller
         } elseif ($user->id_escola) {
             $escolas = Escola::where('id_escola', $user->id_escola)->with('municipio')->get();
         }
-        return [$municipios, $escolas];
+
+        $disciplinas = ComponenteCurricular::orderBy('nome')->get(['id_componente', 'nome']);
+        $marcas = RecursoDidatico::select('marca')
+            ->whereNotNull('marca')->where('marca', '!=', '')
+            ->distinct()->orderBy('marca')->pluck('marca');
+
+        return [$municipios, $escolas, $disciplinas, $marcas];
     }
 
     private function buildQuery($filters, $user, $sortBy = null, $order = 'asc'): ?\Illuminate\Database\Eloquent\Builder {
@@ -334,6 +456,7 @@ class ReportController extends Controller
             case 'escolas': $query = Escola::query()->with(['municipio']); $baseTable = 'escolas'; break;
             default: return null;
         }
+        
         if ($user->tipo_usuario === 'administrador') {
             if (!empty($filters['id_municipio'])) $this->applyMunicipioFilter($query, $reportType, $filters['id_municipio']);
             if (!empty($filters['id_escola'])) $this->applyEscolaFilter($query, $reportType, $filters['id_escola']);
@@ -343,13 +466,20 @@ class ReportController extends Controller
              $this->applyEscolaFilter($query, $reportType, $user->id_escola);
         } elseif ($user->tipo_usuario !== 'administrador') {
             if (in_array($reportType, ['usuarios', 'turmas', 'agendamentos', 'escolas'])) {
-                 $query->whereRaw('1 = 0');
+                 $query->whereRaw('1 = 0'); 
             }
         }
-        if (!empty($filters['user_type']) && $reportType === 'usuarios') $query->where($baseTable.'.tipo_usuario', $filters['user_type']);
-        if (!empty($filters['resource_status']) && $reportType === 'recursos') $query->where($baseTable.'.status', $filters['resource_status']);
+
+        if (!empty($filters['user_type']) && $reportType === 'usuarios') $query->whereIn($baseTable.'.tipo_usuario', Arr::wrap($filters['user_type']));
+        if (!empty($filters['resource_status']) && $reportType === 'recursos') $query->whereIn($baseTable.'.status', Arr::wrap($filters['resource_status']));
         if (!empty($filters['start_date']) && $reportType === 'agendamentos') $query->whereDate($baseTable.'.data_hora_inicio', '>=', $filters['start_date']);
         if (!empty($filters['end_date']) && $reportType === 'agendamentos') $query->whereDate($baseTable.'.data_hora_inicio', '<=', $filters['end_date']);
+        if (!empty($filters['id_disciplina']) && $reportType === 'componentes') $query->whereIn($baseTable.'.id_componente', Arr::wrap($filters['id_disciplina']));
+        if (!empty($filters['turma_serie']) && $reportType === 'turmas') $query->where($baseTable.'.serie', 'like', '%'.trim($filters['turma_serie']).'%');
+        if (!empty($filters['recurso_marca']) && $reportType === 'recursos') $query->whereIn($baseTable.'.marca', Arr::wrap($filters['recurso_marca']));
+        if (!empty($filters['recurso_qtd_min']) && $reportType === 'recursos') $query->where($baseTable.'.quantidade', '>=', $filters['recurso_qtd_min']);
+        if (!empty($filters['recurso_qtd_max']) && $reportType === 'recursos') $query->where($baseTable.'.quantidade', '<=', $filters['recurso_qtd_max']);
+
         if ($sortBy) {
             $this->applySortingForView($query, $reportType, $sortBy, $order);
         } else {
@@ -487,15 +617,21 @@ class ReportController extends Controller
                 $usuariosPorMunicipio = collect();
                 if ($user->tipo_usuario === 'administrador') {
                     $locationQuery = clone $usuarioQuery;
-                    if (empty($filters['id_escola'])) {
-                         $locationQuery->join('escolas', 'usuarios.id_escola', '=', 'escolas.id_escola');
-                         $locationQuery->join('municipios', 'escolas.id_municipio', '=', 'municipios.id_municipio');
+                    
+                    if (empty($filters['id_escola'])) { 
+                         if (!collect($locationQuery->getQuery()->joins)->pluck('table')->contains('escolas')) {
+                            $locationQuery->join('escolas', 'usuarios.id_escola', '=', 'escolas.id_escola');
+                         }
+                         if (!collect($locationQuery->getQuery()->joins)->pluck('table')->contains('municipios')) {
+                            $locationQuery->join('municipios', 'escolas.id_municipio', '=', 'municipios.id_municipio');
+                         }
+
                          if (empty($filters['id_municipio'])) {
                                $usuariosPorMunicipio = $locationQuery->select('municipios.nome', DB::raw('count(usuarios.id_usuario) as total'))
                                  ->groupBy('municipios.nome')->pluck('total', 'nome');
                          } else {
                                $usuariosPorMunicipio = $locationQuery->select('escolas.nome', DB::raw('count(usuarios.id_usuario) as total'))
-                                 ->where('escolas.id_municipio', $filters['id_municipio'])
+                                 ->whereIn('escolas.id_municipio', Arr::wrap($filters['id_municipio']))
                                  ->groupBy('escolas.nome')->pluck('total', 'nome');
                          }
                     }
@@ -521,35 +657,56 @@ class ReportController extends Controller
         return $chartData;
     }
 
-    private function applyEscolaFilter(&$query, $type, $escolaId) {
+    private function applyEscolaFilter(&$query, $type, $escolaIds) {
         if(!$query) return;
+        $ids = Arr::wrap($escolaIds); 
+        if(empty($ids)) return;
+        
         $baseTable = $query->getModel()->getTable();
-        if (in_array($type, ['usuarios', 'turmas'])) $query->where($baseTable.'.id_escola', $escolaId);
-        if ($type === 'escolas') $query->where($baseTable.'.id_escola', $escolaId);
-        if ($type === 'agendamentos') $query->whereHas('oferta.turma', fn($q) => $q->where('id_escola', $escolaId));
-    }
-
-    private function applyMunicipioFilter(&$query, $type, $municipioId) {
-        if(!$query) return;
-        $baseTable = $query->getModel()->getTable();
-        if (in_array($type, ['usuarios', 'turmas'])) {
-            $query->whereHas('escola', fn($q) => $q->where('id_municipio', $municipioId));
-        } elseif ($type === 'escolas') {
-            $query->where($baseTable.'.id_municipio', $municipioId);
-        } elseif ($type === 'agendamentos') {
-            $query->whereHas('oferta.turma.escola', fn($q) => $q->where('id_municipio', $municipioId));
+        if (in_array($type, ['usuarios', 'turmas'])) $query->whereIn($baseTable.'.id_escola', $ids);
+        if ($type === 'escolas') $query->whereIn($baseTable.'.id_escola', $ids);
+        if ($type === 'agendamentos') $query->whereHas('oferta.turma', fn($q) => $q->whereIn('id_escola', $ids));
+        
+        if ($type === 'recursos' && Schema::hasColumn($baseTable, 'id_escola')) {
+            $query->whereIn($baseTable.'.id_escola', $ids);
         }
     }
 
-    private function applyGenericEscolaFilter(&$query, $type, $column, $value) {
+    private function applyMunicipioFilter(&$query, $type, $municipioIds) {
         if(!$query) return;
+        $ids = Arr::wrap($municipioIds);
+        if(empty($ids)) return;
+        
         $baseTable = $query->getModel()->getTable();
         if (in_array($type, ['usuarios', 'turmas'])) {
-            $query->whereHas('escola', fn($q) => $q->where($column, $value));
+            $query->whereHas('escola', fn($q) => $q->whereIn('id_municipio', $ids));
         } elseif ($type === 'escolas') {
-            $query->where($baseTable.'.'.$column, $value);
+            $query->whereIn($baseTable.'.id_municipio', $ids);
         } elseif ($type === 'agendamentos') {
-            $query->whereHas('oferta.turma.escola', fn($q) => $q->where($column, $value));
+            $query->whereHas('oferta.turma.escola', fn($q) => $q->whereIn('id_municipio', $ids));
+        }
+        
+        if ($type === 'recursos' && Schema::hasColumn($baseTable, 'id_escola')) {
+             $query->whereHas('escola', fn($q) => $q->whereIn('id_municipio', $ids));
+        }
+    }
+
+    private function applyGenericEscolaFilter(&$query, $type, $column, $values) {
+        if(!$query) return;
+        $vals = Arr::wrap($values);
+        if(empty($vals)) return;
+        
+        $baseTable = $query->getModel()->getTable();
+        if (in_array($type, ['usuarios', 'turmas'])) {
+            $query->whereHas('escola', fn($q) => $q->whereIn($column, $vals));
+        } elseif ($type === 'escolas') {
+            $query->whereIn($baseTable.'.'.$column, $vals);
+        } elseif ($type === 'agendamentos') {
+            $query->whereHas('oferta.turma.escola', fn($q) => $q->whereIn($column, $vals));
+        }
+         
+         if ($type === 'recursos' && Schema::hasColumn($baseTable, 'id_escola')) {
+             $query->whereHas('escola', fn($q) => $q->whereIn($column, $vals));
         }
     }
 }

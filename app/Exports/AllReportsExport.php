@@ -8,10 +8,19 @@ use Illuminate\Support\Collection;
 class AllReportsExport implements WithMultipleSheets
 {
     protected $reports;
+    protected $stats; 
+    protected $chartData; 
 
-    public function __construct(array $reports)
+    /**
+     * @param array $reports 
+     * @param array $stats 
+     * @param array $chartData 
+     */
+    public function __construct(array $reports, array $stats = [], array $chartData = [])
     {
         $this->reports = $reports;
+        $this->stats = $stats;
+        $this->chartData = $chartData; 
     }
 
     /**
@@ -21,16 +30,30 @@ class AllReportsExport implements WithMultipleSheets
     {
         $sheets = [];
 
+        if (!empty(array_filter($this->stats))) {
+            if (class_exists(KpiSheet::class)) {
+                $sheets[] = new KpiSheet($this->stats);
+            }
+        }
+
+        if (!empty(array_filter($this->chartData, fn($c) => $c->isNotEmpty()))) {
+            if (class_exists(ChartDataSheet::class)) {
+                $sheets[] = new ChartDataSheet($this->chartData);
+            }
+        }
+
         foreach ($this->reports as $reportName => $reportData) {
             $dataCollection = $reportData['data'] instanceof Collection 
                 ? $reportData['data'] 
                 : new Collection($reportData['data']);
 
-            $sheets[] = new SingleReportSheet(
-                \Illuminate\Support\Str::of(str_replace('_', ' ', $reportName))->ucfirst(),
-                $dataCollection,
-                $reportData['columns']
-            );
+            if (class_exists(SingleReportSheet::class)) {
+                $sheets[] = new SingleReportSheet(
+                    \Illuminate\Support\Str::of(str_replace('_', ' ', $reportName))->ucfirst(),
+                    $dataCollection,
+                    $reportData['columns']
+                );
+            }
         }
 
         return $sheets;

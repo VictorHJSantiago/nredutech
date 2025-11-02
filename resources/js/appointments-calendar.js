@@ -246,18 +246,22 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function openBookingModal(resourceId, resourceName, date) {
-        let ofertasOptions = config.ofertas.length > 0
-            ? config.ofertas.map(o => `<option value="${o.id_oferta}">${o.turma.serie} / ${o.componente_curricular.nome} (${o.professor.nome_completo})</option>`).join('')
-            : '<option value="" disabled>Nenhuma turma/disciplina encontrada.</option>';
-
+        // Removida a geração de 'ofertasOptions' daqui
+        
         Swal.fire({
             title: `Agendar: ${resourceName}`,
             html: `
                 <input type="hidden" id="swal_id_recurso" value="${resourceId}">
+                
                 <div class="swal-form-group">
-                    <label for="swal_id_oferta">Minha Turma/Disciplina</label>
-                    <select id="swal_id_oferta" class="form-select">${ofertasOptions}</select>
+                    <label for="swal_oferta_search">Minha Turma/Disciplina</label>
+                    
+                    <input type="text" id="swal_oferta_search" class="form-control mb-2" placeholder="Pesquisar turma, disciplina ou professor...">
+                    
+                    <select id="swal_id_oferta" class="form-select" size="5" style="min-height: 150px;">
+                        </select>
                 </div>
+
                 <div class="swal-form-group">
                     <label for="swal_data_hora_inicio">Início</label>
                     <input type="datetime-local" id="swal_data_hora_inicio" class="form-control">
@@ -271,9 +275,57 @@ document.addEventListener('DOMContentLoaded', function () {
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
             didOpen: () => {
+                // Lógica de datas (existente)
                 const defaultStartTime = new Date(`${date}T08:00:00`);
                 document.getElementById('swal_data_hora_inicio').value = formatToDateTimeLocal(defaultStartTime);
                 document.getElementById('swal_data_hora_fim').value = formatToDateTimeLocal(new Date(defaultStartTime.getTime() + 60 * 60 * 1000));
+                
+                // --- NOVA LÓGICA DE FILTRO ---
+                const searchInput = document.getElementById('swal_oferta_search');
+                const selectElement = document.getElementById('swal_id_oferta');
+                const allOfertas = config.ofertas; // Pega a lista completa de ofertas
+                
+                // Função para popular o select com base no filtro
+                const populateOfertas = (searchTerm = '') => {
+                    const lowerSearchTerm = searchTerm.toLowerCase().trim();
+                    
+                    // 1. Filtra as ofertas
+                    const filteredOfertas = allOfertas.filter(o => {
+                        const serie = o.turma?.serie?.toLowerCase() || '';
+                        const componente = o.componente_curricular?.nome?.toLowerCase() || '';
+                        const professor = o.professor?.nome_completo?.toLowerCase() || '';
+                        
+                        // Verifica se o termo de busca está em qualquer um dos campos
+                        return serie.includes(lowerSearchTerm) || 
+                               componente.includes(lowerSearchTerm) || 
+                               professor.includes(lowerSearchTerm);
+                    });
+
+                    // 2. Gera o HTML das options
+                    let ofertasOptions = '';
+                    if (filteredOfertas.length > 0) {
+                        ofertasOptions = filteredOfertas.map(o => 
+                            `<option value="${o.id_oferta}">${o.turma.serie} / ${o.componente_curricular.nome} (${o.professor.nome_completo})</option>`
+                        ).join('');
+                    } else if (allOfertas.length === 0) {
+                         ofertasOptions = '<option value="" disabled>Nenhuma turma/disciplina encontrada.</option>';
+                    } else {
+                        // Mostra uma mensagem se a busca não retornar nada
+                        ofertasOptions = `<option value="" disabled>Nenhum resultado para "${searchTerm}"</option>`;
+                    }
+                    
+                    // 3. Atualiza o HTML do select
+                    selectElement.innerHTML = ofertasOptions;
+                };
+
+                // Popula a lista inicial (sem filtro)
+                populateOfertas();
+
+                // Adiciona o listener no input de pesquisa
+                searchInput.addEventListener('input', (e) => {
+                    populateOfertas(e.target.value);
+                });
+                // --- FIM DA NOVA LÓGICA ---
             },
             preConfirm: () => {
                 const data = {
@@ -283,7 +335,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     data_hora_fim: document.getElementById('swal_data_hora_fim').value,
                 };
                 if (!data.id_oferta || !data.data_hora_inicio || !data.data_hora_fim) {
-                    Swal.showValidationMessage('Todos os campos são obrigatórios.');
+                    // Modificado para focar no campo de busca se o select estiver vazio
+                    if (!data.id_oferta) {
+                        Swal.showValidationMessage('Você deve selecionar uma turma/disciplina.');
+                        document.getElementById('swal_oferta_search').focus();
+                    } else {
+                        Swal.showValidationMessage('Todos os campos são obrigatórios.');
+                    }
                     return false;
                 }
                 return axios.post(config.baseUrl, data)
