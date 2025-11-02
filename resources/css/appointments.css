@@ -203,3 +203,32 @@
     white-space: normal !important;
     font-weight: bold;
 }
+
+.search-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.search-input-wrapper .form-control {
+    padding-left: 2.5rem; 
+}
+
+.search-input-wrapper .search-icon {
+    position: absolute;
+    z-index: 10;
+    left: 0.75rem; 
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none; 
+}
+
+.search-bar-container form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-bar-container .search-input-wrapper {
+    flex-grow: 1;
+}
+

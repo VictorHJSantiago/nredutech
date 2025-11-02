@@ -82,6 +82,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 renderPaginatedTable(availableResourcesList, response.data.disponiveis, renderAvailableResourceRow, date, [
                     { key: 'nome', label: 'Recurso' },
                     { key: 'quantidade', label: 'Qtd' },
+                    { key: 'criador_nome', label: 'Professor (Criador)' },
+                    { key: 'escola_nome', label: 'Escola' },
                     { key: 'acao', label: 'Ação' }
                 ], 'disponiveis');
                 
@@ -91,6 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     { key: 'data_hora_inicio', label: 'Horário' },
                     { key: 'oferta.turma.serie', label: 'Turma' },
                     { key: 'oferta.professor.nome_completo', label: 'Professor' },
+                    { key: 'escola_nome', label: 'Escola' },
                     { key: 'acao', label: 'Ação' }
                 ], 'agendados');
             })
@@ -100,7 +103,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderFilter(container, type, value) {
-        container.innerHTML = `<input type="text" class="filter-input" data-type="${type}" value="${value}" placeholder="Pesquisar...">`;
+        const placeholder = type === 'disponiveis' 
+            ? 'Recurso, Qtd, Prof. Criador, Escola...' 
+            : 'Recurso, Qtd, Prof., Escola, Data...';
+        container.innerHTML = `
+            <div class="search-input-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="form-control filter-input" data-type="${type}" value="${value}" placeholder="${placeholder}" aria-label="Pesquisar">
+            </div>`;
     }
 
     function renderPaginatedTable(container, paginatedData, rowRenderer, date, headers, type) {
@@ -133,6 +143,8 @@ document.addEventListener('DOMContentLoaded', function () {
         <tr>
             <td>${res.nome}</td>
             <td>${res.quantidade}</td>
+            <td>${res.criador_nome || 'N/A'}</td>
+            <td>${res.escola_nome || 'Global'}</td>
             <td><button class="btn btn-sm book-btn" data-id="${res.id_recurso}" data-name="${res.nome}" data-date="${date.toISOString().split('T')[0]}">Agendar</button></td>
         </tr>`;
 
@@ -142,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const horaInicio = ag.data_hora_inicio ? ag.data_hora_inicio.slice(11, 16) : '--:--';
         const horaFim = ag.data_hora_fim ? ag.data_hora_fim.slice(11, 16) : '--:--';
         const quantidade = ag.recurso?.quantidade || 'N/A';
+        const escola = ag.oferta?.turma?.escola?.nome || 'N/A';
         
         const isDisabled = !ag.can_cancel;
         const disabledAttr = isDisabled ? 'disabled title="Você não tem permissão para cancelar este agendamento."' : '';
@@ -153,6 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <td>${horaInicio} - ${horaFim}</td>
             <td>${turma}</td>
             <td>${professor}</td>
+            <td>${escola}</td>
             <td>
                 <button class="btn-cancel" data-id="${ag.id_agendamento}" data-name="${ag.recurso.nome}" ${disabledAttr}>
                     Desagendar
