@@ -18,6 +18,13 @@ class Usuario extends Authenticatable implements CanResetPasswordContract
     protected $primaryKey = 'id_usuario';
 
     /**
+     * Indica se o modelo deve ter timestamps (created_at e updated_at).
+     *
+     * @var bool
+     */
+    public $timestamps = false; // <-- ESTA É A CORREÇÃO DO ERRO ANTERIOR
+
+    /**
      *
      * @var array<int, string>
      */
@@ -60,9 +67,14 @@ class Usuario extends Authenticatable implements CanResetPasswordContract
             'password' => 'hashed',
             'data_registro' => 'datetime',
             'data_nascimento' => 'date',
+            'cpf' => 'encrypted',
+            'rg' => 'encrypted',
+            'rco_siape' => 'encrypted',
+            'telefone' => 'encrypted',
         ];
     }
 
+    // ... (resto das suas funções: escola(), ofertasComponentes(), etc.)
     public function escola()
     {
         return $this->belongsTo(Escola::class, 'id_escola', 'id_escola');

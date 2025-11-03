@@ -13,7 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail; 
-use App\Mail\NotificationMail;      
+use App\Mail\NotificationMail;
 
 class UserController extends Controller
 {
@@ -53,9 +53,9 @@ class UserController extends Controller
         });
         $query->when($request->query('search_date'), function ($q, $searchDate) {
              return $q->where(function ($subQ) use ($searchDate) {
-                $subQ->whereDate('data_registro', $searchDate)
-                     ->orWhereDate('data_nascimento', $searchDate);
-            });
+                 $subQ->whereDate('data_registro', $searchDate)
+                      ->orWhereDate('data_nascimento', $searchDate);
+             });
         });
 
         $sortBy = $request->query('sort_by', 'nome_completo');
@@ -217,8 +217,8 @@ class UserController extends Controller
         $diretores = collect();
         if ($escolaId) {
             $diretores = Usuario::where('id_escola', $escolaId)
-                                ->where('tipo_usuario', 'diretor')
-                                ->get();
+                                  ->where('tipo_usuario', 'diretor')
+                                  ->get();
         }
         $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
         
@@ -235,10 +235,6 @@ class UserController extends Controller
                 'status_mensagem' => 'enviada',
                 'id_usuario' => $user->id_usuario,
             ]);
-
-            if ($user->preferencias && $user->preferencias->notif_email) {
-                Mail::to($user->email)->send(new NotificationMail($titulo, $mensagem));
-            }
         }
         
         return redirect()->route('usuarios.index')->with('success', 'Usuário excluído com sucesso!');

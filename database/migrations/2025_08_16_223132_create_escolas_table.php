@@ -6,31 +6,33 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('escolas', function (Blueprint $table) {
             $table->id('id_escola');
-            $table->string('nome', 255);
-            $table->string('endereco', 255)->nullable();
-            $table->foreignId('id_municipio')->constrained('municipios', 'id_municipio');
-            $table->foreignId('id_diretor_responsavel')->nullable()->constrained('usuarios', 'id_usuario');
-            $table->enum('nivel_ensino', ['colegio_estadual', 'escola_tecnica', 'escola_municipal']);
-            $table->enum('tipo', ['urbana', 'rural']); 
-            $table->timestamps(); 
-        });
-        
-        Schema::table('usuarios', function (Blueprint $table) {
-            $table->foreignId('id_escola')->nullable()->constrained('escolas', 'id_escola');
+            $table->string('nome');
+            $table->string('nivel_ensino'); 
+            $table->string('tipo'); 
+            
+            $table->unsignedBigInteger('id_municipio');
+            $table->foreign('id_municipio')->references('id_municipio')->on('municipios')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('id_diretor_1')->nullable();
+            $table->unsignedBigInteger('id_diretor_2')->nullable();
+            // LINHAS DAS CHAVES ESTRANGEIRAS REMOVIDAS DAQUI
+
+            $table->softDeletes();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('usuarios', function (Blueprint $table) {
-            $table->dropForeign(['id_escola']);
-            $table->dropColumn('id_escola');
-        });
-
         Schema::dropIfExists('escolas');
     }
 };

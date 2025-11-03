@@ -30,35 +30,35 @@ class OfertaComponenteFactory extends Factory
         }
         $escolaId = $turma->id_escola;
         $professor = Usuario::where('tipo_usuario', 'professor')
-                           ->where('id_escola', $escolaId)
-                           ->where('status_aprovacao', 'ativo')
-                           ->inRandomOrder()
-                           ->first();
+                            ->where('id_escola', $escolaId)
+                            ->where('status_aprovacao', 'ativo')
+                            ->inRandomOrder()
+                            ->first();
         if (!$professor) {
              $professor = Usuario::where('tipo_usuario', 'diretor')
-                           ->where('id_escola', $escolaId)
-                           ->where('status_aprovacao', 'ativo')
-                           ->inRandomOrder()
-                           ->first();
+                            ->where('id_escola', $escolaId)
+                            ->where('status_aprovacao', 'ativo')
+                            ->inRandomOrder()
+                            ->first();
         }
 
         if (!$professor) {
              $professor = Usuario::where('tipo_usuario', 'administrador')
-                           ->where('status_aprovacao', 'ativo')
-                           ->inRandomOrder()
-                           ->first();
+                            ->where('status_aprovacao', 'ativo')
+                            ->inRandomOrder()
+                            ->first();
         }
 
          if (!$professor) {
             throw new \Exception("Nenhum professor, diretor ou administrador ativo encontrado (Escola: {$escolaId}) para criar a oferta.");
         }
         $componente = ComponenteCurricular::where('status', 'aprovado')
-                                        ->where(function ($query) use ($escolaId) {
-                                            $query->whereNull('id_escola')
-                                                  ->orWhere('id_escola', $escolaId);
-                                        })
-                                        ->inRandomOrder()
-                                        ->first();
+                                         ->where(function ($query) use ($escolaId) {
+                                             $query->whereNull('id_escola')
+                                                   ->orWhere('id_escola', $escolaId);
+                                         })
+                                         ->inRandomOrder()
+                                         ->first();
         if (!$componente) {
             throw new \Exception("Nenhum componente curricular aprovado (global ou da escola ID {$escolaId}) encontrado para criar a oferta.");
         }

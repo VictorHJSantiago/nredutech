@@ -30,12 +30,12 @@ class AgendamentoFactory extends Factory
         }
         $escolaId = $oferta->turma->id_escola;
         $recurso = RecursoDidatico::where('status', 'funcionando')
-                                  ->where(function ($query) use ($escolaId) {
-                                      $query->whereNull('id_escola')
-                                            ->orWhere('id_escola', $escolaId);
-                                  })
-                                  ->inRandomOrder()
-                                  ->first();
+                                     ->where(function ($query) use ($escolaId) {
+                                         $query->whereNull('id_escola')
+                                               ->orWhere('id_escola', $escolaId);
+                                     })
+                                     ->inRandomOrder()
+                                     ->first();
         if (!$recurso) {
             throw new \Exception("Nenhum recurso didático funcionando (global ou da escola ID {$escolaId}) encontrado para criar o agendamento.");
         }

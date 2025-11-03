@@ -35,7 +35,8 @@ class DatabaseSeeder extends Seeder
             ]);
             $turmas->each(function ($turma) use ($professores) {
                 $disciplinas = ComponenteCurricular::factory(5)->create([
-                    'id_usuario_criador' => Usuario::inRandomOrder()->first()->id_usuario
+                    'id_usuario_criador' => Usuario::inRandomOrder()->first()->id_usuario,
+                    'status' => 'aprovado'
                 ]);
                 
                 $disciplinas->each(function ($disciplina) use ($turma, $professores) {

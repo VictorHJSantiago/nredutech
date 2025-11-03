@@ -54,7 +54,7 @@ class ComponenteCurricularFactory extends Factory
         return [
             'nome' => $nome,
             'descricao' => $descricao,
-            'carga_horaria' => $this->faker->randomElement(['30h', '40h', '60h', '80h']), 
+            'carga_horaria' => $this->faker->randomElement([30, 40, 60, 80]), 
             'status' => $status,
             'id_usuario_criador' => $criador?->id_usuario, 
             'id_escola' => $escolaId, 

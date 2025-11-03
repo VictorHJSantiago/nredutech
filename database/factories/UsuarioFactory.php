@@ -1,65 +1,48 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories; // <-- O namespace correto é Database\Factories
 
+use App\Models\Usuario; // <-- Importa o seu modelo
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Models\Escola; 
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Usuario>
+ */
 class UsuarioFactory extends Factory
 {
-    protected static ?string $password;
+    /**
+     * O nome do modelo correspondente da factory.
+     *
+     * @var string
+     */
+    protected $model = Usuario::class; // <-- Aponta para a classe do modelo
 
+    /**
+     * Define o estado padrão do modelo.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
-        $firstName = $this->faker->firstName;
-        $lastName = $this->faker->lastName;
-        $nomeCompleto = "{$firstName} {$lastName}";
-        $username = strtolower(Str::slug("{$firstName}.{$lastName}", '.')).$this->faker->unique()->randomNumber(3);
-        $email = "{$username}@example.com";
-
-        $formacoes = [
-            'Licenciatura em Pedagogia' => 'Ciências Humanas',
-            'Licenciatura em Letras' => 'Linguagens',
-            'Licenciatura em Matemática' => 'Ciências Exatas',
-            'Licenciatura em História' => 'Ciências Humanas',
-            'Licenciatura em Geografia' => 'Ciências Humanas',
-            'Licenciatura em Ciências Biológicas' => 'Ciências Biológicas',
-            'Licenciatura em Física' => 'Ciências Exatas',
-            'Licenciatura em Química' => 'Ciências Exatas',
-            'Licenciatura em Artes Visuais' => 'Artes',
-            'Licenciatura em Educação Física' => 'Ciências da Saúde',
-        ];
-        $formacao = $this->faker->randomElement(array_keys($formacoes));
-        $areaFormacao = $formacoes[$formacao];
-
-        $tipoUsuario = $this->faker->randomElement(['administrador', 'diretor', 'professor']);
-        $escolaId = null;
-        if ($tipoUsuario !== 'administrador') {
-            $escolaId = Escola::inRandomOrder()->first()?->id_escola;
-            if (!$escolaId) {
-                $tipoUsuario = 'administrador';
-            }
-        }
-
+        // Definição para gerar dados falsos
         return [
-            'nome_completo' => $nomeCompleto,
-            'username' => $username,
-            'email' => $email,
-            'password' => static::$password ??= Hash::make('Password@12345678'),
-            'data_nascimento' => $this->faker->dateTimeBetween('1960-01-01', '2005-12-31')->format('Y-m-d'), 
-            'cpf' => $this->faker->unique()->cpf(false),
-            'rg' => $this->faker->unique()->rg(false),
-            'rco_siape' => $this->faker->unique()->numerify('REG#######'), 
-            'telefone' => $this->faker->unique()->cellphoneNumber(false),
-            'formacao' => $formacao,
-            'area_formacao' => $areaFormacao,
+            'nome_completo' => $this->faker->name(),
+            'username' => $this->faker->unique()->userName(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'data_nascimento' => $this->faker->date(),
+            'cpf' => $this->faker->numerify('###########'),
+            'rg' => $this->faker->numerify('#########'),
+            'rco_siape' => $this->faker->unique()->numerify('#######'),
+            'telefone' => $this->faker->phoneNumber(),
+            'formacao' => 'Superior Completo',
+            'area_formacao' => 'Educação',
             'data_registro' => now(),
-            'status_aprovacao' => $this->faker->randomElement(['ativo', 'pendente']), 
-            'tipo_usuario' => $tipoUsuario,
-            'id_escola' => $escolaId, 
-            'email_verified_at' => now(),
+            'status_aprovacao' => 'ativo',
+            'tipo_usuario' => 'aluno', // ou 'professor'
+            'id_escola' => null, // Defina um valor padrão se necessário
+            'password' => Hash::make('password'), // Senha padrão 
             'remember_token' => Str::random(10),
         ];
     }
