@@ -415,7 +415,7 @@ class ReportController extends Controller
     private function getColumns($reportType): array {
         return match ($reportType) {
             'usuarios' => ['id_usuario' => 'ID', 'nome_completo' => 'Nome', 'email' => 'E-mail', 'tipo_usuario' => 'Tipo', 'escola.nome' => 'Escola', 'escola.municipio.nome' => 'Município', 'status_aprovacao' => 'Status', 'data_registro' => 'Cadastro'],
-            'recursos' => ['id_recurso' => 'ID', 'nome' => 'Nome', 'tipo' => 'Tipo', 'marca' => 'Marca', 'quantidade' => 'Qtde', 'status' => 'Status', 'data_aquisicao' => 'Aquisição', 'numero_serie' => 'Série/Patrim.'],
+            'recursos' => ['id_recurso' => 'ID', 'nome' => 'Nome', 'tipo' => 'Tipo', 'marca' => 'Marca', 'quantidade' => 'Qtde', 'status' => 'Status', 'data_aquisicao' => 'Aquisição', 'numero_serie' => 'Série/Patrim.', 'escola.nome' => 'Escola'],
             'componentes' => ['id_componente' => 'ID', 'nome' => 'Disciplina', 'escola.nome' => 'Escola', 'carga_horaria' => 'C.H.', 'status' => 'Status', 'criador.nome_completo' => 'Criador', 'created_at' => 'Criação'],
             'turmas' => ['id_turma' => 'ID', 'serie' => 'Série', 'turno' => 'Turno', 'ano_letivo' => 'Ano', 'nivel_escolaridade' => 'Nível', 'escola.nome' => 'Escola', 'escola.municipio.nome' => 'Município'],
             'agendamentos' => ['id_agendamento' => 'ID', 'data_hora_inicio' => 'Início', 'data_hora_fim' => 'Fim', 'recurso.nome' => 'Recurso', 'oferta.professor.nome_completo' => 'Professor', 'oferta.componenteCurricular.nome' => 'Disciplina', 'oferta.turma.serie' => 'Turma', 'oferta.turma.escola.nome' => 'Escola'],
@@ -467,7 +467,7 @@ class ReportController extends Controller
         $baseTable = null;
         switch ($reportType) {
             case 'usuarios': $query = Usuario::query()->with(['escola.municipio']); $baseTable = 'usuarios'; break;
-            case 'recursos': $query = RecursoDidatico::query(); $baseTable = 'recursos_didaticos'; break;
+            case 'recursos': $query = RecursoDidatico::query()->with(['escola']); $baseTable = 'recursos_didaticos'; break;
             case 'componentes': $query = ComponenteCurricular::query()->with(['criador', 'escola']); $baseTable = 'componentes_curriculares'; break;
             case 'turmas': $query = Turma::query()->with(['escola.municipio']); $baseTable = 'turmas'; break;
             case 'agendamentos': $query = Agendamento::query()->with(['recurso', 'oferta.professor', 'oferta.componenteCurricular', 'oferta.turma.escola.municipio']); $baseTable = 'agendamentos'; break;
@@ -681,12 +681,16 @@ class ReportController extends Controller
         if(empty($ids)) return;
         
         $baseTable = $query->getModel()->getTable();
-        if (in_array($type, ['usuarios', 'turmas', 'componentes'])) $query->whereIn($baseTable.'.id_escola', $ids);
+        
+        if (in_array($type, ['usuarios', 'turmas'])) $query->whereIn($baseTable.'.id_escola', $ids);
         if ($type === 'escolas') $query->whereIn($baseTable.'.id_escola', $ids);
         if ($type === 'agendamentos') $query->whereHas('oferta.turma', fn($q) => $q->whereIn('id_escola', $ids));
         
-        if ($type === 'recursos' && Schema::hasColumn($baseTable, 'id_escola')) {
-            $query->whereIn($baseTable.'.id_escola', $ids);
+        if ($type === 'componentes' || ($type === 'recursos' && Schema::hasColumn($baseTable, 'id_escola'))) {
+            $query->where(function ($q) use ($baseTable, $ids) {
+                $q->whereNull($baseTable.'.id_escola') 
+                  ->orWhereIn($baseTable.'.id_escola', $ids); 
+            });
         }
     }
 
@@ -696,7 +700,7 @@ class ReportController extends Controller
         if(empty($ids)) return;
         
         $baseTable = $query->getModel()->getTable();
-        if (in_array($type, ['usuarios', 'turmas', 'componentes'])) {
+        if (in_array($type, ['usuarios', 'turmas'])) {
             $query->whereHas('escola', fn($q) => $q->whereIn('id_municipio', $ids));
         } elseif ($type === 'escolas') {
             $query->whereIn($baseTable.'.id_municipio', $ids);
@@ -704,8 +708,11 @@ class ReportController extends Controller
             $query->whereHas('oferta.turma.escola', fn($q) => $q->whereIn('id_municipio', $ids));
         }
         
-        if ($type === 'recursos' && Schema::hasColumn($baseTable, 'id_escola')) {
-             $query->whereHas('escola', fn($q) => $q->whereIn('id_municipio', $ids));
+        if ($type === 'componentes' || ($type === 'recursos' && Schema::hasColumn($baseTable, 'id_escola'))) {
+            $query->where(function ($q) use ($baseTable, $ids) {
+                $q->whereNull($baseTable.'.id_escola') 
+                  ->orWhereHas('escola', fn($sq) => $sq->whereIn('id_municipio', $ids)); 
+            });
         }
     }
 
@@ -715,7 +722,7 @@ class ReportController extends Controller
         if(empty($vals)) return;
         
         $baseTable = $query->getModel()->getTable();
-        if (in_array($type, ['usuarios', 'turmas', 'componentes'])) {
+        if (in_array($type, ['usuarios', 'turmas'])) {
             $query->whereHas('escola', fn($q) => $q->whereIn($column, $vals));
         } elseif ($type === 'escolas') {
             $query->whereIn($baseTable.'.'.$column, $vals);
@@ -723,8 +730,11 @@ class ReportController extends Controller
             $query->whereHas('oferta.turma.escola', fn($q) => $q->whereIn($column, $vals));
         }
         
-         if ($type === 'recursos' && Schema::hasColumn($baseTable, 'id_escola')) {
-             $query->whereHas('escola', fn($q) => $q->whereIn($column, $vals));
-         }
+        if ($type === 'componentes' || ($type === 'recursos' && Schema::hasColumn($baseTable, 'id_escola'))) {
+            $query->where(function ($q) use ($baseTable, $column, $vals) {
+                $q->whereNull($baseTable.'.id_escola') 
+                  ->orWhereHas('escola', fn($sq) => $sq->whereIn($column, $vals)); 
+            });
+        }
     }
 }

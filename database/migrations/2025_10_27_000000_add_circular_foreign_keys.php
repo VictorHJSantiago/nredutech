@@ -6,12 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        // Adiciona a chave que faltava na tabela 'usuarios'
         Schema::table('usuarios', function (Blueprint $table) {
             $table->foreign('id_escola')
                   ->references('id_escola')
@@ -19,7 +15,6 @@ return new class extends Migration
                   ->onDelete('set null');
         });
 
-        // Adiciona as chaves que faltavam na tabela 'escolas'
         Schema::table('escolas', function (Blueprint $table) {
             $table->foreign('id_diretor_1')
                   ->references('id_usuario')
@@ -33,9 +28,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('usuarios', function (Blueprint $table) {

@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('usuarios', function (Blueprint $table) {
@@ -28,10 +25,9 @@ return new class extends Migration
             $table->string('tipo_usuario');
             
             $table->unsignedBigInteger('id_escola')->nullable();
-            // LINHA DA CHAVE ESTRANGEIRA REMOVIDA DAQUI
             
             $table->string('password');
-            $table->timestamps(); // <-- LINHA ADICIONADA
+            $table->timestamps(); 
             $table->softDeletes();
             $table->rememberToken();
         });
@@ -52,9 +48,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('usuarios');

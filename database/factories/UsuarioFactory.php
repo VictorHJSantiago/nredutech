@@ -1,11 +1,12 @@
 <?php
 
-namespace Database\Factories; // <-- O namespace correto é Database\Factories
+namespace Database\Factories; 
 
-use App\Models\Usuario; // <-- Importa o seu modelo
+use App\Models\Usuario; 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+// use Illuminate\Support\Facades\Crypt; 
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Usuario>
@@ -13,36 +14,36 @@ use Illuminate\Support\Str;
 class UsuarioFactory extends Factory
 {
     /**
-     * O nome do modelo correspondente da factory.
      *
      * @var string
      */
-    protected $model = Usuario::class; // <-- Aponta para a classe do modelo
+    protected $model = Usuario::class; 
 
     /**
-     * Define o estado padrão do modelo.
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
-        // Definição para gerar dados falsos
         return [
             'nome_completo' => $this->faker->name(),
             'username' => $this->faker->unique()->userName(),
             'email' => $this->faker->unique()->safeEmail(),
             'data_nascimento' => $this->faker->date(),
+            
+            // 2. Passe os dados em texto puro (sem Crypt::encryptString)
             'cpf' => $this->faker->numerify('###########'),
             'rg' => $this->faker->numerify('#########'),
             'rco_siape' => $this->faker->unique()->numerify('#######'),
             'telefone' => $this->faker->phoneNumber(),
+
             'formacao' => 'Superior Completo',
             'area_formacao' => 'Educação',
             'data_registro' => now(),
             'status_aprovacao' => 'ativo',
-            'tipo_usuario' => 'aluno', // ou 'professor'
-            'id_escola' => null, // Defina um valor padrão se necessário
-            'password' => Hash::make('password'), // Senha padrão 
+            'tipo_usuario' => 'aluno', 
+            'id_escola' => null, 
+            'password' => Hash::make('password'), 
             'remember_token' => Str::random(10),
         ];
     }

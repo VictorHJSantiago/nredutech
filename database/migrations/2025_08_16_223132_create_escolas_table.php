@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('escolas', function (Blueprint $table) {
@@ -22,15 +19,10 @@ return new class extends Migration
             
             $table->unsignedBigInteger('id_diretor_1')->nullable();
             $table->unsignedBigInteger('id_diretor_2')->nullable();
-            // LINHAS DAS CHAVES ESTRANGEIRAS REMOVIDAS DAQUI
-
             $table->softDeletes();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('escolas');

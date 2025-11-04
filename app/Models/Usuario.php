@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use App\Mail\CustomResetPasswordMail; 
+use App\Mail\CustomResetPasswordMail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Support\Facades\Mail; 
+use Illuminate\Support\Facades\Mail;
 
 class Usuario extends Authenticatable implements CanResetPasswordContract
 {
@@ -18,11 +18,10 @@ class Usuario extends Authenticatable implements CanResetPasswordContract
     protected $primaryKey = 'id_usuario';
 
     /**
-     * Indica se o modelo deve ter timestamps (created_at e updated_at).
      *
      * @var bool
      */
-    public $timestamps = false; // <-- ESTA É A CORREÇÃO DO ERRO ANTERIOR
+    public $timestamps = false; 
 
     /**
      *
@@ -74,7 +73,6 @@ class Usuario extends Authenticatable implements CanResetPasswordContract
         ];
     }
 
-    // ... (resto das suas funções: escola(), ofertasComponentes(), etc.)
     public function escola()
     {
         return $this->belongsTo(Escola::class, 'id_escola', 'id_escola');
