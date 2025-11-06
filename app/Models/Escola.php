@@ -12,6 +12,13 @@ class Escola extends Model
     protected $table = 'escolas';
     protected $primaryKey = 'id_escola';
 
+    /**
+     * Indica se o modelo deve ter timestamps.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+
     protected $fillable = [
         'nome',
         'endereco',

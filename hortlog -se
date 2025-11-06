@@ -1,0 +1,629 @@
+[33mcommit 037ff9d9baf734e74d45dd94b4d24c4200eea07e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Tue Nov 4 12:30:37 2025 -0300
+
+    fix (reports): corrigido bugs
+
+[33mcommit 6834b40c38f39f1cf9f36679021a7685a47f0398[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Sun Nov 2 21:17:35 2025 -0300
+
+    update(users): corrigido algumas funcionalidades
+
+[33mcommit a95b24561d5cf91213ee35618287cf09deb9c4c7[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Sun Nov 2 16:28:39 2025 -0300
+
+    update(reports): corrigido e atualizado relatorios e suas funcionalidades
+
+[33mcommit 8209c0a5141c94899fbf2c3a0ae3fd3ec7f2e39b[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Sun Nov 2 07:50:55 2025 -0300
+
+    update(appointments): adicionado melhorias em filtragens e pesquisas
+
+[33mcommit fbfa04c6b550981928ad3b4538e0259b0ddd58c4[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Sat Nov 1 18:42:25 2025 -0300
+
+    fix (appointments): corrigido bugs
+
+[33mcommit 78ff69c9716d5ffeec862fd22f1cf22e247779cd[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Sat Nov 1 12:45:39 2025 -0300
+
+    fix (mail): corrigido nomes e mails errados
+
+[33mcommit de24ea80a68135ba49763a9563018cea06e55404[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Tue Oct 28 20:19:46 2025 -0300
+
+    feat(tests): criado testes de integracao e unitarios
+
+[33mcommit a4389b120b12d53f298085001f98eb8fdb6b95a6[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Mon Oct 27 18:56:43 2025 -0300
+
+    update(disciplines and resources): melhoria de regras
+
+[33mcommit 3fe9360b1e8721e1a66e8f06c0ca9da34c782052[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Mon Oct 27 18:07:30 2025 -0300
+
+    fix(appointments): corrigido agendamentos limitados por sua respectiva escola
+
+[33mcommit 9c6ac07a5b84441c907d7c6a7c080054446fbd0d[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Mon Oct 27 17:01:33 2025 -0300
+
+    fix(factories): corrigido factories e regras do sistema para disciplinas, recursos, turmas
+
+[33mcommit 807d167959aa7a72e6fdb97e37c1b2d1e2ec4fe0[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Sun Oct 26 18:42:55 2025 -0300
+
+    fix(disciplines): corrigido bugs
+
+[33mcommit 3ee6b2649da36170e7c7f51a1dcc4acb232dab9b[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Sat Oct 25 19:50:09 2025 -0300
+
+    feat(disciplines/resources): criado e corrigido relacionamento de escolas e usuarios com disciplinas e recursos
+
+[33mcommit ffda3b547157bf34d321ed8fb08b000e442d2fe9[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Sat Oct 25 17:33:18 2025 -0300
+
+    fix(users): corrigido bug de usuarios
+
+[33mcommit b20430303b99dbce5ba98320d047e3edfbc00db1[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Thu Oct 23 19:57:11 2025 -0300
+
+    feat(classes):corrigido edicao e exclusao de turmas
+
+[33mcommit 66b88c13a092f8b0406f320ab8028f226c953d11[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Tue Oct 21 16:11:40 2025 -0300
+
+    feat(reports): corrigido filtros e funcionalidades
+
+[33mcommit a59bc6f7f5f2d4559c3636e4fb5f467dfd618db1[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Wed Oct 15 20:16:47 2025 -0300
+
+    fix(readme): corrigido bug]
+
+[33mcommit 6da947a6f4641d27527807b6016027e9f94b0cbc[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Wed Oct 15 20:10:53 2025 -0300
+
+    update(readme): corrigido e atualizado readme e seu layout
+
+[33mcommit 1e5596710ae66edf9424a5f7f46bb8c4d2a0259c[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Wed Oct 15 19:47:00 2025 -0300
+
+    update(readme): corrigido e atualizado readme
+
+[33mcommit b9b8d05abdc134c08b03479d1788e407a4339b52[m
+Author: Victor Henrique de Jesus Santiago <victorhenriquedejesussantiago@gmail.com>
+Date:   Tue Oct 14 14:48:13 2025 -0300
+
+    fix(users): corrigido bugs com usuario logado
+
+[33mcommit b15e07eeeb69197e8936973b3e78aebc7678ef71[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Oct 12 08:28:12 2025 -0300
+
+    fix(appointments): corrigido o desagendamento e suas regras
+
+[33mcommit 4a48f30e11eb77b886283a8b90004da6d3fcdcf0[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Mon Oct 6 10:32:42 2025 -0300
+
+    fix(appointments): corrigido o desagendamento e algumas funcionalidades do agendamento
+
+[33mcommit 4fbba3a634ec06bda9ba668be638d63d60765ceb[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Mon Oct 6 08:15:49 2025 -0300
+
+    fix(users): corrigido bugs de usuarios e suas funcionalidades
+
+[33mcommit 13d0378fe00f8c8e69d6d11be8dc92ba9358384c[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Oct 5 08:27:14 2025 -0300
+
+    feat(password): bloqueia a conta apos 5 tentativas de senha, tanto no login como em confirmacoes
+
+[33mcommit 0678496a7ce1565a2def8c362b0f7da94a0b259d[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Oct 4 21:13:57 2025 -0300
+
+    feat(vlibras): adiciona VLibras para acessibilidade
+
+[33mcommit 5794c299652bcebce796e71513174ef85704c6aa[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Oct 4 20:45:31 2025 -0300
+
+    fix(emails): adiciona envios de emails para administradores sobre backup
+
+[33mcommit d62757991a1cbabdc6d1d6895631657881a4df96[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Oct 4 17:45:59 2025 -0300
+
+    fix(backup): corrigido e totalmente completo agora
+
+[33mcommit a28a328d3b8e9af2add5cb34dfa3a46d317f4633[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Oct 4 12:24:24 2025 -0300
+
+    update(appointments): atualizado design e funcionalidades totalmente
+
+[33mcommit e45dbb83101dfebfc775e0b2a44d5187d2fe88a8[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 28 19:10:08 2025 -0300
+
+    update(appointments): atualizado designe funcionalidades
+
+[33mcommit 3c3bb040e4b8df8d49328cdcda28cf96fd678d5f[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 28 17:04:47 2025 -0300
+
+    feat(appointments): adiciona agendamentos e suas funcionalidades por completo
+
+[33mcommit 4691bb6f041ab91e23c38dff7235f38a6e3d241d[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 28 08:08:16 2025 -0300
+
+    fix(backup): backup de todo o sistema
+
+[33mcommit 7e906e89b048021ce54812e9eb205a8aaea00f53[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 27 13:02:34 2025 -0300
+
+    fix(resources); corrijido erros
+
+[33mcommit cc9946cee457bea3d79a8d9df29eadcba18ecc4f[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 27 12:53:51 2025 -0300
+
+    fix(mvc): padronizado nomes do portugues para ingles parcialmente
+
+[33mcommit 426e9475099875cd0b73c31b57454b27d477efe8[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 27 09:55:44 2025 -0300
+
+    fix(database): corrigido o banco de dados, de SQLite para MariaDB
+
+[33mcommit b52e3ab62c5476253a643537c1f25378e1eb3733[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 21 16:56:25 2025 -0300
+
+    update(notifications): adicionado e corrigido funcionalidades de notificacoes parcialmente
+
+[33mcommit 26f642097d1d7eecca8f3dfdf1a158d0048c19ca[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 20 17:49:23 2025 -0300
+
+    fix(schools): corrigido css e filtros
+
+[33mcommit e9dd1a46e10790364b4fb3ce583587809654c26b[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 20 17:13:22 2025 -0300
+
+    feat(password): adiciona redefinir senhas na pagina login
+
+[33mcommit d347249b8ba37d6f55b84bfa30c948b193ec7719[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Tue Sep 16 22:14:08 2025 -0300
+
+    feat(reports): adiciona relatorios para gerar e visualizar, dentro ou fora, no sistema
+
+[33mcommit 3d91388a35709d486a668dcbe4f76834a994bd45[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Mon Sep 15 16:02:02 2025 -0300
+
+    fix(database): teste com factories e extensoes maiores
+
+[33mcommit 9e2693905cace48b56dc0549e1616463da0efbb6[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 14 18:29:06 2025 -0300
+
+    fix(settings): corrigido backup e suas funcionalidades por completo
+
+[33mcommit 3d6b04b1a9f299f003df618a5a91045e793b828d[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 14 17:07:39 2025 -0300
+
+    fix(settings): corrigido backup e suas funcionalidades
+
+[33mcommit fc1961fe2e46d7a4ebc47200393933a3199dbd7b[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 14 14:56:35 2025 -0300
+
+    fix(resources): corrigido bugs
+
+[33mcommit 32cabc74649531e7e1ae5751e73b620957f2429f[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 14 12:32:03 2025 -0300
+
+    fix(filter): corrigido bugs de listagem e filtros
+
+[33mcommit 94786d58482420be2f20abf845f71466cb3edb0a[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 14 11:42:32 2025 -0300
+
+    update(search): adiciona funcionalidades de filtragem e design em tabelas faltantes
+
+[33mcommit f9a009c78980930ffc322685a6d9003e46e40076[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 14 11:26:19 2025 -0300
+
+    fix(css): corrigido alguns erros de design e filtragem
+
+[33mcommit f61ca0894673cae8622817fd05ca43559d2db4d9[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 14 10:37:37 2025 -0300
+
+    fix(factories): ampliado e corrigido factories de insercao de dados
+
+[33mcommit 6935e6b5f9b416507da6136c5b38295f76620152[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 14 09:37:01 2025 -0300
+
+    feat(notifications): adiciona notificacao e suas funcionaldiades
+
+[33mcommit dca129bb74716b7bd3d205aa61b0fea329f28135[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 13 21:52:27 2025 -0300
+
+    fix(schools): corrigido filtragens de tabela
+
+[33mcommit 8bcec91ea4fd78e636be16901cd00f8b055b685b[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 13 21:02:57 2025 -0300
+
+    fix(schools): corrigido bugs de funcionalidades de parametros e factories
+
+[33mcommit 4818b410a0c416d9bbe1173b87e564908c16aabe[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 13 20:38:02 2025 -0300
+
+    update(factories): ajustada conforme regras de negocio, validacao e do sistema
+
+[33mcommit 5a0d59d6777d65306036756d915ce0c4a8214a66[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 13 14:28:04 2025 -0300
+
+    feat(profile): adiciona funcionalidades de editar perfil e dados
+
+[33mcommit 2bee47a46f786055b7084574264b5e859292af2d[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Tue Sep 9 16:20:55 2025 -0300
+
+    update(schools): adiciona filtros e paginacao para escolas
+
+[33mcommit 380f9a2116c75502ab8db77d6a51b4ece6cb177d[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Mon Sep 8 21:21:38 2025 -0300
+
+    feat(seeders): adiciona seeders de escolas/colegios de todas as 53 instituicoes do NRE de Irati
+
+[33mcommit a5a902c568c36c97ef8a5d45fb447a9418a536c0[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Mon Sep 8 20:36:54 2025 -0300
+
+    feat(factories): criado factories para testes e corrigido bugs
+
+[33mcommit aec738310abb355f5932cbcf6f4859eb80736285[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Mon Sep 8 19:38:11 2025 -0300
+
+    update(users): adiciona filtros e suas funcionalidades para listagem de usuarios
+
+[33mcommit 80c256c0f359b7fc43a7ba09566a00c4235378ed[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Mon Sep 8 09:19:19 2025 -0300
+
+    fix(schools): corrigido funcionalidades, reduzido instrucoes e adicionado funcionalidades
+
+[33mcommit 630c02409d6e3cd91c7db39cf06f1a2e7059c93f[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 7 19:19:45 2025 -0300
+
+    feat(auth): logica e regras de negocios dos papeis (administrador, diretor, professor)
+
+[33mcommit 970eb6cf8f400cfaf3c91987681680454fcec8f9[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 7 17:35:48 2025 -0300
+
+    fix(resources): adiciona e corrigi funcionalidades de recursos didaticos
+
+[33mcommit 68c35227d0c90bbb9fcc7eb53b1602db34217d3f[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 7 17:01:59 2025 -0300
+
+    feat(resources): adiciona filtros e funcionalidades para recursos didaticos
+
+[33mcommit ec6331e8dce1af1117121b8a75afd4f53444a967[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Sep 7 11:52:57 2025 -0300
+
+    feat(backup): adiciona funcionalidades de backup para o banco de dados
+
+[33mcommit 7f011166898819057c353a7ecc721766cc05e56d[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 6 21:23:54 2025 -0300
+
+    fix(password): corrije usuarios e cadastros
+
+[33mcommit 53d2e1d43d58addd6e0ae2fa6fafee0bda124b36[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 6 20:03:06 2025 -0300
+
+    auth(password): altera Argon2id para 128mb e time=8
+
+[33mcommit 02a81c9210f0ffda07a6f02832c743445f9de7dc[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Sep 6 19:22:05 2025 -0300
+
+    auth(password): adiciona Argon2id para autenticacao e criacao de senhas
+
+[33mcommit 6953c0dd2f91d6ff62bb39e8400f20f8f70a02bb[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 31 12:35:58 2025 -0300
+
+    fix(nredutech): retira comentários do sistema
+
+[33mcommit f68fe991b275decac9c5d19c0377173b971b5322[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 31 12:01:20 2025 -0300
+
+    fix(disciplines): correções
+
+[33mcommit b60b106d78f4bf561709628ac9a2f503cdd589d7[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 31 11:20:31 2025 -0300
+
+    fix(disciplines): update e correções
+
+[33mcommit 68cd41b8cd7b272cea5bde9aaaf6d52131e72340[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 31 11:12:14 2025 -0300
+
+    fix(schools): update e correções
+
+[33mcommit a1639ad0fe9dd94ac716319d5d0006e8b60f702b[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 31 10:36:03 2025 -0300
+
+    fix(schools):adiciona funcionalidades de escolas e municipios
+
+[33mcommit 1d1733989f267b31108a0fd8a3c436aca929d848[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 31 09:48:07 2025 -0300
+
+    feat(schools):adiciona funcionalidades de escolas e municipios parcialmente
+
+[33mcommit 5f763245368cad202a9d8953888d63636aa51e48[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 30 13:15:23 2025 -0300
+
+    feat(settings): adiciona arquivos e funcionalidades de configurações parcialmente
+
+[33mcommit 4029d3e663749b9a874ca3e88f29fd42350fb0bc[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 30 12:08:13 2025 -0300
+
+    feat(appointments): adiciona agendamentos e suas funcionalidades parcialmente
+
+[33mcommit 562e6be353f505ce0c99b8d1de6dc2a8be755724[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Wed Aug 27 14:05:16 2025 -0300
+
+    fix(professors): removido o diretório professors e seus arquivos, desnecessários
+
+[33mcommit 7e238f0ec66f7a99c75fb639e2c14f2c99cb13fa[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Mon Aug 25 20:14:21 2025 -0300
+
+    update(resources): adiciona correção e funcionalidades para recursos didaticos em resources/views/resources
+
+[33mcommit e72c72a952ff0d7902839caa36b93ee943dcb76a[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 17 11:28:41 2025 -0300
+
+    feat(auth):  adiciona e upgrade de routas iniciais e login
+
+[33mcommit e5c74bbf75298f9281799bb585277a7a798be8d5[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 17 10:45:54 2025 -0300
+
+    feat(auth): adiciona controllers Auth, os controllers Dashboard e Page
+
+[33mcommit 11a87ff95860890728a752168c0253983962f3a3[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 17 10:14:04 2025 -0300
+
+    update(controller): update dos controllers em app/Http/Controllers
+
+[33mcommit f45887c77812ae6cbc2b2f677543861e57bbbc35[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 17 08:50:09 2025 -0300
+
+    update(request): atualiza todos os arquivos resources em app/Http/Resources
+
+[33mcommit b8f2704cd0ab467b8df35dadc5816328c23d5cd7[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 17 08:44:53 2025 -0300
+
+    feat(resource): adiciona 10 arquivos resources em app/Http/Resources
+
+[33mcommit 2bc550b9adac6b6f628ec23a3feddd4eabb8e7d9[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 22:17:16 2025 -0300
+
+    update(request): atualiza todos os arquivos resquest em app/Http/Requests, exceto ProfileUpdateRequest
+
+[33mcommit 467a453f9c7b6081d88b537e674ec1b249945e81[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 22:01:47 2025 -0300
+
+    feat(request): adiciona 9 arquivos UpdateRequest em app/Http/Requests
+
+[33mcommit 1a4ad0cfa98f9de87de9c185d8fbf93b1cd6cd68[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 21:53:58 2025 -0300
+
+    feat(request): adiciona 10 arquivos request em app/Http/Requests
+
+[33mcommit 640f5c76e588f48b38c4dbf82f4183a282864f07[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 21:37:45 2025 -0300
+
+    chore(database): adiciona preenchimento da coluna deleted_at na table usuarios, models e migrations
+
+[33mcommit 01e8b8bbacb097d32fc19977a79239d5cdea4656[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 21:14:11 2025 -0300
+
+    update(controllers): atualizado os 10 arquivos controllers em app/Http/Controllers
+
+[33mcommit 790cce84b537bf84b2ce0b4bb39253666188c65c[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 21:01:56 2025 -0300
+
+    feat(controllers): adiciona 10 arquivos controllers app/Http/Controllers
+
+[33mcommit 1fabf1e4ffe2d18b7944dcda4a542dc314b30568[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 20:29:24 2025 -0300
+
+    update(models): atualizado os arquivos models em app/Models
+
+[33mcommit c86b97c8cdaafbb90bbbfc654bcb29d79feb448c[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 20:18:07 2025 -0300
+
+    feat(models): criado 10 arquivos models em app/models
+
+[33mcommit a9f829b0f95946f2cb60d8281c8570e35ec21a5c[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 19:48:37 2025 -0300
+
+    Update - Atualizado os migrations em database/migrations
+
+[33mcommit a3bbf3806c84da76614d66e3db303065f2533d28[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 19:35:15 2025 -0300
+
+    Update - Criado arquivos php em database/migrations
+
+[33mcommit 0b051487e207db4bee18a535128c29a6a7e92fc6[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 19:06:18 2025 -0300
+
+    Fix - projeto vinculado ao banco MariaDB
+
+[33mcommit 6a9881a08e9d45a2e38df5dd65007012cb9cdea2[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sat Aug 16 12:01:01 2025 -0300
+
+    Update dos arquivos .blade.php, só o design, sem lógica funcional
+
+[33mcommit 72626859a1e3eb7ab5457c6317e5223cc6f984b1[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 3 19:24:35 2025 -0300
+
+    Atualizado as blades de users e arquivos raiz da pasta views
+
+[33mcommit 2f75be44e5484440b9e62cf9170de85c94630f47[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 3 19:18:37 2025 -0300
+
+    Atualizado os blades de curriculum_components, disciplines, laboratories, professors, settings
+
+[33mcommit eeff7aa0d98ca7c75fe8a2d320d76c56733888c2[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 3 17:46:22 2025 -0300
+
+    Criado a pasta laboratories e seus arquivos .blade.php
+
+[33mcommit 0bd7acdc16b8c64be2f94ba0cd43df153514e685[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 3 17:44:44 2025 -0300
+
+    Criado a pasta resources e seus arquivos .blade.php
+
+[33mcommit 907f91978cf1bb66e25a7b6357fad47d4ee08aeb[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 3 17:42:49 2025 -0300
+
+    Criado a pasta users e seus arquivos .blade.php
+
+[33mcommit 5b64ed59ba353daffb41020cbae6b0b3b95649c9[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 3 17:40:57 2025 -0300
+
+    Criado a pasta professors e seus arquivos .blade.php
+
+[33mcommit 61bd77cf835ce5763247c0c266227b6df37067f2[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 3 17:38:58 2025 -0300
+
+    Criado a pasta disciplines e seus arquivos .blade.php, junto com arquivos na raiz do views
+
+[33mcommit d783e2dc8802e7938c5cea8b1f92718832e4384b[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 3 17:25:39 2025 -0300
+
+    Criado login, register e index.blade.php
+
+[33mcommit ac096631c41267be660896199eae30d1ad440190[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 3 16:10:50 2025 -0300
+
+    Import de todos os arquivos .css para o app.css e para o guest.blade.php
+
+[33mcommit 99d811cfa78026572132f3fe35968c8d4e57a51c[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Sun Aug 3 15:59:37 2025 -0300
+
+    Renomeado todos os arquivos .css do portugues para o ingles
+
+[33mcommit 9dd4abcc89f611a809709bef47c168db6fbd6af4[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Fri Aug 1 19:23:45 2025 -0300
+
+    Recriado app.css
+
+[33mcommit fea06195194aba12478af220265f3c5a3c10c7ef[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Fri Aug 1 19:18:12 2025 -0300
+
+    Initial commit: Criação e configuração inicial do projeto NREduTech
+
+[33mcommit 035367d3105d0be0541f10d03179c3f914dc6aa6[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Thu Jul 31 11:33:18 2025 -0300
+
+    cadastro.css, componenetes.css, configuracoes.css, disciplinas_consulta.css, disciplinas.css, index.css, laboratorios.css, login.css, notificacoes.css, professores_cadastro.css, professores.css, recursoscadastro.css, recursos.css, relatorios.css, usuarioscadastro.css, usuarios.css
+
+[33mcommit 60c8e4c1bde152b33c4f4b55ce60d7d7814c3c2b[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Thu Jul 31 11:32:49 2025 -0300
+
+    cadastro.css, componenetes.css, configuracoes.css, disciplinas_consulta.css, disciplinas.css, index.css, laboratorios.css, login.css, notificacoes.css, professores_cadastro.css, professores.css, recursoscadastro.css, recursos.css, relatorios.css, usuarioscadastro.css, usuarios.css
+
+[33mcommit b4b3a6196dd5d6260e372a7eb1c90ff79933f792[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Thu Jul 31 11:26:03 2025 -0300
+
+    Criação dos arquivos CSS, importados do protótipo inicial estático
+
+[33mcommit 336837c19c45526c7406c060781e0846556e7b93[m
+Author: kalivictor <kalivictor@kalivictor.kalivictor>
+Date:   Thu Jul 31 10:59:19 2025 -0300
+
+    Initial commit: Criação e configuração inicial do projeto NREduTech

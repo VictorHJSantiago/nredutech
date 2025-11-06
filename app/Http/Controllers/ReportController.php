@@ -11,6 +11,7 @@ use App\Models\Usuario;
 use App\Models\ComponenteCurricular;
 use App\Models\RecursoDidatico;
 use App\Models\Agendamento;
+use App\Models\Notificacao;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
@@ -108,6 +109,92 @@ class ReportController extends Controller
     {
         $format = $validatedInputs['format'];
         $filenameBase = 'relatorio_NREduTech_' . now()->format('Y-m-d_His');
+        
+        try {
+            // 1. Prepara a lista de filtros para a mensagem
+            $filtersForMessage = Arr::except($validatedInputs, ['format', 'page', '_token', 'sort_by', 'order']);
+            $filterStrings = [];
+            
+            foreach ($filtersForMessage as $key => $value) {
+                // Converte valores em array (como IDs de município) para string
+                if (is_array($value)) {
+                    $filterStrings[] = "{$key}: [" . implode(', ', $value) . "]";
+                // Adiciona apenas se houver um valor
+                } elseif ($value) {
+                    $filterStrings[] = "{$key}: {$value}";
+                }
+            }
+            // Define o texto final dos filtros
+            $filterText = empty($filterStrings) ? 'Nenhum filtro aplicado.' : implode('; ', $filterStrings);
+
+            // 2. Determina o tipo de relatório que foi baixado
+            $reportType = $validatedInputs['report_type'] ?? 'Completo';
+            if ($reportType === 'Completo' && $user->tipo_usuario !== 'administrador') {
+                $reportType = 'Completo (sem Escolas)';
+            }
+
+            // 3. Cria o título e as mensagens da notificação
+            $tituloNotificacao = "Download de Relatório: " . Str::upper($format);
+            $dataEnvio = now();
+            $dataHoraFormatada = $dataEnvio->format('d/m/Y \à\s H:i:s');
+            
+            // Mensagem para o próprio usuário que baixou
+            $mensagemProprioUsuario = "Você baixou o relatório '{$reportType}' no formato " . Str::upper($format)
+                                . " em " . $dataHoraFormatada . ".\n\n"
+                                . "Filtros Aplicados: " . $filterText;
+
+            // Mensagem para os outros (admins/diretores)
+            $mensagemParaOutros = "O usuário '{$user->nome_completo}' (ID: {$user->id_usuario}) baixou o relatório '{$reportType}' no formato " . Str::upper($format)
+                            . " em " . $dataHoraFormatada . ".\n\n"
+                            . "Filtros Aplicados: " . $filterText;
+
+            // 4. Monta a lista de usuários a serem notificados
+            $targetUserIds = [];
+
+            // Adiciona todos os administradores
+            $adminIds = Usuario::where('tipo_usuario', 'administrador')
+                               ->pluck('id_usuario')
+                               ->all();
+            $targetUserIds = array_merge($targetUserIds, $adminIds);
+
+            // Adiciona diretores da mesma escola (se o usuário tiver uma escola)
+            if ($user->id_escola) {
+                $directorIds = Usuario::where('tipo_usuario', 'diretor')
+                                      ->where('id_escola', $user->id_escola)
+                                      ->pluck('id_usuario')
+                                      ->all();
+                $targetUserIds = array_merge($targetUserIds, $directorIds);
+            }
+
+            // Adiciona o próprio usuário
+            $targetUserIds[] = $user->id_usuario;
+
+            // 5. Remove duplicatas e prepara a inserção em lote
+            $uniqueIds = array_unique($targetUserIds);
+            $notificationsToInsert = [];
+
+            foreach ($uniqueIds as $id) {
+                $notificationsToInsert[] = [
+                    'id_usuario' => $id,
+                    'titulo' => $tituloNotificacao,
+                    'mensagem' => ($id == $user->id_usuario) ? $mensagemProprioUsuario : $mensagemParaOutros,
+                    'data_envio' => $dataEnvio,
+                    'status_mensagem' => 'enviada',
+                    'created_at' => $dataEnvio, // Necessário para insert()
+                    'updated_at' => $dataEnvio  // Necessário para insert()
+                ];
+            }
+
+            // 6. Insere as notificações no banco de dados
+            if (!empty($notificationsToInsert)) {
+                Notificacao::insert($notificationsToInsert);
+            }
+
+        } catch (\Exception $e) {
+            // Se a criação da notificação falhar, registra o erro no log,
+            // mas não impede o download do relatório de continuar.
+            Log::error("Falha ao criar notificação de download de relatório para usuário {$user->id_usuario}: " . $e->getMessage());
+        }
         
         $typesToGenerate = [];
         if (!empty($validatedInputs['report_type']) && in_array($validatedInputs['report_type'], $this->allReportTypes)) {
