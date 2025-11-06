@@ -321,6 +321,7 @@ A segurança é um requisito não-funcional crítico. O NREduTech implementa as 
     * **Início:** 31/07/2025
     * **Conclusão (v1.0):** 26/11/2025
     * **Total de Horas (Aprox.):** 250 horas
+    * **Total de dias decorridos: 119 dias
 
 ---
 
