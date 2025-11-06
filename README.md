@@ -328,4 +328,4 @@ A segurança é um requisito não-funcional crítico. O NREduTech implementa as 
 
 | Avatar | Nome | Contato |
 | :--- | :--- | :--- |
-| <img src="https://avatars.githubusercontent.com/u/142981329?v=4" width="75" style="border-radius: 50%;"> | **Victor Hugo Jesus Santiago** | `victorhjsantiago@gmail.com` <br> [LinkedIn](https://www.linkedin.com/in/victorhjsantiago/) <br> [GitHub](https://github.com/victorhjsantiago) |
+| <img src="https://avatars.githubusercontent.com/u/142981329?v=4" width="75" style="border-radius: 50%;"> | **Victor Henrique Jesus Santiago** | `victorhenriquedejesussantiago@gmail.com` <br> [LinkedIn](https://www.linkedin.com/in/victorhjsantiago/) <br> [GitHub](https://github.com/victorhjsantiago) |
