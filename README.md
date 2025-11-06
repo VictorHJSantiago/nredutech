@@ -46,7 +46,7 @@ O sistema é modularizado para cobrir todas as necessidades da gestão educacion
 * **📊 Relatórios Avançados:** Geração de relatórios dinâmicos sobre a utilização de recursos, agendamentos por escola e mais, com exportação para **PDF** e **Excel**.
 * **🔔 Sistema de Notificações:** Alertas em tempo real na plataforma e envio de e-mails para ações críticas (ex: confirmação de agendamento).
 * **🗃️ Backup e Restauração:** Funcionalidade robusta para criação de *backups* da aplicação e do banco de dados, com agendamento automático e restauração.
-* **♿ Acessibilidade:** Integração nativa com o **VLibras** para garantir a acessibilidade para pessoas com deficiência auditiva.
+* **♿ Acessibilidade:** Integração nativa com o **VLibras** para garantir a acessibilidade para pessoas com deficiência.
 
 ---
 
