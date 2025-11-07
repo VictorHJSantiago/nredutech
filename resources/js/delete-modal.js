@@ -1,47 +1,48 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const backdrop = document.getElementById('deleteModalBackdrop');
-    const btnCancel = document.getElementById('modalButtonCancel');
-    const btnConfirm = document.getElementById('modalButtonConfirm');
-    
-    const deleteForms = document.querySelectorAll('.form-delete');
-
-    let formToSubmit = null; 
-
-    if (!backdrop || !btnCancel || !btnConfirm) {
+    const modal = document.getElementById('deleteModal');
+    if (!modal) {
         return;
     }
 
-    const showModal = (form) => {
-        formToSubmit = form; 
-        backdrop.classList.add('is-open');
-    };
+    const modalOverlay = modal.querySelector('.modal-overlay');
+    const cancelButton = document.getElementById('cancelButton');
+    const itemNameElement = document.getElementById('itemName');
+    const deleteForm = document.getElementById('deleteModalForm');
+    const deleteButtons = document.querySelectorAll('.delete-button');
 
-    const hideModal = () => {
-        backdrop.classList.remove('is-open');
-        formToSubmit = null; 
-    };
+    function showModal() {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 
-    deleteForms.forEach(form => {
-        form.addEventListener('submit', (event) => {
-            event.preventDefault(); 
-            showModal(form);        
+    function hideModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            const itemName = button.getAttribute('data-item-name');
+            const formAction = button.getAttribute('data-form-action');
+
+            itemNameElement.textContent = itemName;
+            deleteForm.setAttribute('action', formAction);
+            showModal();
         });
     });
 
-    btnCancel.addEventListener('click', () => {
-        hideModal();
-    });
+    if (cancelButton) {
+        cancelButton.addEventListener('click', hideModal);
+    }
 
-    btnConfirm.addEventListener('click', () => {
-        if (formToSubmit) {
-            formToSubmit.submit(); 
-        }
-        hideModal();
-    });
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) {
+                hideModal();
+            }
+        });
+    }
 
-    backdrop.addEventListener('click', (event) => {
-        if (event.target === backdrop) {
-            hideModal();
-        }
-    });
+    hideModal();
 });

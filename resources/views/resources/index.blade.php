@@ -105,11 +105,14 @@
 
                                 @if($canManage)
                                     <a href="{{ route('resources.edit', $recurso->id_recurso) }}" class="btn-edit" title="Editar Recurso">✏️ Editar</a>
-                                    <form action="{{ route('resources.destroy', $recurso->id_recurso) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este recurso?');" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-delete" title="Excluir Recurso">🗑️ Excluir</button>
-                                    </form>
+                                    <button type="button"
+                                        class="delete-button btn-delete"
+                                        style="display:inline;"
+                                        title="Excluir Recurso"
+                                        data-item-name="{{ $recurso->nome }}"
+                                        data-form-action="{{ route('resources.destroy', $recurso->id_recurso) }}">
+                                        🗑️ Excluir
+                                    </button>
                                 @endif
                             </td>
                         </tr>

@@ -167,11 +167,13 @@
                         
                                 @if($canManage)
                                     <a href="{{ route('usuarios.edit', $usuario) }}" class="btn-edit" title="Editar Usuário">✏️</a>
-                                    <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-delete" title="Excluir Usuário">🗑️</button>
-                                    </form>
+                                    <button type="button"
+                                        class="delete-button btn-delete"
+                                        title="Excluir Usuário"
+                                        data-item-name="{{ $usuario->nome_completo }}"
+                                        data-form-action="{{ route('usuarios.destroy', $usuario) }}">
+                                        🗑️
+                                    </button>
                                 @endif
                             @endif
                         </td>
