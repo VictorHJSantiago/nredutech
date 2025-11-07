@@ -125,11 +125,14 @@
                             @endif
                             @if($canManage)
                                 <a href="{{ route('componentes.edit', $componente) }}" class="btn-edit" title="Editar Disciplina">✏️ Editar</a>
-                                <form action="{{ route('componentes.destroy', $componente) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta disciplina?');" style="display:inline;" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-delete" title="Excluir Disciplina">🗑️ Excluir</button>
-                                </form>
+                                <button type="button"
+                                    class="delete-button btn-delete"
+                                    style="display:inline;"
+                                    title="Excluir Disciplina"
+                                    data-item-name="{{ $componente->nome }}"
+                                    data-form-action="{{ route('componentes.destroy', $componente) }}">
+                                    🗑️ Excluir
+                                </button>
                             @endif
                         </td>
                     </tr>

@@ -10,6 +10,7 @@ use App\Models\Notificacao;
 use App\Models\Usuario;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 
 class CityController extends Controller
 {
@@ -22,15 +23,18 @@ class CityController extends Controller
     public function store(StoreCityRequest $request): RedirectResponse
     {
         $municipio = Municipio::create($request->validated());
+        $actor = Auth::user();
+        
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->where('status_aprovacao', 'ativo')->get();
+        $recipients = collect([$actor])->merge($administradores)->unique('id_usuario');
 
-        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
-        foreach ($administradores as $admin) {
+        foreach ($recipients as $recipient) {
             Notificacao::create([
                 'titulo' => 'Novo Município Cadastrado',
-                'mensagem' => "O município '{$municipio->nome}' foi adicionado ao sistema.",
+                'mensagem' => "O município '{$municipio->nome}' foi adicionado ao sistema por {$actor->nome_completo}.",
                 'data_envio' => now(),
                 'status_mensagem' => 'enviada',
-                'id_usuario' => $admin->id_usuario,
+                'id_usuario' => $recipient->id_usuario,
             ]);
         }
 
@@ -53,14 +57,18 @@ class CityController extends Controller
         $nomeAntigo = $municipio->nome;
         $municipio->update($request->validated());
         $nomeNovo = $municipio->nome;
-        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
-        foreach ($administradores as $admin) {
+        $actor = Auth::user();
+
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->where('status_aprovacao', 'ativo')->get();
+        $recipients = collect([$actor])->merge($administradores)->unique('id_usuario');
+        
+        foreach ($recipients as $recipient) {
             Notificacao::create([
                 'titulo' => 'Município Atualizado',
-                'mensagem' => "O município '{$nomeAntigo}' foi atualizado para '{$nomeNovo}'.",
+                'mensagem' => "O município '{$nomeAntigo}' foi atualizado para '{$nomeNovo}' por {$actor->nome_completo}.",
                 'data_envio' => now(),
                 'status_mensagem' => 'enviada',
-                'id_usuario' => $admin->id_usuario,
+                'id_usuario' => $recipient->id_usuario,
             ]);
         }
 
@@ -75,14 +83,18 @@ class CityController extends Controller
 
         $nomeMunicipio = $municipio->nome;
         $municipio->delete();
-        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
-        foreach ($administradores as $admin) {
+        $actor = Auth::user();
+
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->where('status_aprovacao', 'ativo')->get();
+        $recipients = collect([$actor])->merge($administradores)->unique('id_usuario');
+
+        foreach ($recipients as $recipient) {
             Notificacao::create([
                 'titulo' => 'Município Excluído',
-                'mensagem' => "O município '{$nomeMunicipio}' foi excluído do sistema.",
+                'mensagem' => "O município '{$nomeMunicipio}' foi excluído do sistema por {$actor->nome_completo}.",
                 'data_envio' => now(),
                 'status_mensagem' => 'enviada',
-                'id_usuario' => $admin->id_usuario,
+                'id_usuario' => $recipient->id_usuario,
             ]);
         }
 

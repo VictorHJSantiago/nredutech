@@ -109,12 +109,13 @@
                                     <td class="actions">
                                         <a href="{{ route('municipios.edit', $municipio->id_municipio) }}"
                                             class="button-icon btn-edit" title="Editar">✏️</a>
-                                        <form action="{{ route('municipios.destroy', $municipio->id_municipio) }}" method="POST"
-                                            onsubmit="return confirm('Tem certeza?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
-                                        </form>
+                                        <button type="button"
+                                            class="delete-button button-icon btn-delete"
+                                            title="Excluir"
+                                            data-item-name="{{ $municipio->nome }}"
+                                            data-form-action="{{ route('municipios.destroy', $municipio->id_municipio) }}">
+                                            🗑️
+                                        </button>
                                     </td>
                                 </tr>
                             @empty
@@ -255,12 +256,13 @@
                                     <td class="actions">
                                         <a href="{{ route('escolas.edit', $escola->id_escola) }}" class="button-icon btn-edit"
                                             title="Editar">✏️</a>
-                                        <form action="{{ route('escolas.destroy', $escola->id_escola) }}" method="POST"
-                                            onsubmit="return confirm('Tem certeza?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="button-icon btn-delete" title="Excluir">🗑️</button>
-                                        </form>
+                                        <button type="button"
+                                            class="delete-button button-icon btn-delete"
+                                            title="Excluir"
+                                            data-item-name="{{ $escola->nome }}"
+                                            data-form-action="{{ route('escolas.destroy', $escola->id_escola) }}">
+                                            🗑️
+                                        </button>
                                     </td>
                                 </tr>
                             @empty

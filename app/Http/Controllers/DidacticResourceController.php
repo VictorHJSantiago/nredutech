@@ -183,6 +183,8 @@ class DidacticResourceController extends Controller
         $actor = Auth::user(); 
         $validatedData = $request->validated();
         $oldEscolaId = $recursoDidatico->id_escola; 
+        $criador = $recursoDidatico->criador;
+
         if ($actor->tipo_usuario === 'administrador') {
             if ($request->has('id_escola')) {
                  $validatedData['id_escola'] = $request->input('id_escola') ?: null;
@@ -208,8 +210,12 @@ class DidacticResourceController extends Controller
         $recipients = collect([$actor])
                         ->merge($administradores)
                         ->merge($diretoresNovaEscola)
-                        ->merge($diretoresAntigaEscola)
-                        ->unique('id_usuario');
+                        ->merge($diretoresAntigaEscola);
+        
+        if ($criador && $criador->id_usuario !== $actor->id_usuario) {
+            $recipients = $recipients->push($criador);
+        }
+        $recipients = $recipients->unique('id_usuario');
 
         $mensagem = "O recurso '{$recursoDidatico->nome}' (Escola: {$escolaNome}) foi atualizado por {$actor->nome_completo}.";
 

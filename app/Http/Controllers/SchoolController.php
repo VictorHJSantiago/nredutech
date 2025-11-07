@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\Usuario;
 use App\Models\Notificacao;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class SchoolController extends Controller
 {
@@ -76,15 +77,18 @@ class SchoolController extends Controller
     public function store(StoreSchoolRequest $request): RedirectResponse
     {
         $escola = Escola::create($request->validated());
+        $actor = Auth::user();
 
-        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
-        foreach ($administradores as $admin) {
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->where('status_aprovacao', 'ativo')->get();
+        $recipients = collect([$actor])->merge($administradores)->unique('id_usuario');
+
+        foreach ($recipients as $recipient) {
             Notificacao::create([
                 'titulo' => 'Nova Escola Cadastrada',
-                'mensagem' => "A escola '{$escola->nome}' foi cadastrada.",
+                'mensagem' => "A escola '{$escola->nome}' foi cadastrada por {$actor->nome_completo}.",
                 'data_envio' => now(),
                 'status_mensagem' => 'enviada',
-                'id_usuario' => $admin->id_usuario,
+                'id_usuario' => $recipient->id_usuario,
             ]);
         }
 
@@ -100,14 +104,19 @@ class SchoolController extends Controller
     public function update(UpdateSchoolRequest $request, Escola $escola): RedirectResponse
     {
         $escola->update($request->validated());
-        $diretores = $escola->usuarios()->where('tipo_usuario', 'diretor')->get();
-        foreach ($diretores as $diretor) {
+        $actor = Auth::user();
+        
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->where('status_aprovacao', 'ativo')->get();
+        $diretores = $escola->usuarios()->where('tipo_usuario', 'diretor')->where('status_aprovacao', 'ativo')->get();
+        $recipients = collect([$actor])->merge($administradores)->merge($diretores)->unique('id_usuario');
+
+        foreach ($recipients as $recipient) {
             Notificacao::create([
                 'titulo' => 'Dados da Escola Atualizados',
-                'mensagem' => "Os dados da escola '{$escola->nome}' foram atualizados.",
+                'mensagem' => "Os dados da escola '{$escola->nome}' foram atualizados por {$actor->nome_completo}.",
                 'data_envio' => now(),
                 'status_mensagem' => 'enviada',
-                'id_usuario' => $diretor->id_usuario,
+                'id_usuario' => $recipient->id_usuario,
             ]);
         }
 
@@ -124,14 +133,19 @@ class SchoolController extends Controller
             return redirect()->route('escolas.index')->with('error', 'Não é possível excluir esta escola, pois ela possui usuários (diretores ou professores) associados.');
         }
 
-        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
-        foreach ($administradores as $admin) {
+        $actor = Auth::user();
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->where('status_aprovacao', 'ativo')->get();
+        $diretores = $escola->usuarios()->where('tipo_usuario', 'diretor')->where('status_aprovacao', 'ativo')->get();
+        $recipients = collect([$actor])->merge($administradores)->merge($diretores)->unique('id_usuario');
+        $nomeEscola = $escola->nome;
+
+        foreach ($recipients as $recipient) {
             Notificacao::create([
                 'titulo' => 'Escola Excluída',
-                'mensagem' => "A escola '{$escola->nome}' foi excluída.",
+                'mensagem' => "A escola '{$nomeEscola}' foi excluída por {$actor->nome_completo}.",
                 'data_envio' => now(),
                 'status_mensagem' => 'enviada',
-                'id_usuario' => $admin->id_usuario,
+                'id_usuario' => $recipient->id_usuario,
             ]);
         }
 

@@ -130,13 +130,13 @@
                                         <a href="{{ route('turmas.edit', $turma->id_turma) }}" class="btn-edit btn-sm" title="Editar Turma">
                                             <i class="fas fa-edit icon-left-sm"></i> Editar
                                         </a>
-                                        <form action="{{ route('turmas.destroy', $turma->id_turma) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta turma?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn-delete btn-sm" title="Excluir Turma">
-                                                <i class="fas fa-trash icon-left-sm"></i> Excluir
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                            class="delete-button btn-delete btn-sm"
+                                            title="Excluir Turma"
+                                            data-item-name="{{ $turma->serie }} ({{ $turma->escola->nome ?? 'N/A' }})"
+                                            data-form-action="{{ route('turmas.destroy', $turma->id_turma) }}">
+                                            <i class="fas fa-trash icon-left-sm"></i> Excluir
+                                        </button>
                                     </td>
                                 </tr>
                             @empty

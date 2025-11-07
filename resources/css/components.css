@@ -14,31 +14,31 @@
 }
 
 .alert-success {
-  background-color: #D1FAE5; 
-  color: #065F46; 
-  border-left: 5px solid #10B981; 
+  background-color: #D1FAE5;
+  color: #065F46;
+  border-left: 5px solid #10B981;
 }
 
 .alert-danger {
-  background-color: #FEE2E2; 
-  color: #991B1B; 
-  border-left: 5px solid #EF4444; 
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border-left: 5px solid #EF4444;
 }
 
 .alert-warning {
-  background-color: #FEF3C7; 
-  color: #92400E; 
-  border-left: 5px solid #F59E0B; 
+  background-color: #FEF3C7;
+  color: #92400E;
+  border-left: 5px solid #F59E0B;
 }
 
 .alert-info {
-  background-color: #DBEAFE; 
-  color: #1E40AF; 
-  border-left: 5px solid #3B82F6; 
+  background-color: #DBEAFE;
+  color: #1E40AF;
+  border-left: 5px solid #3B82F6;
 }
 
 .notification-badge {
-    background-color: #EF4444; 
+    background-color: #EF4444;
     color: white;
     border-radius: 50%;
     padding: 2px 6px;
@@ -72,23 +72,23 @@
 }
 
 .action-link-edit {
-    background-color: #DBEAFE; 
-    color: #1E40AF; 
+    background-color: #DBEAFE;
+    color: #1E40AF;
 }
 .action-link-edit:hover {
-    background-color: #BFDBFE; 
+    background-color: #BFDBFE;
     transform: translateY(-1px);
 }
 
 .action-link-delete {
-    background-color: #FEE2E2; 
-    color: #991B1B; 
+    background-color: #FEE2E2;
+    color: #991B1B;
     border: none;
     cursor: pointer;
     font-family: "Roboto", Arial, sans-serif;
 }
 .action-link-delete:hover {
-    background-color: #FECACA; 
+    background-color: #FECACA;
     transform: translateY(-1px);
 }
 
@@ -118,13 +118,13 @@
 }
 
 .table-body tr {
-    border-bottom: 1px solid #E5E7EB; 
+    border-bottom: 1px solid #E5E7EB;
 }
 .table-body tr:nth-child(even) {
     background-color: var(--cinza-claro, #f7f7f7);
 }
 .table-body tr:hover {
-    background-color: #F3F4F6; 
+    background-color: #F3F4F6;
 }
 .table-body td {
     padding: 16px;
@@ -148,7 +148,7 @@
 .table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px; 
+    min-width: 600px;
 }
 
 .delete-modal-backdrop {
@@ -238,4 +238,18 @@
 }
 .modal-button-confirm:hover {
     background-color: #C53030;
+}
+
+.modal-overlay {
+    transition: opacity 0.2s ease-in-out;
+}
+
+.modal-overlay.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.modal-overlay.flex {
+    display: flex;
+    opacity: 1;
 }

@@ -109,23 +109,29 @@ class UserController extends Controller
         $validatedData['data_registro'] = now();
         $validatedData['password'] = Hash::make($validatedData['password']);
         $usuario = Usuario::create($validatedData);
-        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
+        
+        $actor = Auth::user();
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->where('status_aprovacao', 'ativo')->get();
+        $diretoresDaEscola = collect();
+        if ($usuario->id_escola) {
+            $diretoresDaEscola = Usuario::where('id_escola', $usuario->id_escola)
+                                        ->where('tipo_usuario', 'diretor')
+                                        ->where('status_aprovacao', 'ativo')
+                                        ->get();
+        }
+        $recipients = collect([$actor])->merge($administradores)->merge($diretoresDaEscola)->unique('id_usuario');
 
         $titulo = 'Novo Usuário Cadastrado Manualmente';
-        $mensagem = "O usuário '{$usuario->nome_completo}' foi cadastrado no sistema e está com status '{$usuario->status_aprovacao}'.";
+        $mensagem = "O usuário '{$usuario->nome_completo}' (Status: {$usuario->status_aprovacao}) foi cadastrado no sistema por {$actor->nome_completo}.";
 
-        foreach ($administradores as $admin) {
+        foreach ($recipients as $recipient) {
             Notificacao::create([
                 'titulo' => $titulo,
                 'mensagem' => $mensagem,
                 'data_envio' => now(),
                 'status_mensagem' => 'enviada',
-                'id_usuario' => $admin->id_usuario,
+                'id_usuario' => $recipient->id_usuario,
             ]);
-
-            if ($admin->preferencias && $admin->preferencias->notif_email) {
-                //Mail::to($admin->email)->send(new NotificationMail($titulo, $mensagem));
-            }
         }
 
         return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
@@ -160,80 +166,123 @@ class UserController extends Controller
 
      public function update(UpdateUserRequest $request, Usuario $usuario): RedirectResponse
     {
-        $authUser = Auth::user();
-        if ($authUser->tipo_usuario === 'administrador' && $usuario->tipo_usuario === 'administrador' && $authUser->id_usuario !== $usuario->id_usuario && $usuario->status_aprovacao === 'ativo') {
+        $actor = Auth::user();
+        if ($actor->tipo_usuario === 'administrador' && $usuario->tipo_usuario === 'administrador' && $actor->id_usuario !== $usuario->id_usuario && $usuario->status_aprovacao === 'ativo') {
             return redirect()->route('usuarios.index')->with('error', 'Administradores não podem editar outros administradores ativos.');
         }
 
         $validatedData = $request->validated();
         
-        if (Auth::user()->tipo_usuario === 'diretor') {
+        $oldEscolaId = $usuario->id_escola;
+        $statusChanged = isset($validatedData['status_aprovacao']) && $usuario->status_aprovacao !== $validatedData['status_aprovacao'];
+        $statusNovo = $validatedData['status_aprovacao'] ?? $usuario->status_aprovacao;
+
+        if ($actor->tipo_usuario === 'diretor') {
             unset($validatedData['tipo_usuario']);
             unset($validatedData['id_escola']);
         }
 
-        if (isset($validatedData['status_aprovacao']) && $usuario->status_aprovacao !== $validatedData['status_aprovacao']) {
-            $status = $validatedData['status_aprovacao'];
-            $titulo = 'Status da Sua Conta Atualizado';
-            $mensagem = "O status da sua conta foi atualizado para '{$status}'.";
+        $usuario->update($validatedData);
+        $usuario->refresh()->loadMissing(['escola', 'preferencias']);
+        $newEscolaId = $usuario->id_escola;
+        $escolaNome = $usuario->escola ? $usuario->escola->nome : 'N/A';
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->where('status_aprovacao', 'ativo')->get();
+        $diretoresNovaEscola = collect();
+        if ($newEscolaId) {
+            $diretoresNovaEscola = Usuario::where('id_escola', $newEscolaId)->where('tipo_usuario', 'diretor')->where('status_aprovacao', 'ativo')->get();
+        }
+        $diretoresAntigaEscola = collect();
+        if ($oldEscolaId && $oldEscolaId !== $newEscolaId) {
+            $diretoresAntigaEscola = Usuario::where('id_escola', $oldEscolaId)->where('tipo_usuario', 'diretor')->where('status_aprovacao', 'ativo')->get();
+        }
+
+        $recipients = collect([$actor, $usuario])
+                        ->merge($administradores)
+                        ->merge($diretoresNovaEscola)
+                        ->merge($diretoresAntigaEscola)
+                        ->unique('id_usuario');
+        
+        $mensagem = "O usuário '{$usuario->nome_completo}' (Escola: {$escolaNome}) foi atualizado por {$actor->nome_completo}.";
+        if ($statusChanged) {
+            $mensagem .= " Seu status mudou para '{$statusNovo}'.";
+        }
+
+        foreach ($recipients as $recipient) {
+            if ($recipient->id_usuario === $usuario->id_usuario && $statusChanged) {
+                continue;
+            }
+            
+            Notificacao::create([
+                'titulo' => 'Usuário Atualizado',
+                'mensagem' => $mensagem,
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'id_usuario' => $recipient->id_usuario,
+            ]);
+        }
+
+        if ($statusChanged) {
+            $tituloStatus = 'Status da Sua Conta Atualizado';
+            $mensagemStatus = "O status da sua conta foi atualizado para '{$statusNovo}' pelo usuário {$actor->nome_completo}.";
 
             Notificacao::create([
-                'titulo' => $titulo,
-                'mensagem' => $mensagem,
+                'titulo' => $tituloStatus,
+                'mensagem' => $mensagemStatus,
                 'data_envio' => now(),
                 'status_mensagem' => 'enviada',
                 'id_usuario' => $usuario->id_usuario,
             ]);
             
-            $usuario->load('preferencias'); 
             if ($usuario->preferencias && $usuario->preferencias->notif_email) {
-                Mail::to($usuario->email)->send(new NotificationMail($titulo, $mensagem));
+                Mail::to($usuario->email)->send(new NotificationMail($tituloStatus, $mensagemStatus));
             }
         }
 
-        $usuario->update($validatedData);
         return redirect()->route('usuarios.index')->with('success', 'Usuário atualizado com sucesso!');
     }
 
     public function destroy(Usuario $usuario): RedirectResponse
     {
-        $authUser = Auth::user();
+        $actor = Auth::user();
 
-        if ($usuario->id_usuario === $authUser->id_usuario) {
+        if ($usuario->id_usuario === $actor->id_usuario) {
             return redirect()->route('usuarios.index')->with('error', 'Você não pode excluir sua própria conta.');
         }
 
-        if ($authUser->tipo_usuario === 'diretor' && $usuario->tipo_usuario === 'administrador') {
+        if ($actor->tipo_usuario === 'diretor' && $usuario->tipo_usuario === 'administrador') {
             return redirect()->route('usuarios.index')->with('error', 'Você não tem permissão para excluir este usuário.');
         }
 
-        if ($authUser->tipo_usuario === 'diretor' && $usuario->id_escola !== $authUser->id_escola) {
+        if ($actor->tipo_usuario === 'diretor' && $usuario->id_escola !== $actor->id_escola) {
             return redirect()->route('usuarios.index')->with('error', 'Você só pode excluir usuários da sua própria escola.');
         }
 
         $nomeUsuario = $usuario->nome_completo;
         $escolaId = $usuario->id_escola;
-        $usuario->delete();
+        
         $diretores = collect();
         if ($escolaId) {
             $diretores = Usuario::where('id_escola', $escolaId)
                                   ->where('tipo_usuario', 'diretor')
+                                  ->where('status_aprovacao', 'ativo')
                                   ->get();
         }
-        $administradores = Usuario::where('tipo_usuario', 'administrador')->get();
+        $administradores = Usuario::where('tipo_usuario', 'administrador')->where('status_aprovacao', 'ativo')->get();
         
-        $usersToNotify = $diretores->merge($administradores)->unique('id_usuario');
+        $recipients = collect([$actor])->merge($diretores)->merge($administradores)->unique('id_usuario');
+        
+        $usuario->delete();
 
         $titulo = 'Usuário Excluído';
-        $mensagem = "O usuário '{$nomeUsuario}' foi removido do sistema.";
+        $mensagem = "O usuário '{$nomeUsuario}' foi removido do sistema por {$actor->nome_completo}.";
 
-        foreach ($usersToNotify as $user) {
+        foreach ($recipients as $recipient) {
              Notificacao::create([
                 'titulo' => $titulo,
                 'mensagem' => $mensagem,
                 'data_envio' => now(),
                 'status_mensagem' => 'enviada',
-                'id_usuario' => $user->id_usuario,
+                'id_usuario' => $recipient->id_usuario,
             ]);
         }
         
