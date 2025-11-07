@@ -1,83 +1,241 @@
-
-.table-section {
-  overflow-x: auto;       
-  margin-top: 20px;
-}
-
-.componentes-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: var(--branco-principal);
-  box-shadow: 0 4px 12px var(--sombra);
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
   border-radius: 8px;
-  overflow: hidden;
-  font-size: 14px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.componentes-table thead {
-  background-color: var(--azul-principal);
+.alert-icon {
+  font-size: 20px;
 }
 
-.componentes-table th {
-  color: var(--branco-principal);
-  padding: 12px 16px;
-  font-weight: 500;
-  text-align: left;
+.alert-success {
+  background-color: #D1FAE5; 
+  color: #065F46; 
+  border-left: 5px solid #10B981; 
 }
 
-.componentes-table tbody tr:nth-child(even) {
-  background-color: var(--cinza-claro);
+.alert-danger {
+  background-color: #FEE2E2; 
+  color: #991B1B; 
+  border-left: 5px solid #EF4444; 
 }
 
-.componentes-table tbody tr:hover {
-  background-color: rgba(91, 177, 59, 0.1);
-  transition: background 0.2s;
+.alert-warning {
+  background-color: #FEF3C7; 
+  color: #92400E; 
+  border-left: 5px solid #F59E0B; 
 }
 
-.componentes-table td {
-  padding: 12px 16px;
-  vertical-align: middle;
-  color: var(--texto-secundario);
+.alert-info {
+  background-color: #DBEAFE; 
+  color: #1E40AF; 
+  border-left: 5px solid #3B82F6; 
 }
 
-.btn-edit,
-.btn-delete {
-  border: none;
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  margin-right: 4px;
-  transition: background 0.2s, color 0.2s;
+.notification-badge {
+    background-color: #EF4444; 
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    position: relative;
+    top: -8px;
+    left: -2px;
 }
 
-.btn-edit {
-  background-color: var(--azul-principal);
-  color: var(--branco-principal);
+.notification-link {
+    display: flex;
+    align-items: center;
 }
 
-.btn-edit:hover {
-  background-color: var(--verde-principal);
+.card-action-links {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
 }
 
-.btn-delete {
-  background-color: #d9534f; 
-  color: var(--branco-principal);
-}
-
-.btn-delete:hover {
-  background-color: #c9302c; 
-}
-
-@media (max-width: 768px) {
-  .componentes-table th,
-  .componentes-table td {
+.action-link {
+    display: inline-block;
     padding: 8px 12px;
-    font-size: 13px;
-  }
-  .btn-edit,
-  .btn-delete {
-    padding: 4px 8px;
-    font-size: 11px;
-  }
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.action-link-edit {
+    background-color: #DBEAFE; 
+    color: #1E40AF; 
+}
+.action-link-edit:hover {
+    background-color: #BFDBFE; 
+    transform: translateY(-1px);
+}
+
+.action-link-delete {
+    background-color: #FEE2E2; 
+    color: #991B1B; 
+    border: none;
+    cursor: pointer;
+    font-family: "Roboto", Arial, sans-serif;
+}
+.action-link-delete:hover {
+    background-color: #FECACA; 
+    transform: translateY(-1px);
+}
+
+.action-link i {
+    margin-right: 5px;
+}
+
+.form-delete {
+    display: inline;
+}
+
+.table-header {
+    background: linear-gradient(180deg, var(--azul-principal) 0%, #05467f 100%);
+    color: var(--branco-principal);
+}
+.table-header th {
+    padding: 16px;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 500;
+}
+.table-header th:first-child {
+    border-top-left-radius: 8px;
+}
+.table-header th:last-child {
+    border-top-right-radius: 8px;
+}
+
+.table-body tr {
+    border-bottom: 1px solid #E5E7EB; 
+}
+.table-body tr:nth-child(even) {
+    background-color: var(--cinza-claro, #f7f7f7);
+}
+.table-body tr:hover {
+    background-color: #F3F4F6; 
+}
+.table-body td {
+    padding: 16px;
+    font-size: 14px;
+    color: var(--texto-secundario, #555);
+    vertical-align: middle;
+}
+
+.table-body td:last-child {
+    text-align: center;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--sombra);
+    margin-bottom: 2rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; 
+}
+
+.delete-modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.delete-modal-content {
+    background-color: var(--branco-principal, #ffffff);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    text-align: center;
+    width: 90%;
+    max-width: 450px;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.delete-modal-backdrop.is-open {
+    display: flex;
+}
+.delete-modal-backdrop.is-open .delete-modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.delete-modal-icon {
+    font-size: 50px;
+    color: #E53E3E;
+    margin-bottom: 20px;
+}
+
+.delete-modal-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--preto-titulo, #000);
+    margin-bottom: 10px;
+}
+
+.delete-modal-content p {
+    font-size: 16px;
+    color: var(--texto-secundario, #555);
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.delete-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.modal-button {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.modal-button:hover {
+    transform: translateY(-2px);
+}
+
+.modal-button-cancel {
+    background-color: #E2E8F0;
+    color: #4A5568;
+}
+.modal-button-cancel:hover {
+    background-color: #CBD5E0;
+}
+
+.modal-button-confirm {
+    background-color: #E53E3E;
+    color: white;
+}
+.modal-button-confirm:hover {
+    background-color: #C53030;
 }

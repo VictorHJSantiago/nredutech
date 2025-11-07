@@ -1,5 +1,6 @@
 import './bootstrap';
 import './sidebar';
+import './delete-modal';
 import './password-toogle';
 import './resource-create-prompt';
 import './appointments-calendar';

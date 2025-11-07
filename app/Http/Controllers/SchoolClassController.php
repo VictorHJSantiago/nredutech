@@ -13,7 +13,8 @@ use App\Models\ComponenteCurricular;
 use App\Models\Escola;
 use App\Models\Notificacao;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect; 
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Gate;
 
 class SchoolClassController extends Controller
 {
@@ -49,7 +50,6 @@ class SchoolClassController extends Controller
 
         $queryTurmas->orderBy($sortColumn, $order);
 
-
         $turmas = $queryTurmas->paginate(5)->withQueryString();
         $escolas = $queryEscolas->orderBy('nome')->get();
 
@@ -59,19 +59,12 @@ class SchoolClassController extends Controller
     public function store(StoreSchoolClassRequest $request): RedirectResponse
     {
         $turma = Turma::create($request->validated());
-        $diretores = Usuario::where('id_escola', $turma->id_escola)
-                            ->where('tipo_usuario', 'diretor')
-                            ->get();
-
-        foreach ($diretores as $diretor) {
-            Notificacao::create([
-                'titulo' => 'Nova Turma Cadastrada',
-                'mensagem' => "A turma '{$turma->serie} - {$turma->turno}' foi cadastrada na sua escola.",
-                'data_envio' => now(),
-                'status_mensagem' => 'enviada',
-                'id_usuario' => $diretor->id_usuario,
-            ]);
-        }
+        
+        $this->sendClassChangeNotification(
+            $turma,
+            Auth::user(),
+            'criada'
+        );
 
         return redirect()->route('turmas.index')->with('success', 'Turma cadastrada com sucesso!');
     }
@@ -121,19 +114,12 @@ class SchoolClassController extends Controller
     {
         $this->authorizeTurmaAccess($turma);
         $turma->update($request->validated());
-
-        $diretores = Usuario::where('id_escola', $turma->id_escola)
-                            ->where('tipo_usuario', 'diretor')
-                            ->get();
-        foreach ($diretores as $diretor) {
-            Notificacao::create([
-                'titulo' => 'Turma Atualizada',
-                'mensagem' => "Os dados da turma '{$turma->serie} - {$turma->turno}' foram atualizados.",
-                'data_envio' => now(),
-                'status_mensagem' => 'enviada',
-                'id_usuario' => $diretor->id_usuario,
-            ]);
-        }
+        
+        $this->sendClassChangeNotification(
+            $turma,
+            Auth::user(),
+            'atualizada'
+        );
         
         return Redirect::route('turmas.index')->with('success', 'Turma atualizada com sucesso!');
     }
@@ -146,22 +132,14 @@ class SchoolClassController extends Controller
              return Redirect::back()->with('error', 'Não é possível excluir. Esta turma já possui professores/disciplinas vinculados.');
         }
 
-        $nomeTurma = "{$turma->serie} ({$turma->turno})";
-        $escolaId = $turma->id_escola;
-        $turma->delete();
-        $diretores = Usuario::where('id_escola', $escolaId)
-                            ->where('tipo_usuario', 'diretor')
-                            ->get();
+        $this->sendClassChangeNotification(
+            $turma,
+            Auth::user(),
+            'excluída'
+        );
 
-        foreach ($diretores as $diretor) {
-            Notificacao::create([
-                'titulo' => 'Turma Excluída',
-                'mensagem' => "A turma '{$nomeTurma}' foi excluída da sua escola.",
-                'data_envio' => now(),
-                'status_mensagem' => 'enviada',
-                'id_usuario' => $diretor->id_usuario,
-            ]);
-        }
+        $turma->delete();
+        
         return Redirect::route('turmas.index')->with('success', 'Turma excluída com sucesso!');
     }
 
@@ -173,6 +151,44 @@ class SchoolClassController extends Controller
         }
         if ($usuarioLogado->id_escola !== $turma->id_escola) {
             abort(403, 'Acesso não autorizado a esta turma.');
+        }
+    }
+
+    private function sendClassChangeNotification(Turma $turma, Usuario $actionUser, string $action)
+    {
+        $turma->loadMissing('escola'); 
+        
+        $turmaNome = "{$turma->serie} - {$turma->turno}";
+        $message = "A turma '{$turmaNome}' (Escola: {$turma->escola->nome}) foi {$action} pelo usuário {$actionUser->nome_completo}.";
+        $url = route('turmas.index');
+
+        $adminIds = Usuario::where('tipo_usuario', 'administrador')
+                           ->where('id_usuario', '!=', $actionUser->id_usuario)
+                           ->pluck('id_usuario');
+
+        $directorIds = Usuario::where('tipo_usuario', 'diretor')
+                              ->where('id_escola', $turma->id_escola)
+                              ->where('id_usuario', '!=', $actionUser->id_usuario)
+                              ->pluck('id_usuario');
+
+        $recipientIds = $adminIds->merge($directorIds)
+                                ->push($actionUser->id_usuario)
+                                ->unique()
+                                ->all();
+
+        if (!empty($recipientIds)) {
+            $notificationData = [
+                'titulo' => "Turma " . ucfirst($action),
+                'mensagem' => $message,
+                'data_envio' => now(),
+                'status_mensagem' => 'enviada',
+                'url' => $url,
+            ];
+
+            foreach ($recipientIds as $userId) {
+                $notificationData['id_usuario'] = $userId;
+                Notificacao::create($notificationData);
+            }
         }
     }
 }

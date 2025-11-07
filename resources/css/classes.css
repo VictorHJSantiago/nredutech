@@ -1,3 +1,6 @@
+.table-header th {
+    color: var(--branco-principal, #ffffff);
+}
 
 .alert {
     padding: 1rem;
