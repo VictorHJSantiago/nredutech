@@ -96,7 +96,7 @@
             <div class="card-body">
                 <div class="table-responsive-wrapper">
                     <table class="data-table">
-                        <thead>
+                        <thead class="table-header">
                             <tr>
                                 <th>Nome</th>
                                 <th class="actions-header">Ações</th>
@@ -201,7 +201,7 @@
                 @endphp
                 <div class="table-responsive-wrapper">
                     <table class="data-table">
-                        <thead>
+                        <thead class="table-header">
                             <tr>
                                 {!! sort_link('id_escola', 'ID', $sortBy, $order) !!}
                                 {!! sort_link('nome', 'Nome da Escola', $sortBy, $order) !!}
