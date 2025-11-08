@@ -246,7 +246,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function openBookingModal(resourceId, resourceName, date) {
-        // Removida a geração de 'ofertasOptions' daqui
         
         Swal.fire({
             title: `Agendar: ${resourceName}`,
@@ -275,33 +274,27 @@ document.addEventListener('DOMContentLoaded', function () {
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
             didOpen: () => {
-                // Lógica de datas (existente)
                 const defaultStartTime = new Date(`${date}T08:00:00`);
                 document.getElementById('swal_data_hora_inicio').value = formatToDateTimeLocal(defaultStartTime);
                 document.getElementById('swal_data_hora_fim').value = formatToDateTimeLocal(new Date(defaultStartTime.getTime() + 60 * 60 * 1000));
                 
-                // --- NOVA LÓGICA DE FILTRO ---
                 const searchInput = document.getElementById('swal_oferta_search');
                 const selectElement = document.getElementById('swal_id_oferta');
-                const allOfertas = config.ofertas; // Pega a lista completa de ofertas
+                const allOfertas = config.ofertas; 
                 
-                // Função para popular o select com base no filtro
                 const populateOfertas = (searchTerm = '') => {
                     const lowerSearchTerm = searchTerm.toLowerCase().trim();
                     
-                    // 1. Filtra as ofertas
                     const filteredOfertas = allOfertas.filter(o => {
                         const serie = o.turma?.serie?.toLowerCase() || '';
                         const componente = o.componente_curricular?.nome?.toLowerCase() || '';
                         const professor = o.professor?.nome_completo?.toLowerCase() || '';
                         
-                        // Verifica se o termo de busca está em qualquer um dos campos
                         return serie.includes(lowerSearchTerm) || 
                                componente.includes(lowerSearchTerm) || 
                                professor.includes(lowerSearchTerm);
                     });
 
-                    // 2. Gera o HTML das options
                     let ofertasOptions = '';
                     if (filteredOfertas.length > 0) {
                         ofertasOptions = filteredOfertas.map(o => 
@@ -310,22 +303,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     } else if (allOfertas.length === 0) {
                          ofertasOptions = '<option value="" disabled>Nenhuma turma/disciplina encontrada.</option>';
                     } else {
-                        // Mostra uma mensagem se a busca não retornar nada
                         ofertasOptions = `<option value="" disabled>Nenhum resultado para "${searchTerm}"</option>`;
                     }
                     
-                    // 3. Atualiza o HTML do select
                     selectElement.innerHTML = ofertasOptions;
                 };
 
-                // Popula a lista inicial (sem filtro)
                 populateOfertas();
 
-                // Adiciona o listener no input de pesquisa
                 searchInput.addEventListener('input', (e) => {
                     populateOfertas(e.target.value);
                 });
-                // --- FIM DA NOVA LÓGICA ---
             },
             preConfirm: () => {
                 const data = {
@@ -335,7 +323,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     data_hora_fim: document.getElementById('swal_data_hora_fim').value,
                 };
                 if (!data.id_oferta || !data.data_hora_inicio || !data.data_hora_fim) {
-                    // Modificado para focar no campo de busca se o select estiver vazio
                     if (!data.id_oferta) {
                         Swal.showValidationMessage('Você deve selecionar uma turma/disciplina.');
                         document.getElementById('swal_oferta_search').focus();

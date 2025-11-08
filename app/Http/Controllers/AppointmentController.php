@@ -23,7 +23,6 @@ use App\Http\Resources\AppointmentResource;
 use App\Models\Turma;
 use Illuminate\Support\Facades\DB;
 
-
 class AppointmentController extends Controller
 {
     public function index(Request $request): View
@@ -144,14 +143,12 @@ class AppointmentController extends Controller
         if ($authUser->tipo_usuario !== 'administrador' && $authUser->id_escola) {
             $agendamentosDoDiaQuery->whereHas('oferta.turma', fn($q) => $q->where('id_escola', $authUser->id_escola));
         }
-        $recursosAgendadosIds = $agendamentosDoDiaQuery->pluck('id_recurso')->unique();
 
         $recursosDisponiveisQuery = RecursoDidatico::query()
             ->with(['escola', 'criador'])
             ->leftJoin('usuarios', 'recursos_didaticos.id_usuario_criador', '=', 'usuarios.id_usuario')
             ->leftJoin('escolas', 'recursos_didaticos.id_escola', '=', 'escolas.id_escola')
             ->where('recursos_didaticos.status', 'funcionando')
-            ->whereNotIn('recursos_didaticos.id_recurso', $recursosAgendadosIds)
             ->select('recursos_didaticos.*', 'usuarios.nome_completo as criador_nome', 'escolas.nome as escola_nome');
 
         if ($authUser->tipo_usuario !== 'administrador') {
@@ -195,10 +192,10 @@ class AppointmentController extends Controller
         }
         
         $agendadosQuery->join('recursos_didaticos', 'agendamentos.id_recurso', '=', 'recursos_didaticos.id_recurso')
-                       ->join('oferta_componentes', 'agendamentos.id_oferta', '=', 'oferta_componentes.id_oferta')
-                       ->join('usuarios', 'oferta_componentes.id_professor', '=', 'usuarios.id_usuario')
-                       ->join('turmas', 'oferta_componentes.id_turma', '=', 'turmas.id_turma')
-                       ->join('escolas', 'turmas.id_escola', '=', 'escolas.id_escola');
+                                ->join('oferta_componentes', 'agendamentos.id_oferta', '=', 'oferta_componentes.id_oferta')
+                                ->join('usuarios', 'oferta_componentes.id_professor', '=', 'usuarios.id_usuario')
+                                ->join('turmas', 'oferta_componentes.id_turma', '=', 'turmas.id_turma')
+                                ->join('escolas', 'turmas.id_escola', '=', 'escolas.id_escola');
 
         if ($request->agendados_search) {
             $search = $request->agendados_search;
@@ -248,12 +245,12 @@ class AppointmentController extends Controller
         ]);
     }
 
-
     public function store(StoreAppointmentRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
         $user = Auth::user();
         $inicio = Carbon::parse($validatedData['data_hora_inicio']);
+        $fim = Carbon::parse($validatedData['data_hora_fim']);
         
         $recurso = RecursoDidatico::where('id_recurso', $request->id_recurso)
                                      ->where('status', 'funcionando')
@@ -270,6 +267,16 @@ class AppointmentController extends Controller
             return response()->json(['message' => 'Não é permitido criar agendamentos entre 23:00 e 06:00.'], 422);
         }
         
+        $conflito = Agendamento::where('id_recurso', $validatedData['id_recurso'])
+            ->where('status', 'agendado')
+            ->where('data_hora_inicio', '<', $fim)
+            ->where('data_hora_fim', '>', $inicio)
+            ->exists();
+
+        if ($conflito) {
+            return response()->json(['message' => 'Este recurso já está agendado para este horário. Por favor, escolha outro horário.'], 422);
+        }
+
         $validatedData['status'] = 'agendado';
         $agendamento = Agendamento::create($validatedData);
         $agendamento->loadMissing(['oferta.turma.escola', 'recurso', 'oferta.professor']);
@@ -289,9 +296,9 @@ class AppointmentController extends Controller
             $diretores = collect();
             if ($escolaId) {
                  $diretores = Usuario::where('tipo_usuario', 'diretor')
-                                     ->where('id_escola', $escolaId)
-                                     ->where('status_aprovacao', 'ativo')
-                                     ->get();
+                                       ->where('id_escola', $escolaId)
+                                       ->where('status_aprovacao', 'ativo')
+                                       ->get();
             }
 
             $usersToNotify = collect($admins)->merge($diretores)->push($professor)->unique('id_usuario');
@@ -336,7 +343,6 @@ class AppointmentController extends Controller
         return response()->json(['message' => 'Agendamento criado com sucesso!'], 201);
     }
 
-
     public function destroy(Agendamento $agendamento)
     {
         Gate::authorize('cancelar-agendamento', $agendamento);
@@ -369,15 +375,15 @@ class AppointmentController extends Controller
             $diretores = collect();
             if ($escolaId) {
                  $diretores = Usuario::where('tipo_usuario', 'diretor')
-                                     ->where('id_escola', $escolaId)
-                                     ->where('status_aprovacao', 'ativo')
-                                     ->get();
+                                       ->where('id_escola', $escolaId)
+                                       ->where('status_aprovacao', 'ativo')
+                                       ->get();
             }
 
             $professorModel = Usuario::find($professor->id_usuario);
             if (!$professorModel) {
-                 Log::warning("Professor não encontrado para notificação de cancelamento.");
-                 return;
+                Log::warning("Professor não encontrado para notificação de cancelamento.");
+                return;
             }
 
             $usersToNotify = collect($admins)->merge($diretores)->push($professorModel)->unique('id_usuario');
