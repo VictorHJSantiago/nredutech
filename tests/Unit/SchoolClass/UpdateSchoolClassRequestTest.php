@@ -9,6 +9,8 @@ use App\Models\Escola;
 use App\Models\Municipio;
 use App\Models\Turma;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class UpdateSchoolClassRequestTest extends TestCase
 {
@@ -20,14 +22,20 @@ class UpdateSchoolClassRequestTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $municipio = Municipio::factory()->create();
-        $this->escola = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
+        
+        $municipio = Municipio::create(['nome' => 'Municipio Teste']);
+        
+        $this->escola = Escola::create([
+            'nome' => 'Escola Teste',
+            'id_municipio' => $municipio->id_municipio,
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
+        ]);
+
         $this->turmaParaEditar = Turma::factory()->create(['id_escola' => $this->escola->id_escola]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function validacao_passa_atualizando_apenas_serie()
     {
         $request = new UpdateSchoolClassRequest();
@@ -39,9 +47,7 @@ class UpdateSchoolClassRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-     /**
-     * @test
-     */
+    #[Test]
     public function validacao_passa_atualizando_apenas_ano_letivo()
     {
         $request = new UpdateSchoolClassRequest();
@@ -55,11 +61,8 @@ class UpdateSchoolClassRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-
-    /**
-     * @test
-     * @dataProvider 
-     */
+    #[Test]
+    #[DataProvider('invalidUpdateDataProvider')]
     public function validacao_falha_se_campo_enviado_for_invalido(array $dadosInvalidos)
     {
         $request = new UpdateSchoolClassRequest();
@@ -72,15 +75,20 @@ class UpdateSchoolClassRequestTest extends TestCase
         $this->assertArrayHasKey(key($dadosInvalidos), $validator->errors()->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function validacao_passa_com_todos_campos_validos()
     {
         $request = new UpdateSchoolClassRequest();
         $request->setRouteResolver(fn () => \Illuminate\Support\Facades\Route::put('turmas/{turma}', fn (Turma $turma) => $turma)
             ->bind('turma', $this->turmaParaEditar));
-        $outraEscola = Escola::factory()->create(['id_municipio' => $this->escola->id_municipio]); 
+        
+        $outraEscola = Escola::create([
+            'nome' => 'Outra Escola',
+            'id_municipio' => $this->escola->id_municipio,
+            'nivel_ensino' => 'escola_municipal',
+            'tipo' => 'rural'
+        ]);
+
         $dados = [
             'serie' => 'Turma Completa Editada',
             'turno' => 'noite',

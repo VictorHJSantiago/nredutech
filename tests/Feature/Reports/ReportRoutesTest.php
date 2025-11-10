@@ -1,68 +1,78 @@
 <?php
 
-namespace Tests\Feature\Reports; // Namespace correto
+namespace Tests\Feature\Reports;
 
-use Tests\TestCase; // Classe base
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 use App\Models\Usuario;
-use App\Models\Escola;
-use App\Models\Municipio;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ReportRoutesTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $admin;
-    protected $diretor;
-    protected $professor;
+    private Usuario $admin;
+    private Usuario $diretor;
+    private Usuario $professor;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $municipio = Municipio::factory()->create();
-        $escola = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
+
+        $this->admin = Usuario::factory()->administrador()->create();
+        $this->diretor = Usuario::factory()->diretor()->create();
+        $this->professor = Usuario::factory()->professor()->create();
+    }
+
+    public function test_guest_is_redirected_from_all_report_routes()
+    {
+        $this->get(route('reports.index'))->assertRedirect(route('login'));
+        $this->post(route('reports.preview'))->assertRedirect(route('login'));
+        $this->post(route('reports.export'))->assertRedirect(route('login'));
+        $this->post(route('reports.exportAll'))->assertRedirect(route('login'));
+    }
+
+    public function test_professor_is_forbidden_from_all_report_routes()
+    {
+        $this->actingAs($this->professor);
+
+        $this->get(route('reports.index'))->assertForbidden();
+        $this->post(route('reports.preview'))->assertForbidden();
+        $this->post(route('reports.export'))->assertForbidden();
+        $this->post(route('reports.exportAll'))->assertForbidden();
+    }
+
+    public function test_diretor_can_access_all_report_routes()
+    {
+        $this->actingAs($this->diretor);
+
+        $this->get(route('reports.index'))->assertOk();
         
-        $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
-        $this->diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor', 'id_escola' => $escola->id_escola]);
-        $this->professor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $escola->id_escola]);
-    }
-
-    /** @test */
-    public function guest_e_redirecionado_da_rota_de_relatorios()
-    {
-        $response = $this->get(route('reports.index'));
-        $response->assertRedirect(route('login'));
-    }
-
-    /** @test */
-    public function admin_pode_acessar_rota_de_relatorios()
-    {
-        $response = $this->actingAs($this->admin)->get(route('reports.index'));
-        $response->assertStatus(200);
-        $response->assertViewIs('reports.index');
-    }
-
-    /** @test */
-    public function diretor_pode_acessar_rota_de_relatorios()
-    {
-        $response = $this->actingAs($this->diretor)->get(route('reports.index'));
-        $response->assertStatus(200);
-        $response->assertViewIs('reports.index');
-    }
-
-    /** @test */
-    public function professor_e_bloqueado_da_rota_de_relatorios()
-    {
-        $response = $this->actingAs($this->professor)->get(route('reports.index'));
+        $postData = [
+            'report_type' => 'usage_by_resource',
+            'start_date' => now()->subMonth()->format('Y-m-d'),
+            'end_date' => now()->format('Y-m-d'),
+        ];
         
-        // Esta rota (GET /relatorios) é protegida apenas pelo layout (app.blade.php).
-        // A rota em si (web.php) não tem middleware 'can:administrador' ou 'can:diretor'.
-        // ISSO É UMA FALHA DE SEGURANÇA.
-        // O teste correto para o código atual é 200, mas ele não deveria ser.
-        
-        // $response->assertStatus(200); // Teste para o código atual (INSEGURO)
+        $this->post(route('reports.preview'), $postData)->assertOk();
+        $this->post(route('reports.export'), $postData)->assertOk();
+        $this->post(route('reports.exportAll'), $postData)->assertOk();
+    }
 
-        // Teste para o código IDEAL (após adicionar middleware na rota):
-        $response->assertStatus(403); // Ou assertRedirect(route('index'))
+    public function test_admin_can_access_all_report_routes()
+    {
+        $this->actingAs($this->admin);
+
+        $this->get(route('reports.index'))->assertOk();
+
+        $postData = [
+            'report_type' => 'usage_by_resource',
+            'start_date' => now()->subMonth()->format('Y-m-d'),
+            'end_date' => now()->format('Y-m-d'),
+            'escola_id' => 'all',
+        ];
+
+        $this->post(route('reports.preview'), $postData)->assertOk();
+        $this->post(route('reports.export'), $postData)->assertOk();
+        $this->post(route('reports.exportAll'), $postData)->assertOk();
     }
 }

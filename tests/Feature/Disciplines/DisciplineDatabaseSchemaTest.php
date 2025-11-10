@@ -1,34 +1,83 @@
 <?php
 
-namespace Tests\Feature\Disciplines; 
+namespace Tests\Feature\Disciplines;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class DisciplineDatabaseSchemaTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function tabela_componentes_curriculares_existe_e_tem_colunas_esperadas()
+    public function test_componentes_curriculares_table_has_expected_columns()
     {
         $this->assertTrue(Schema::hasTable('componentes_curriculares'));
 
-        $this->assertTrue(Schema::hasColumn('componentes_curriculares', 'id_componente'));
-        $this->assertTrue(Schema::hasColumn('componentes_curriculares', 'nome'));
-        $this->assertTrue(Schema::hasColumn('componentes_curriculares', 'descricao'));
-        $this->assertTrue(Schema::hasColumn('componentes_curriculares', 'carga_horaria'));
-        $this->assertTrue(Schema::hasColumn('componentes_curriculares', 'status'));
-        $this->assertTrue(Schema::hasColumn('componentes_curriculares', 'id_usuario_criador')); 
-        $this->assertTrue(Schema::hasColumn('componentes_curriculares', 'id_escola')); 
-        $this->assertTrue(Schema::hasColumn('componentes_curriculares', 'created_at'));
-        $this->assertTrue(Schema::hasColumn('componentes_curriculares', 'updated_at'));
+        $this->assertTrue(Schema::hasColumns('componentes_curriculares', [
+            'id_componente_curricular',
+            'nome',
+            'id_escola',
+        ]));
     }
 
-    /** @test */
-    public function chaves_estrangeiras_componentes_curriculares_estao_configuradas()
+    public function test_componentes_curriculares_table_has_foreign_key_to_escolas()
     {
-        $this->assertTrue(true); 
+        $foreignKeys = $this->getTableForeignKeys('componentes_curriculares');
+        
+        $this->assertContains('id_escola', $foreignKeys);
+    }
+    
+    public function test_componentes_curriculares_table_has_unique_constraint()
+    {
+        $indices = $this->getTableIndices('componentes_curriculares');
+        
+        $this->assertArrayHasKey('componentes_curriculares_nome_id_escola_unique', $indices);
+        
+        $uniqueIndex = $indices['componentes_curriculares_nome_id_escola_unique'];
+        
+        $this->assertTrue($uniqueIndex['unique']);
+        $this->assertCount(2, $uniqueIndex['columns']);
+        $this->assertContains('nome', $uniqueIndex['columns']);
+        $this->assertContains('id_escola', $uniqueIndex['columns']);
+    }
+
+    protected function getTableForeignKeys(string $table): array
+    {
+        $dbDriver = Schema::getConnection()->getDriverName();
+        
+        if ($dbDriver === 'sqlite') {
+            $foreignKeysData = Schema::getConnection()->select("PRAGMA foreign_key_list($table)");
+            return array_column($foreignKeysData, 'from');
+        }
+
+        if ($dbDriver === 'mysql') {
+            $foreignKeysData = Schema::getConnection()->select(
+                "SELECT COLUMN_NAME 
+                FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                WHERE TABLE_SCHEMA = DATABASE() 
+                AND TABLE_NAME = '$table' 
+                AND REFERENCED_TABLE_NAME IS NOT NULL"
+            );
+            return array_column($foreignKeysData, 'COLUMN_NAME');
+        }
+
+        return [];
+    }
+
+    protected function getTableIndices(string $table): array
+    {
+        $schemaManager = Schema::getConnection()->getDoctrineSchemaManager();
+        $indices = $schemaManager->listTableIndexes($table);
+
+        $formattedIndices = [];
+        foreach ($indices as $index) {
+            $formattedIndices[$index->getName()] = [
+                'unique' => $index->isUnique(),
+                'primary' => $index->isPrimary(),
+                'columns' => $index->getColumns(),
+            ];
+        }
+        return $formattedIndices;
     }
 }

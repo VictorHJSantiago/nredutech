@@ -1,101 +1,120 @@
 <?php
 
-namespace Tests\Feature\School; 
+namespace Tests\Feature\School;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Usuario;
 use App\Models\Municipio;
-use App\Models\Escola;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CityControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $admin;
+    private Usuario $admin;
+    private Usuario $diretor;
+    private Usuario $professor;
+    private Municipio $municipio;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->municipio = Municipio::factory()->create();
+
         $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
+        $this->diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor']);
+        $this->professor = Usuario::factory()->create(['tipo_usuario' => 'professor']);
     }
 
-    /** @test */
-    public function administrador_pode_criar_municipio_com_sucesso() 
+    public function test_guest_is_redirected_from_city_routes()
     {
-        $nomeMunicipio = 'Nova Cidade';
-        $response = $this->actingAs($this->admin)->post(route('municipios.store'), ['nome' => $nomeMunicipio]);
-
-        $response->assertRedirect(route('escolas.index'));
-        $response->assertSessionHasNoErrors();
-        $response->assertSessionHas('success');
-        $this->assertDatabaseHas('municipios', ['nome' => $nomeMunicipio]);
+        $this->post(route('municipios.store'))->assertRedirect(route('login'));
+        $this->get(route('municipios.edit', $this->municipio))->assertRedirect(route('login'));
+        $this->put(route('municipios.update', $this->municipio))->assertRedirect(route('login'));
+        $this->delete(route('municipios.destroy', $this->municipio))->assertRedirect(route('login'));
     }
 
-    /** @test */
-    public function store_municipio_falha_sem_nome() 
+    public function test_non_admin_users_are_forbidden_from_city_routes()
     {
-        $response = $this->actingAs($this->admin)->post(route('municipios.store'), ['nome' => '']);
-        $response->assertSessionHasErrors('nome');
-        $this->assertDatabaseCount('municipios', 0);
+        $users = [$this->diretor, $this->professor];
+
+        foreach ($users as $user) {
+            $this->actingAs($user);
+
+            $this->post(route('municipios.store'), [
+                'nome' => 'Cidade Proibida',
+                'estado' => 'ER'
+            ])->assertForbidden();
+            
+            $this->get(route('municipios.edit', $this->municipio))->assertForbidden();
+            
+            $this->put(route('municipios.update', $this->municipio), [
+                'nome' => 'Update Proibido',
+                'estado' => 'ER'
+            ])->assertForbidden();
+            
+            $this->delete(route('municipios.destroy', $this->municipio))->assertForbidden();
+        }
     }
 
-     /** @test */
-    public function store_municipio_falha_com_nome_muito_longo()
+    public function test_admin_can_store_municipio()
     {
-        $response = $this->actingAs($this->admin)->post(route('municipios.store'), ['nome' => str_repeat('A', 256)]);
-        $response->assertSessionHasErrors('nome');
+        $this->actingAs($this->admin);
+        
+        $data = [
+            'nome' => 'Nova Cidade',
+            'estado' => 'SP',
+        ];
+
+        $response = $this->post(route('municipios.store'), $data);
+
+        $response->assertRedirect(route('settings'));
+        $response->assertSessionHas('success', 'Município criado com sucesso!');
+        $this->assertDatabaseHas('municipios', $data);
     }
 
-    /** @test */
-    public function administrador_pode_editar_municipio_com_sucesso() 
+    public function test_admin_can_edit_municipio()
     {
-        $municipio = Municipio::factory()->create();
-        $novoNome = 'Cidade Super Atualizada';
-        $response = $this->actingAs($this->admin)->put(route('municipios.update', $municipio), ['nome' => $novoNome]);
+        $this->actingAs($this->admin);
 
-        $response->assertRedirect(route('escolas.index'));
-         $response->assertSessionHasNoErrors();
-        $response->assertSessionHas('success');
-        $this->assertDatabaseHas('municipios', ['id_municipio' => $municipio->id_municipio, 'nome' => $novoNome]);
+        $response = $this->get(route('municipios.edit', $this->municipio));
+
+        $response->assertOk();
+        $response->assertViewIs('cities.edit');
+        $response->assertViewHas('municipio', $this->municipio);
     }
 
-    /** @test */
-    public function update_municipio_falha_sem_nome()
+    public function test_admin_can_update_municipio()
     {
-        $municipio = Municipio::factory()->create(['nome' => 'Nome Antigo']);
-        $response = $this->actingAs($this->admin)->put(route('municipios.update', $municipio), ['nome' => '']); 
-        $response->assertSessionHasErrors('nome');
-        $this->assertDatabaseHas('municipios', ['id_municipio' => $municipio->id_municipio, 'nome' => 'Nome Antigo']); 
+        $this->actingAs($this->admin);
+        
+        $data = [
+            'nome' => 'Cidade Atualizada',
+            'estado' => 'RJ',
+        ];
+
+        $response = $this->put(route('municipios.update', $this->municipio), $data);
+
+        $response->assertRedirect(route('settings'));
+        $response->assertSessionHas('success', 'Município atualizado com sucesso!');
+        $this->assertDatabaseHas('municipios', [
+            'id_municipio' => $this->municipio->id_municipio,
+            'nome' => 'Cidade Atualizada',
+            'estado' => 'RJ',
+        ]);
     }
 
-     /** @test */
-    public function update_municipio_falha_com_nome_muito_longo()
+    public function test_admin_can_destroy_municipio()
     {
-        $municipio = Municipio::factory()->create(['nome' => 'Nome Antigo']);
-        $response = $this->actingAs($this->admin)->put(route('municipios.update', $municipio), ['nome' => str_repeat('B', 256)]);
-        $response->assertSessionHasErrors('nome');
-        $this->assertDatabaseHas('municipios', ['id_municipio' => $municipio->id_municipio, 'nome' => 'Nome Antigo']);
-    }
+        $this->actingAs($this->admin);
 
-     /** @test */
-    public function administrador_pode_excluir_municipio_sem_escolas() 
-    {
-        $municipio = Municipio::factory()->create();
-        $response = $this->actingAs($this->admin)->delete(route('municipios.destroy', $municipio));
-        $response->assertRedirect(route('escolas.index'));
-        $response->assertSessionHas('success');
-        $this->assertDatabaseMissing('municipios', ['id_municipio' => $municipio->id_municipio]);
-    }
+        $response = $this->delete(route('municipios.destroy', $this->municipio));
 
-    /** @test */
-    public function administrador_nao_pode_excluir_municipio_com_escolas() 
-    {
-        $municipio = Municipio::factory()->create();
-        Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
-        $response = $this->actingAs($this->admin)->delete(route('municipios.destroy', $municipio));
-        $response->assertRedirect(route('escolas.index'));
-        $response->assertSessionHas('error');
-        $this->assertDatabaseHas('municipios', ['id_municipio' => $municipio->id_municipio]);
+        $response->assertRedirect(route('settings'));
+        $response->assertSessionHas('success', 'Município excluído com sucesso!');
+        $this->assertDatabaseMissing('municipios', [
+            'id_municipio' => $this->municipio->id_municipio,
+        ]);
     }
 }

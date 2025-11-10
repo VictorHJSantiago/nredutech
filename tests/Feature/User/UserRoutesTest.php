@@ -2,121 +2,124 @@
 
 namespace Tests\Feature\User;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Usuario;
 use App\Models\Escola;
-use App\Models\Municipio;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UserRoutesTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $admin;
-    protected $professor;
-    protected $escola;
+    private Usuario $admin;
+    private Usuario $diretor;
+    private Usuario $professor;
+    private Escola $escola;
+    private Escola $outraEscola;
+    private Usuario $usuarioEscola;
+    private Usuario $usuarioOutraEscola;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $municipio = Municipio::factory()->create();
-        $this->escola = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
-        $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
-        $this->professor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $this->escola->id_escola, 'password' => Hash::make('password')]);
+
+        $this->escola = Escola::factory()->create();
+        $this->outraEscola = Escola::factory()->create();
+        
+        $this->admin = Usuario::factory()->administrador()->create();
+        $this->diretor = Usuario::factory()->diretor()->create(['id_escola' => $this->escola->id_escola]);
+        $this->professor = Usuario::factory()->professor()->create(['id_escola' => $this->escola->id_escola]);
+
+        $this->usuarioEscola = Usuario::factory()->professor()->create(['id_escola' => $this->escola->id_escola]);
+        $this->usuarioOutraEscola = Usuario::factory()->professor()->create(['id_escola' => $this->outraEscola->id_escola]);
     }
 
-    /** @test */
-    public function admin_pode_listar_usuarios()
+    public function test_guest_is_redirected_from_all_user_routes()
     {
-        $response = $this->actingAs($this->admin)->get(route('usuarios.index'));
-        $response->assertStatus(200);
-        $response->assertViewIs('users.index');
+        $this->get(route('usuarios.index'))->assertRedirect(route('login'));
+        $this->get(route('usuarios.create'))->assertRedirect(route('login'));
+        $this->post(route('usuarios.store'))->assertRedirect(route('login'));
+        $this->get(route('usuarios.edit', $this->usuarioEscola))->assertRedirect(route('login'));
+        $this->put(route('usuarios.update', $this->usuarioEscola))->assertRedirect(route('login'));
+        $this->delete(route('usuarios.destroy', $this->usuarioEscola))->assertRedirect(route('login'));
     }
 
-    /** @test */
-    public function admin_pode_criar_usuario()
-    {
-        \Illuminate\Support\Facades\Validator::extend('celular_com_ddd', fn() => true);
-        \Illuminate\Support\Facades\Validator::extend('cpf', fn() => true);
-        \Illuminate\Support\Facades\Validator::extend('rg_valido', fn() => true);
-
-        $dadosUsuario = Usuario::factory()->make(['tipo_usuario' => 'professor', 'id_escola' => $this->escola->id_escola])->toArray();
-        $dadosUsuario['password'] = 'Password@123';
-        $dadosUsuario['password_confirmation'] = 'Password@123';
-        $response = $this->actingAs($this->admin)->post(route('usuarios.store'), $dadosUsuario);
-        $response->assertRedirect(route('usuarios.index'));
-        $response->assertSessionHas('success');
-        $this->assertDatabaseHas('usuarios', ['email' => $dadosUsuario['email']]);
-    }
-
-    /** @test */
-    public function usuario_logado_pode_ver_seu_perfil()
-    {
-        $response = $this->actingAs($this->professor)->get(route('profile.edit'));
-        $response->assertStatus(200);
-        $response->assertViewIs('profile.edit');
-        $response->assertSee($this->professor->email); 
-    }
-
-    /** @test */
-    public function usuario_logado_pode_atualizar_seu_perfil()
-    {
-        $novoNome = 'Professor Nome Atualizado';
-        $novoTelefone = '(55) 55555-5555';
-        \Illuminate\Support\Facades\Validator::extend('celular_com_ddd', fn() => true); 
-
-        $response = $this->actingAs($this->professor)->patch(route('profile.update'), [
-            'nome_completo' => $novoNome,
-            'email' => $this->professor->email, 
-            'telefone' => $novoTelefone,
-        ]);
-
-        $response->assertRedirect(route('profile.edit'));
-        $response->assertSessionHas('status', 'profile-updated'); 
-        $this->assertDatabaseHas('usuarios', [
-            'id_usuario' => $this->professor->id_usuario,
-            'nome_completo' => $novoNome,
-            'telefone' => '55555555555' 
-        ]);
-    }
-
-    /** @test */
-    public function pode_fazer_login_com_credenciais_validas()
-    {
-        $response = $this->post(route('login'), [
-            'login' => $this->professor->email,
-            'password' => 'password',
-        ]);
-
-        $response->assertRedirect(route('index')); 
-        $this->assertAuthenticatedAs($this->professor);
-    }
-
-     /** @test */
-    public function nao_pode_fazer_login_com_senha_invalida()
-    {
-        $response = $this->post(route('login'), [
-            'login' => $this->professor->email,
-            'password' => 'senha_errada',
-        ]);
-
-        $response->assertSessionHasErrors('login'); 
-        $this->assertGuest();
-    }
-
-    /** @test */
-    public function pode_fazer_logout()
+    public function test_professor_can_only_view_index()
     {
         $this->actingAs($this->professor);
-        $this->assertAuthenticated();
 
-        $response = $this->post(route('logout'));
-
-        $response->assertRedirect('/'); 
-        $this->assertGuest();
+        $this->get(route('usuarios.index'))->assertOk();
+        $this->get(route('usuarios.create'))->assertForbidden();
+        $this->post(route('usuarios.store'))->assertForbidden();
+        $this->get(route('usuarios.edit', $this->usuarioEscola))->assertForbidden();
+        $this->put(route('usuarios.update', $this->usuarioEscola))->assertForbidden();
+        $this->delete(route('usuarios.destroy', $this->usuarioEscola))->assertForbidden();
     }
 
-    // recuperação de senha (PasswordResetLinkController, NewPasswordController), etc.
+    public function test_diretor_can_manage_own_school_users()
+    {
+        $this->actingAs($this->diretor);
 
+        $this->get(route('usuarios.index'))->assertOk();
+        $this->get(route('usuarios.create'))->assertOk();
+        
+        $storeData = Usuario::factory()->make(['id_escola' => $this->escola->id_escola, 'tipo_usuario' => 'professor'])->toArray();
+        $storeData['password'] = 'password12345678';
+        $storeData['password_confirmation'] = 'password12345678';
+        $this->post(route('usuarios.store'), $storeData)->assertRedirect(route('usuarios.index'));
+
+        $this->get(route('usuarios.edit', $this->usuarioEscola))->assertOk();
+        
+        $updateData = $this->usuarioEscola->toArray();
+        $updateData['nome_completo'] = 'Nome Atualizado';
+        $this->put(route('usuarios.update', $this->usuarioEscola), $updateData)->assertRedirect(route('usuarios.index'));
+        
+        $this->delete(route('usuarios.destroy', $this->usuarioEscola))->assertRedirect(route('usuarios.index'));
+    }
+
+    public function test_diretor_is_forbidden_from_managing_other_school_users()
+    {
+        $this->actingAs($this->diretor);
+
+        $this->get(route('usuarios.edit', $this->usuarioOutraEscola))->assertForbidden();
+        $this->put(route('usuarios.update', $this->usuarioOutraEscola), [])->assertForbidden();
+        $this->delete(route('usuarios.destroy', $this->usuarioOutraEscola))->assertForbidden();
+    }
+
+    public function test_diretor_is_forbidden_from_managing_admins()
+    {
+        $this->actingAs($this->diretor);
+
+        $this->get(route('usuarios.edit', $this->admin))->assertForbidden();
+        $this->put(route('usuarios.update', $this->admin), [])->assertForbidden();
+        $this->delete(route('usuarios.destroy', $this->admin))->assertForbidden();
+    }
+
+    public function test_admin_can_manage_all_users()
+    {
+        $this->actingAs($this->admin);
+
+        $this->get(route('usuarios.index'))->assertOk();
+        $this->get(route('usuarios.create'))->assertOk();
+        
+        $storeData = Usuario::factory()->make(['id_escola' => $this->outraEscola->id_escola, 'tipo_usuario' => 'diretor'])->toArray();
+        $storeData['password'] = 'password12345678';
+        $storeData['password_confirmation'] = 'password12345678';
+        $this->post(route('usuarios.store'), $storeData)->assertRedirect(route('usuarios.index'));
+
+        $this->get(route('usuarios.edit', $this->usuarioOutraEscola))->assertOk();
+        
+        $updateData = $this->usuarioOutraEscola->toArray();
+        $updateData['nome_completo'] = 'Nome Atualizado Pelo Admin';
+        $this->put(route('usuarios.update', $this->usuarioOutraEscola), $updateData)->assertRedirect(route('usuarios.index'));
+        
+        $this->delete(route('usuarios.destroy', $this->usuarioOutraEscola))->assertRedirect(route('usuarios.index'));
+    }
+
+    public function test_admin_cannot_delete_self()
+    {
+        $response = $this->actingAs($this->admin)->delete(route('usuarios.destroy', $this->admin));
+        $response->assertForbidden();
+        $this->assertDatabaseHas('usuarios', ['id_usuario' => $this->admin->id_usuario]);
+    }
 }

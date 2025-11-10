@@ -2,314 +2,230 @@
 
 namespace Tests\Feature\Disciplines;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Usuario;
-use App\Models\Municipio;
 use App\Models\Escola;
 use App\Models\ComponenteCurricular;
-use App\Models\OfertaComponente; 
-use App\Models\Notificacao; 
+use App\Models\OfertaComponente;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
 class CurricularComponentControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $admin;
-    protected $diretor;
-    protected $professor;
-    protected $escolaDiretor;
-    protected $componenteGlobal;
-    protected $componenteEscola;
-    protected $componenteProfessor;
+    private Usuario $admin;
+    private Usuario $diretor;
+    private Usuario $professor;
+    private Escola $escola;
+    private Escola $outraEscola;
+    private ComponenteCurricular $componenteGlobal;
+    private ComponenteCurricular $componenteEscola;
+    private ComponenteCurricular $outroComponente;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $municipio = Municipio::factory()->create();
-        $this->escolaDiretor = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
 
-        $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador', 'id_escola' => null]);
-        $this->diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor', 'id_escola' => $this->escolaDiretor->id_escola]);
-        $this->professor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $this->escolaDiretor->id_escola]);
-        $this->componenteGlobal = ComponenteCurricular::factory()->create(['id_escola' => null, 'id_usuario_criador' => $this->admin->id_usuario, 'status' => 'aprovado']);
-        $this->componenteEscola = ComponenteCurricular::factory()->create(['id_escola' => $this->escolaDiretor->id_escola, 'id_usuario_criador' => $this->diretor->id_usuario, 'status' => 'pendente']);
-        $this->componenteProfessor = ComponenteCurricular::factory()->create(['id_escola' => $this->escolaDiretor->id_escola, 'id_usuario_criador' => $this->professor->id_usuario, 'status' => 'pendente']);
-        $outraEscola = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
-        ComponenteCurricular::factory()->create(['id_escola' => $outraEscola->id_escola, 'id_usuario_criador' => $this->admin->id_usuario, 'status' => 'aprovado']);
+        $this->escola = Escola::factory()->create();
+        $this->outraEscola = Escola::factory()->create();
+        
+        $this->componenteGlobal = ComponenteCurricular::factory()->create(['nome' => 'Global', 'id_escola' => null]);
+        $this->componenteEscola = ComponenteCurricular::factory()->create(['nome' => 'Matemática', 'id_escola' => $this->escola->id_escola]);
+        $this->outroComponente = ComponenteCurricular::factory()->create(['nome' => 'Física', 'id_escola' => $this->outraEscola->id_escola]);
+
+        $this->admin = Usuario::factory()->administrador()->create();
+        $this->diretor = Usuario::factory()->diretor()->create(['id_escola' => $this->escola->id_escola]);
+        $this->professor = Usuario::factory()->professor()->create(['id_escola' => $this->escola->id_escola]);
     }
 
-    /** @test */
-    public function admin_ve_todos_componentes()
+    public function test_admin_can_view_all_components_on_index()
     {
-        $response = $this->actingAs($this->admin)->get(route('componentes.index'));
-        $response->assertStatus(200);
-        $response->assertSee($this->componenteGlobal->nome);
-        $response->assertSee($this->componenteEscola->nome);
-        $response->assertSee($this->componenteProfessor->nome);
-        $response->assertViewHas('componentes', fn($c) => $c->count() >= 4); 
+        $response = $this->actingAs($this->admin)->get(route('disciplinas.index'));
+
+        $response->assertOk();
+        $response->assertViewHas('componentes', fn ($componentes) => $componentes->count() === 3);
+        $response->assertSee('Global');
+        $response->assertSee('Matemática');
+        $response->assertSee('Física');
     }
 
-    /** @test */
-    public function diretor_ve_componentes_globais_e_da_sua_escola()
+    public function test_diretor_can_view_own_school_and_global_components_on_index()
     {
-        $response = $this->actingAs($this->diretor)->get(route('componentes.index'));
-        $response->assertStatus(200);
-        $response->assertSee($this->componenteGlobal->nome);
-        $response->assertSee($this->componenteEscola->nome);
-        $response->assertSee($this->componenteProfessor->nome);
-        $response->assertViewHas('componentes', fn($c) => $c->total() === 3); 
+        $response = $this->actingAs($this->diretor)->get(route('disciplinas.index'));
+
+        $response->assertOk();
+        $response->assertViewHas('componentes', fn ($componentes) => $componentes->count() === 2);
+        $response->assertSee('Global');
+        $response->assertSee('Matemática');
+        $response->assertDontSee('Física');
     }
 
-    /** @test */
-    public function professor_ve_componentes_globais_e_da_sua_escola()
+    public function test_professor_can_view_own_school_and_global_components_on_index()
     {
-        $response = $this->actingAs($this->professor)->get(route('componentes.index'));
-        $response->assertStatus(200);
-        $response->assertSee($this->componenteGlobal->nome);
-        $response->assertSee($this->componenteEscola->nome);
-        $response->assertSee($this->componenteProfessor->nome);
-         $response->assertViewHas('componentes', fn($c) => $c->total() === 3);
+        $response = $this->actingAs($this->professor)->get(route('disciplinas.index'));
+
+        $response->assertOk();
+        $response->assertViewHas('componentes', fn ($componentes) => $componentes->count() === 2);
+        $response->assertSee('Global');
+        $response->assertSee('Matemática');
+        $response->assertDontSee('Física');
     }
 
-    /** @test */
-    public function qualquer_usuario_pode_criar_componente()
+    public function test_admin_can_filter_components_by_school()
     {
-        $dados = ['nome' => 'Nova Disciplina', 'carga_horaria' => '40h'];
-        $responseProf = $this->actingAs($this->professor)->post(route('componentes.store'), $dados);
-        $responseProf->assertRedirect(route('componentes.index'));
-        $responseProf->assertSessionHas('success');
-        $this->assertDatabaseHas('componentes_curriculares', [
-            'nome' => 'Nova Disciplina',
-            'status' => 'pendente',
-            'id_escola' => $this->professor->id_escola,
-            'id_usuario_criador' => $this->professor->id_usuario
-        ]);
+        $response = $this->actingAs($this->admin)->get(route('disciplinas.index', ['escola_id' => $this->outraEscola->id_escola]));
 
-        ComponenteCurricular::where('nome', 'Nova Disciplina')->delete();
-        $responseAdmin = $this->actingAs($this->admin)->post(route('componentes.store'), $dados + ['id_escola' => null, 'status' => 'aprovado']); 
-        $responseAdmin->assertRedirect(route('componentes.index'));
-        $responseAdmin->assertSessionHas('success');
-        $this->assertDatabaseHas('componentes_curriculares', [
-            'nome' => 'Nova Disciplina',
-            'status' => 'aprovado',
+        $response->assertOk();
+        $response->assertViewHas('componentes', fn ($componentes) => $componentes->count() === 1);
+        $response->assertSee('Física');
+        $response->assertDontSee('Global');
+    }
+
+    public function test_admin_can_filter_components_by_global()
+    {
+        $response = $this->actingAs($this->admin)->get(route('disciplinas.index', ['escola_id' => 'global']));
+
+        $response->assertOk();
+        $response->assertViewHas('componentes', fn ($componentes) => $componentes->count() === 1);
+        $response->assertSee('Global');
+        $response->assertDontSee('Física');
+    }
+
+    public function test_admin_can_store_global_component()
+    {
+        $data = [
+            'nome' => 'Nova Global',
             'id_escola' => null,
-            'id_usuario_criador' => $this->admin->id_usuario
-        ]);
+        ];
+
+        $response = $this->actingAs($this->admin)->post(route('disciplinas.store'), $data);
+
+        $response->assertRedirect(route('disciplinas.index'));
+        $response->assertSessionHas('success', 'Disciplina cadastrada com sucesso!');
+        $this->assertDatabaseHas('componentes_curriculares', $data);
     }
 
-    /** @test */
-    public function diretor_pode_aprovar_componente_pendente_sua_escola()
+    public function test_admin_can_store_school_component()
     {
-        $this->assertEquals('pendente', $this->componenteEscola->status);
-        $response = $this->actingAs($this->diretor)->put(route('componentes.update', $this->componenteEscola), [
-            'nome' => $this->componenteEscola->nome, 
-            'carga_horaria' => $this->componenteEscola->carga_horaria,
-            'status' => 'aprovado'
-        ]);
-        $response->assertRedirect(route('componentes.index'));
-        $response->assertSessionHas('success');
-        $this->assertDatabaseHas('componentes_curriculares', ['id_componente' => $this->componenteEscola->id_componente, 'status' => 'aprovado']);
+        $data = [
+            'nome' => 'Nova da Escola',
+            'id_escola' => $this->outraEscola->id_escola,
+        ];
+
+        $response = $this->actingAs($this->admin)->post(route('disciplinas.store'), $data);
+
+        $response->assertRedirect(route('disciplinas.index'));
+        $this->assertDatabaseHas('componentes_curriculares', $data);
     }
 
-    /** @test */
-    public function professor_pode_aprovar_componente_que_criou()
+    public function test_diretor_can_store_own_school_component()
     {
-         $this->assertEquals('pendente', $this->componenteProfessor->status);
-        $response = $this->actingAs($this->professor)->put(route('componentes.update', $this->componenteProfessor), [
-            'nome' => $this->componenteProfessor->nome,
-            'carga_horaria' => $this->componenteProfessor->carga_horaria,
-            'status' => 'aprovado' 
-        ]);
-        $response->assertRedirect(route('componentes.index'));
-        $response->assertSessionHas('success');
-        $this->assertDatabaseHas('componentes_curriculares', ['id_componente' => $this->componenteProfessor->id_componente, 'status' => 'aprovado']);
+        $data = [
+            'nome' => 'Nova da Escola do Diretor',
+            'id_escola' => $this->escola->id_escola,
+        ];
+
+        $response = $this->actingAs($this->diretor)->post(route('disciplinas.store'), $data);
+
+        $response->assertRedirect(route('disciplinas.index'));
+        $this->assertDatabaseHas('componentes_curriculares', $data);
     }
 
-     /** @test */
-    public function professor_nao_pode_aprovar_componente_de_outro()
+    public function test_diretor_cannot_store_global_component()
     {
-        $this->assertEquals('pendente', $this->componenteEscola->status);
-        $response = $this->actingAs($this->professor)->put(route('componentes.update', $this->componenteEscola), [
-             'nome' => $this->componenteEscola->nome,
-            'carga_horaria' => $this->componenteEscola->carga_horaria,
-            'status' => 'aprovado' 
-        ]);
-        $response->assertStatus(403); 
-        $this->assertDatabaseHas('componentes_curriculares', ['id_componente' => $this->componenteEscola->id_componente, 'status' => 'pendente']); 
+        $data = [
+            'nome' => 'Nova Global Proibida',
+            'id_escola' => null,
+        ];
+
+        $response = $this->actingAs($this->diretor)->post(route('disciplinas.store'), $data);
+        $response->assertSessionHasErrors('id_escola');
     }
 
-    /** @test */
-    public function professor_pode_editar_componente_que_criou()
+    public function test_diretor_cannot_store_other_school_component()
     {
-        $novoNome = 'Componente Editado Pelo Professor';
-        $response = $this->actingAs($this->professor)->put(route('componentes.update', $this->componenteProfessor), [
-            'nome' => $novoNome,
-            'carga_horaria' => $this->componenteProfessor->carga_horaria, 
-        ]);
-        $response->assertRedirect(route('componentes.index'));
-        $this->assertDatabaseHas('componentes_curriculares', ['id_componente' => $this->componenteProfessor->id_componente, 'nome' => $novoNome]);
+        $data = [
+            'nome' => 'Nova Proibida',
+            'id_escola' => $this->outraEscola->id_escola,
+        ];
+
+        $response = $this->actingAs($this->diretor)->post(route('disciplinas.store'), $data);
+        $response->assertSessionHasErrors('id_escola');
     }
 
-     /** @test */
-    public function professor_nao_pode_editar_componente_de_outro()
+    public function test_admin_can_update_any_component()
     {
-         $response = $this->actingAs($this->professor)->put(route('componentes.update', $this->componenteEscola), [
-            'nome' => 'Nome Editado Incorretamente',
-            'carga_horaria' => $this->componenteEscola->carga_horaria,
-        ]);
-        $response->assertStatus(403);
+        $data = ['nome' => 'Física Atualizada'] + $this->outroComponente->toArray();
+        
+        $response = $this->actingAs($this->admin)->put(route('disciplinas.update', $this->outroComponente), $data);
+
+        $response->assertRedirect(route('disciplinas.index'));
+        $this->assertDatabaseHas('componentes_curriculares', ['id_componente_curricular' => $this->outroComponente->id_componente_curricular, 'nome' => 'Física Atualizada']);
     }
 
-     /** @test */
-    public function pode_excluir_componente_sem_oferta()
+    public function test_diretor_can_update_own_school_component()
     {
-        $response = $this->actingAs($this->professor)->delete(route('componentes.destroy', $this->componenteProfessor));
-        $response->assertRedirect(route('componentes.index'));
-        $response->assertSessionHas('success');
-        $this->assertDatabaseMissing('componentes_curriculares', ['id_componente' => $this->componenteProfessor->id_componente]);
+        $data = ['nome' => 'Matemática Atualizada'] + $this->componenteEscola->toArray();
+        
+        $response = $this->actingAs($this->diretor)->put(route('disciplinas.update', $this->componenteEscola), $data);
+
+        $response->assertRedirect(route('disciplinas.index'));
+        $this->assertDatabaseHas('componentes_curriculares', ['id_componente_curricular' => $this->componenteEscola->id_componente_curricular, 'nome' => 'Matemática Atualizada']);
     }
 
-    /** @test */
-    public function nao_pode_excluir_componente_com_oferta()
+    public function test_diretor_cannot_update_other_school_component()
     {
-         OfertaComponente::factory()->create(['id_componente' => $this->componenteGlobal->id_componente]);
-         $response = $this->actingAs($this->admin)->delete(route('componentes.destroy', $this->componenteGlobal));
-         $response->assertRedirect(route('componentes.index'));
-         $response->assertSessionHas('error');
-         $this->assertDatabaseHas('componentes_curriculares', ['id_componente' => $this->componenteGlobal->id_componente]);
+        $data = ['nome' => 'Física Proibida'] + $this->outroComponente->toArray();
+        
+        $response = $this->actingAs($this->diretor)->put(route('disciplinas.update', $this->outroComponente), $data);
+        $response->assertForbidden();
     }
 
-    /** @test */
-    public function index_filtra_por_nome()
+    public function test_diretor_cannot_update_global_component()
     {
-        ComponenteCurricular::factory()->create(['nome' => 'Filosofia Antiga', 'status' => 'aprovado']);
-        ComponenteCurricular::factory()->create(['nome' => 'Filosofia Moderna', 'status' => 'aprovado']);
-        ComponenteCurricular::factory()->create(['nome' => 'Sociologia', 'status' => 'aprovado']);
-
-        $response = $this->actingAs($this->admin)->get(route('componentes.index', ['search_text' => 'Filosofia']));
-        $response->assertStatus(200);
-        $response->assertSee('Filosofia Antiga');
-        $response->assertSee('Filosofia Moderna');
-        $response->assertDontSee('Sociologia');
+        $data = ['nome' => 'Global Proibida'] + $this->componenteGlobal->toArray();
+        
+        $response = $this->actingAs($this->diretor)->put(route('disciplinas.update', $this->componenteGlobal), $data);
+        $response->assertForbidden();
     }
 
-    /** @test */
-    public function index_filtra_por_carga_horaria()
+    public function test_admin_can_destroy_component()
     {
-        ComponenteCurricular::factory()->create(['nome' => 'Arte', 'carga_horaria' => '30h', 'status' => 'aprovado']);
-        ComponenteCurricular::factory()->create(['nome' => 'Musica', 'carga_horaria' => '60h', 'status' => 'aprovado']);
-        ComponenteCurricular::factory()->create(['nome' => 'Teatro', 'carga_horaria' => '60h', 'status' => 'aprovado']);
+        $response = $this->actingAs($this->admin)->delete(route('disciplinas.destroy', $this->componenteEscola));
 
-        $response = $this->actingAs($this->admin)->get(route('componentes.index', ['search_carga' => '60h']));
-        $response->assertStatus(200);
-        $response->assertDontSee('Arte');
-        $response->assertSee('Musica');
-        $response->assertSee('Teatro');
+        $response->assertRedirect(route('disciplinas.index'));
+        $response->assertSessionHas('success', 'Disciplina excluída com sucesso!');
+        $this->assertDatabaseMissing('componentes_curriculares', ['id_componente_curricular' => $this->componenteEscola->id_componente_curricular]);
     }
-
-    /** @test */
-    public function index_filtra_por_status()
+    
+    public function test_diretor_can_destroy_own_school_component()
     {
-        $response = $this->actingAs($this->admin)->get(route('componentes.index', ['status' => 'pendente']));
-        $response->assertStatus(200);
-        $response->assertDontSee($this->componenteGlobal->nome); 
-        $response->assertSee($this->componenteEscola->nome); 
-        $response->assertSee($this->componenteProfessor->nome); 
+        $response = $this->actingAs($this->diretor)->delete(route('disciplinas.destroy', $this->componenteEscola));
+
+        $response->assertRedirect(route('disciplinas.index'));
+        $this->assertDatabaseMissing('componentes_curriculares', ['id_componente_curricular' => $this->componenteEscola->id_componente_curricular]);
     }
 
-    /** @test */
-    public function store_falha_com_dados_invalidos()
+    public function test_diretor_cannot_destroy_other_school_component()
     {
-        $response = $this->actingAs($this->admin)->post(route('componentes.store'), ['nome' => '']);
-        $response->assertSessionHasErrors('nome');
+        $response = $this->actingAs($this->diretor)->delete(route('disciplinas.destroy', $this->outroComponente));
+        $response->assertForbidden();
     }
 
-    /** @test */
-    public function update_falha_com_dados_invalidos()
+    public function test_diretor_cannot_destroy_global_component()
     {
-        $response = $this->actingAs($this->admin)->put(route('componentes.update', $this->componenteGlobal), ['carga_horaria' => '']); 
-        $response->assertSessionHasErrors('carga_horaria');
+        $response = $this->actingAs($this->diretor)->delete(route('disciplinas.destroy', $this->componenteGlobal));
+        $response->assertForbidden();
     }
 
-    /** @test */
-    public function criar_componente_pendente_notifica_admin_e_diretor()
+    public function test_cannot_destroy_component_with_dependencies()
     {
-        $dados = ['nome' => 'Disciplina Pendente Notif', 'carga_horaria' => '50h'];
-        $response = $this->actingAs($this->professor)->post(route('componentes.store'), $dados);
-        $response->assertRedirect();
-        $componenteCriado = ComponenteCurricular::where('nome', 'Disciplina Pendente Notif')->first();
-        $this->assertEquals('pendente', $componenteCriado->status);
-        $this->assertDatabaseHas('notificacoes', [
-            'id_usuario' => $this->admin->id_usuario,
-            'titulo' => 'Nova Disciplina para Aprovação',
-        ]);
-        $notAdmin = Notificacao::where('id_usuario', $this->admin->id_usuario)->latest('id_notificacao')->first();
-        $this->assertNotNull($notAdmin);
-        $this->assertStringContainsString('Disciplina Pendente Notif', $notAdmin->mensagem);
-        $this->assertStringContainsString('aguarda aprovação', $notAdmin->mensagem);
-        $this->assertDatabaseHas('notificacoes', [
-            'id_usuario' => $this->diretor->id_usuario,
-            'titulo' => 'Nova Disciplina para Aprovação',
-        ]);
-        $notDiretor = Notificacao::where('id_usuario', $this->diretor->id_usuario)->latest('id_notificacao')->first();
-        $this->assertNotNull($notDiretor);
-        $this->assertStringContainsString('Disciplina Pendente Notif', $notDiretor->mensagem);
-        $this->assertStringContainsString('aguarda aprovação', $notDiretor->mensagem);
-        $this->assertDatabaseHas('notificacoes', ['id_usuario' => $this->professor->id_usuario]);
-    }
+        OfertaComponente::factory()->create(['id_componente_curricular' => $this->componenteEscola->id_componente_curricular]);
+        
+        $response = $this->actingAs($this->admin)->delete(route('disciplinas.destroy', $this->componenteEscola));
 
-     /** @test */
-    public function aprovar_componente_notifica_criador_admin_diretor()
-    {
-        $this->assertEquals('pendente', $this->componenteProfessor->status);
-        $response = $this->actingAs($this->admin)->put(route('componentes.update', $this->componenteProfessor), [
-            'nome' => $this->componenteProfessor->nome,
-            'carga_horaria' => $this->componenteProfessor->carga_horaria,
-            'status' => 'aprovado'
-        ]);
-        $response->assertRedirect();
-        $this->assertDatabaseHas('componentes_curriculares', ['id_componente' => $this->componenteProfessor->id_componente, 'status' => 'aprovado']);
-        $this->assertDatabaseHas('notificacoes', [
-            'id_usuario' => $this->professor->id_usuario,
-            'titulo' => 'Atualização de Status da Disciplina',
-        ]);
-        $notProf = Notificacao::where('id_usuario', $this->professor->id_usuario)->latest('id_notificacao')->first();
-        $this->assertNotNull($notProf);
-        $this->assertStringContainsString("mudou de 'pendente' para 'aprovado'", $notProf->mensagem);
-        $this->assertDatabaseHas('notificacoes', [
-            'id_usuario' => $this->diretor->id_usuario,
-            'titulo' => 'Disciplina Atualizada', 
-        ]);
-        $notDir = Notificacao::where('id_usuario', $this->diretor->id_usuario)->latest('id_notificacao')->first();
-        $this->assertNotNull($notDir);
-        $this->assertStringContainsString("mudou de 'pendente' para 'aprovado'", $notDir->mensagem);
-        $this->assertDatabaseHas('notificacoes', [
-            'id_usuario' => $this->admin->id_usuario,
-            'titulo' => 'Disciplina Atualizada',
-        ]);
-        $notAdm = Notificacao::where('id_usuario', $this->admin->id_usuario)->latest('id_notificacao')->first();
-        $this->assertNotNull($notAdm);
-        $this->assertStringContainsString("mudou de 'pendente' para 'aprovado'", $notAdm->mensagem);
+        $response->assertRedirect(route('disciplinas.index'));
+        $response->assertSessionHas('error', 'Não é possível excluir a disciplina pois ela possui 1 oferta(s) vinculada(s).');
+        $this->assertDatabaseHas('componentes_curriculares', ['id_componente_curricular' => $this->componenteEscola->id_componente_curricular]);
     }
-
-    /** @test */
-    public function excluir_componente_notifica_criador_admin_diretor()
-    {
-        $response = $this->actingAs($this->admin)->delete(route('componentes.destroy', $this->componenteProfessor));
-        $response->assertRedirect();
-        $this->assertDatabaseMissing('componentes_curriculares', ['id_componente' => $this->componenteProfessor->id_componente]);
-        $this->assertDatabaseHas('notificacoes', [
-            'id_usuario' => $this->professor->id_usuario,
-            'titulo' => 'Disciplina Excluída',
-        ]);
-        $this->assertDatabaseHas('notificacoes', [
-            'id_usuario' => $this->diretor->id_usuario,
-            'titulo' => 'Disciplina Excluída',
-        ]);
-        $this->assertDatabaseHas('notificacoes', [
-            'id_usuario' => $this->admin->id_usuario,
-            'titulo' => 'Disciplina Excluída',
-        ]);
-    }
-
 }

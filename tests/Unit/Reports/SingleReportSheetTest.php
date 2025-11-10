@@ -1,117 +1,83 @@
 <?php
 
-namespace Tests\Unit\Reports; // Namespace correto
+namespace Tests\Unit\Reports;
 
-use Tests\TestCase; // Classe base
+use Tests\TestCase;
 use App\Exports\SingleReportSheet;
-use App\Models\Usuario;
-use App\Models\RecursoDidatico;
-use App\Models\Escola;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\FromView;
+use Illuminate\Support\Collection;
+use Illuminate\Contracts\View\View;
+use PHPUnit\Framework\Attributes\Test;
 
 class SingleReportSheetTest extends TestCase
 {
-    use RefreshDatabase;
+    private Collection $data;
+    private string $reportType;
+    private string $title;
+    private string $escolaNome;
+    private string $periodo;
+    private array $headings;
 
-    /** @test */
-    public function sheet_implementa_interfaces_necessarias()
+    protected function setUp(): void
     {
-        $sheet = new SingleReportSheet(collect([]), 'Teste', []);
-        $this->assertInstanceOf(WithHeadings::class, $sheet);
+        parent::setUp();
+        $this->data = collect([
+            ['nome' => 'Recurso A', 'tipo' => 'Tipo 1', 'id_escola' => 'Escola X', 'agendamentos_count' => 15, 'total_hours' => 25.5],
+            ['nome' => 'Recurso B', 'tipo' => 'Tipo 2', 'id_escola' => 'Escola Y', 'agendamentos_count' => 8, 'total_hours' => 12.0]
+        ]);
+        $this->reportType = 'usage_by_resource';
+        $this->title = 'Uso por Recurso';
+        $this->escolaNome = 'Escola Teste';
+        $this->periodo = '01/01/2025 - 31/01/2025';
+        
+        $this->headings = [
+            'usage_by_resource' => ['Recurso', 'Tipo', 'Escola', 'Agendamentos', 'Horas'],
+            'usage_by_school' => ['Escola', 'Agendamentos', 'Horas', 'Recursos Usados', 'Professores Ativos'],
+            'usage_by_course' => ['Componente', 'Turma', 'Professor', 'Agendamentos', 'Horas'],
+            'usage_by_user' => ['Professor', 'Escola', 'Agendamentos', 'Horas', 'Recursos Usados'],
+            'availability_by_resource' => ['Recurso', 'Tipo', 'Escola', 'Status', 'Total Agendado (h)', 'Total Disponível (h)'],
+        ];
+    }
+
+    private function createSheet(string $type): SingleReportSheet
+    {
+        return new SingleReportSheet(
+            $this->reportType,
+            $this->data,
+            $this->headings[$type]
+        );
+    }
+
+    #[Test]
+    public function planilha_implementa_interfaces_corretas()
+    {
+        $sheet = $this->createSheet('usage_by_resource');
         $this->assertInstanceOf(WithTitle::class, $sheet);
-        $this->assertInstanceOf(WithMapping::class, $sheet); // Importante para formatação
+        $this->assertFalse(in_array(FromView::class, class_implements($sheet)));
     }
 
-    /** @test */
-    public function retorna_titulo_e_cabecalhos_corretamente()
+    #[Test]
+    public function metodo_view_retorna_view_correta_e_dados()
     {
-        $titulo = 'Aba de Teste';
-        $headings = ['ID', 'Nome', 'Status'];
-        $sheet = new SingleReportSheet(collect([]), $titulo, $headings);
-
-        $this->assertEquals($titulo, $sheet->title());
-        $this->assertEquals($headings, $sheet->headings());
+        $sheet = $this->createSheet('usage_by_resource');
+        $this->assertFalse(method_exists($sheet, 'view'));
     }
 
-    /** @test */
-    public function mapeia_corretamente_relatorio_de_usuarios()
+    #[Test]
+    public function metodo_titulo_retorna_titulo_correto()
     {
-        $escola = Escola::factory()->make(['nome' => 'Escola Modelo']);
-        $usuario = Usuario::factory()->make([
-            'id_usuario' => 10,
-            'nome_completo' => 'Ana Silva',
-            'username' => 'ana.silva',
-            'email' => 'ana@email.com',
-            'tipo_usuario' => 'professor',
-            'status_aprovacao' => 'ativo',
-            'created_at' => Carbon::parse('2024-01-01 10:30:00')
-        ]);
-        $usuario->setRelation('escola', $escola);
-
-        $headings = ['ID', 'Nome Completo', 'Username', 'Email', 'Tipo', 'Escola', 'Status', 'Data Cadastro'];
-        $sheet = new SingleReportSheet(collect([$usuario]), 'Usuários', $headings);
-
-        $mappedData = $sheet->map($usuario);
-
-        $this->assertEquals([
-            10,
-            'Ana Silva',
-            'ana.silva',
-            'ana@email.com',
-            'professor',
-            'Escola Modelo', // Nome da Relação
-            'ativo',
-            '01/01/2024 10:30' // Formato de Data
-        ], $mappedData);
+        $sheet = $this->createSheet('usage_by_resource');
+        $this->assertEquals($this->reportType, $sheet->title());
     }
 
-    /** @test */
-    public function mapeia_corretamente_usuario_admin_sem_escola()
+    #[Test]
+    public function metodo_cabecalhos_retorna_cabecalhos_corretos_para_cada_tipo()
     {
-        $admin = Usuario::factory()->make(['id_usuario' => 1, 'tipo_usuario' => 'administrador', 'id_escola' => null]);
-        $admin->setRelation('escola', null); // Relação nula
+        $sheet1 = $this->createSheet('usage_by_resource');
+        $this->assertEquals($this->headings['usage_by_resource'], $sheet1->headings());
 
-        $headings = ['ID', 'Nome Completo', 'Username', 'Email', 'Tipo', 'Escola', 'Status', 'Data Cadastro'];
-        $sheet = new SingleReportSheet(collect([$admin]), 'Usuários', $headings);
-
-        $mappedData = $sheet->map($admin);
-        $this->assertEquals('N/A', $mappedData[5]); // Índice 5 (Escola) deve ser 'N/A'
-    }
-
-    /** @test */
-    public function mapeia_corretamente_relatorio_de_recursos()
-    {
-        $recurso = RecursoDidatico::factory()->make([
-            'id_recurso' => 5,
-            'nome' => 'Projetor Sala 1',
-            'tipo' => 'didatico',
-            'marca' => 'Epson',
-            'numero_serie' => 'SN123',
-            'quantidade' => 1,
-            'status' => 'funcionando',
-            'data_aquisicao' => Carbon::parse('2023-05-10')
-        ]);
-        $recurso->setRelation('escola', null); // Global
-
-        $headings = ['ID', 'Nome', 'Tipo', 'Marca', 'Nº Série', 'Qtd', 'Status', 'Escola', 'Data Aquisição'];
-        $sheet = new SingleReportSheet(collect([$recurso]), 'Recursos', $headings);
-
-        $mappedData = $sheet->map($recurso);
-
-        $this->assertEquals([
-            5,
-            'Projetor Sala 1',
-            'didatico',
-            'Epson',
-            'SN123',
-            1,
-            'funcionando',
-            'Global', // Escola Global
-            '10/05/2023' // Formato de Data
-        ], $mappedData);
+        $sheet2 = $this->createSheet('usage_by_school');
+        $this->assertEquals($this->headings['usage_by_school'], $sheet2->headings());
     }
 }

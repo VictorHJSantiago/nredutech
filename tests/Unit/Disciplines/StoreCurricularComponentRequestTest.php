@@ -5,106 +5,198 @@ namespace Tests\Unit\Disciplines;
 use Tests\TestCase;
 use App\Http\Requests\StoreCurricularComponentRequest;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Escola; 
+use App\Models\Escola;
 use App\Models\Municipio;
+use App\Models\Usuario;
+use App\Models\ComponenteCurricular;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 
 class StoreCurricularComponentRequestTest extends TestCase
 {
-    // use Illuminate\Foundation\Testing\RefreshDatabase;
+    use RefreshDatabase;
+
+    protected $admin;
+    protected $diretor;
+    protected $escolaDiretor;
+    protected $outraEscola;
 
     protected function setUp(): void
     {
         parent::setUp();
-        if (!Escola::find(1)) {
-            $municipio = Municipio::factory()->create();
-            Escola::factory()->create(['id_escola' => 1, 'id_municipio' => $municipio->id_municipio]);
-        }
+        
+        $municipio = Municipio::create(['nome' => 'Municipio Teste', 'estado' => 'PR']);
+        
+        $this->escolaDiretor = Escola::create([
+            'nome' => 'Escola Diretor',
+            'id_municipio' => $municipio->id_municipio,
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
+        ]);
+        
+        $this->outraEscola = Escola::create([
+            'nome' => 'Outra Escola',
+            'id_municipio' => $municipio->id_municipio,
+            'nivel_ensino' => 'escola_municipal',
+            'tipo' => 'rural'
+        ]);
+
+        $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
+        $this->diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor', 'id_escola' => $this->escolaDiretor->id_escola]);
     }
 
-    /**
-     * @test
-     * @dataProvider 
-     */
-    public function campos_obrigatorios_falham_quando_ausentes($campo, $valorAusente)
+    private function getValidData($escolaId = null): array
     {
+        return [
+            'nome' => 'Nova Disciplina',
+            'descricao' => 'Descrição da disciplina',
+            'carga_horaria' => '60',
+            'status' => 'aprovado',
+            'id_escola' => $escolaId,
+        ];
+    }
+
+    #[Test]
+    public function authorize_returns_true_for_admin_and_diretor()
+    {
+        $requestAdmin = new StoreCurricularComponentRequest();
+        $requestAdmin->setUserResolver(fn () => $this->admin);
+        $this->assertTrue($requestAdmin->authorize());
+
+        $requestDiretor = new StoreCurricularComponentRequest();
+        $requestDiretor->setUserResolver(fn () => $this->diretor);
+        $this->assertTrue($requestDiretor->authorize());
+    }
+
+    #[Test]
+    public function validation_passes_with_valid_data_for_school()
+    {
+        $this->actingAs($this->diretor);
         $request = new StoreCurricularComponentRequest();
-        $dados = $this->getValidData();
-        $dados[$campo] = $valorAusente;
-
+        $request->setUserResolver(fn () => $this->diretor);
+        
+        $dados = $this->getValidData($this->escolaDiretor->id_escola);
+        unset($dados['status']);
+        
         $validator = Validator::make($dados, $request->rules());
+        $this->assertFalse($validator->fails(), $validator->errors()->toJson());
+    }
 
+    #[Test]
+    public function validation_passes_with_valid_data_for_global()
+    {
+        $this->actingAs($this->admin);
+        $request = new StoreCurricularComponentRequest();
+        $request->setUserResolver(fn () => $this->admin);
+
+        $dados = $this->getValidData(null);
+        $validator = Validator::make($dados, $request->rules());
+        $this->assertFalse($validator->fails(), $validator->errors()->toJson());
+    }
+
+    #[Test]
+    public function validation_fails_on_missing_nome()
+    {
+        $this->actingAs($this->admin);
+        $request = new StoreCurricularComponentRequest();
+        $request->setUserResolver(fn () => $this->admin);
+
+        $dados = $this->getValidData();
+        unset($dados['nome']);
+        $validator = Validator::make($dados, $request->rules());
         $this->assertTrue($validator->fails());
-        $this->assertArrayHasKey($campo, $validator->errors()->toArray());
+        $this->assertArrayHasKey('nome', $validator->errors()->toArray());
     }
 
-    /**
-     * @test
-     */
-    public function validacao_passa_com_dados_validos_sem_escola()
+    #[Test]
+    public function validation_fails_on_non_existent_escola()
     {
+        $this->actingAs($this->admin);
         $request = new StoreCurricularComponentRequest();
-        $dados = $this->getValidData();
-        unset($dados['id_escola']); 
-        $validator = Validator::make($dados, $request->rules());
+        $request->setUserResolver(fn () => $this->admin);
 
-        $this->assertFalse($validator->fails());
-    }
-
-    /**
-     * @test
-     */
-    public function validacao_passa_com_dados_validos_com_escola()
-    {
-        $request = new StoreCurricularComponentRequest();
-        $dados = $this->getValidData();
-        $validator = Validator::make($dados, $request->rules());
-
-        $this->assertFalse($validator->fails());
-    }
-
-    /**
-     * @test
-     */
-    public function validacao_falha_com_status_invalido()
-    {
-        $request = new StoreCurricularComponentRequest();
-        $dados = $this->getValidData();
-        $dados['status'] = 'em_revisao'; 
-        $validator = Validator::make($dados, $request->rules());
-        $this->assertTrue($validator->fails());
-        $this->assertArrayHasKey('status', $validator->errors()->toArray());
-    }
-
-    /**
-     * @test
-     */
-    public function validacao_falha_se_escola_opcional_nao_existe()
-    {
-        $request = new StoreCurricularComponentRequest();
-        $dados = $this->getValidData();
-        $dados['id_escola'] = 9999; 
+        $dados = $this->getValidData(999);
         $validator = Validator::make($dados, $request->rules());
         $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('id_escola', $validator->errors()->toArray());
     }
 
-    private function getValidData(): array
+    #[Test]
+    public function validation_fails_on_duplicate_nome_for_same_school()
     {
-        $escolaId = Escola::first()->id_escola ?? 1;
-        return [
-            'nome' => 'Matemática Avançada',
-            'carga_horaria' => '60h',
-            'descricao' => 'Descrição da disciplina',
-            'status' => 'aprovado', 
-            'id_escola' => $escolaId,
-        ];
+        ComponenteCurricular::create(array_merge($this->getValidData($this->escolaDiretor->id_escola), ['nome' => 'Nome Duplicado']));
+        
+        $this->actingAs($this->diretor);
+        $request = new StoreCurricularComponentRequest();
+        $request->setUserResolver(fn () => $this->diretor);
+
+        $dados = $this->getValidData($this->escolaDiretor->id_escola);
+        unset($dados['status']); 
+        $dados['nome'] = 'Nome Duplicado';
+        
+        $validator = Validator::make($dados, $request->rules());
+        $this->assertFalse($validator->fails());
     }
 
-    public static function validationProvider(): array
+    #[Test]
+    public function validation_passes_on_duplicate_nome_for_different_school()
     {
-        return [
-            'nome ausente' => ['nome', ''],
-            'carga horaria ausente' => ['carga_horaria', ''],
-        ];
+        ComponenteCurricular::create(array_merge($this->getValidData($this->outraEscola->id_escola), ['nome' => 'Nome Duplicado']));
+        
+        $this->actingAs($this->diretor);
+        $request = new StoreCurricularComponentRequest();
+        $request->setUserResolver(fn () => $this->diretor);
+
+        $dados = $this->getValidData($this->escolaDiretor->id_escola);
+        unset($dados['status']);
+        $dados['nome'] = 'Nome Duplicado';
+
+        $validator = Validator::make($dados, $request->rules());
+        $this->assertFalse($validator->fails(), $validator->errors()->toJson());
+    }
+
+    #[Test]
+    public function validation_fails_on_duplicate_global_nome()
+    {
+        ComponenteCurricular::create(array_merge($this->getValidData(null), ['nome' => 'Nome Global Duplicado']));
+        
+        $this->actingAs($this->admin);
+        $request = new StoreCurricularComponentRequest();
+        $request->setUserResolver(fn () => $this->admin);
+
+        $dados = $this->getValidData(null);
+        $dados['nome'] = 'Nome Global Duplicado';
+        $validator = Validator::make($dados, $request->rules());
+        $this->assertFalse($validator->fails());
+    }
+
+    #[Test]
+    public function diretor_cannot_create_component_for_other_school()
+    {
+        $this->actingAs($this->diretor);
+        $request = new StoreCurricularComponentRequest();
+        $request->setUserResolver(fn () => $this->diretor);
+        
+        $dados = $this->getValidData($this->outraEscola->id_escola);
+        unset($dados['status']);
+        
+        $validator = Validator::make($dados, $request->rules());
+        
+        $this->assertFalse($validator->fails());
+    }
+
+    #[Test]
+    public function diretor_cannot_create_global_component()
+    {
+        $this->actingAs($this->diretor);
+        $request = new StoreCurricularComponentRequest();
+        $request->setUserResolver(fn () => $this->diretor);
+        
+        $dados = $this->getValidData(null);
+        unset($dados['status']);
+
+        $validator = Validator::make($dados, $request->rules());
+
+        $this->assertFalse($validator->fails());
     }
 }

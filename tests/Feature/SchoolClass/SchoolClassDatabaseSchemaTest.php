@@ -5,12 +5,15 @@ namespace Tests\Feature\SchoolClass;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
+#[RunTestsInSeparateProcesses]
 class SchoolClassDatabaseSchemaTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function tabela_turmas_existe_e_tem_colunas_esperadas()
     {
         $this->assertTrue(Schema::hasTable('turmas'));
@@ -25,7 +28,7 @@ class SchoolClassDatabaseSchemaTest extends TestCase
         $this->assertTrue(Schema::hasColumn('turmas', 'updated_at'));
     }
 
-    /** @test */
+    #[Test]
     public function chave_estrangeira_turmas_escolas_esta_configurada()
     {
         $this->assertTrue(true); 

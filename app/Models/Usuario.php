@@ -103,6 +103,19 @@ class Usuario extends Authenticatable implements CanResetPasswordContract
         return $this->hasOne(UsuarioPreferencia::class, 'id_usuario', 'id_usuario');
     }
 
+    //Revisar o sistema para ver possível remoção
+    public function agendamentos(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(
+            \App\Models\Agendamento::class,
+            \App\Models\OfertaComponente::class,
+            'id_professor', 
+            'id_oferta',    
+            'id_usuario',   
+            'id_oferta'     
+        );
+    }
+
     /**
      *
      * @param  string  $token

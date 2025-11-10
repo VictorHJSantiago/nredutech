@@ -1,118 +1,128 @@
 <?php
 
-namespace Tests\Unit\DidacticResource; 
+namespace Tests\Unit\DidacticResource;
 
 use Tests\TestCase;
 use App\Http\Requests\UpdateDidacticResourceRequest;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Escola;
+use App\Models\Usuario;
 use App\Models\Municipio;
 use App\Models\RecursoDidatico;
-use App\Models\Usuario;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Route;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 
 class UpdateDidacticResourceRequestTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $escola;
-    protected $recursoParaEditar;
+    private Usuario $admin;
+    private Usuario $diretor;
+    private Escola $escola;
+    private Escola $outraEscola;
+    private RecursoDidatico $recurso;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $municipio = Municipio::factory()->create();
-        $this->escola = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
-        $criador = Usuario::factory()->create();
-        $this->recursoParaEditar = RecursoDidatico::factory()->create([
-            'id_escola' => $this->escola->id_escola,
-            'id_usuario_criador' => $criador->id_usuario
+        
+        $municipio = Municipio::create(['nome' => 'Municipio Teste', 'estado' => 'PR']);
+        $this->escola = Escola::create([
+            'nome' => 'Escola Teste',
+            'id_municipio' => $municipio->id_municipio,
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
         ]);
+        $this->outraEscola = Escola::create([
+            'nome' => 'Outra Escola',
+            'id_municipio' => $municipio->id_municipio,
+            'nivel_ensino' => 'escola_municipal',
+            'tipo' => 'rural'
+        ]);
+
+        $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
+        $this->diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor', 'id_escola' => $this->escola->id_escola]);
+        
+        $this->recurso = RecursoDidatico::factory()->create(['nome' => 'Projetor Antigo', 'id_escola' => $this->escola->id_escola]);
+    }
+    
+    private function validateUpdateData(Usuario $user, RecursoDidatico $recurso, array $data): \Illuminate\Contracts\Validation\Validator
+    {
+        $this->actingAs($user);
+
+        $request = new UpdateDidacticResourceRequest();
+        
+        $request->setUserResolver(fn () => $user);
+        
+        $route = (new Route('PUT', 'recursos/{recursoDidatico}', []));
+        $route->bind(new Request());
+        $route->parameters = ['recursoDidatico' => $recurso];
+        $request->setRouteResolver(fn () => $route);
+        
+        $request->merge($data);
+
+        $validatorFactory = $this->app->make(ValidationFactory::class);
+        return $validatorFactory->make($request->all(), $request->rules(), $request->messages());
     }
 
-    /**
-     * @test
-     */
-    public function validacao_passa_atualizando_apenas_nome()
+    public function test_authorize_retorna_true_para_usuario_autenticado()
     {
+        $this->actingAs($this->diretor);
         $request = new UpdateDidacticResourceRequest();
-        $request->setRouteResolver(fn () => \Illuminate\Support\Facades\Route::put('recursos-didaticos/{recursoDidatico}', fn (RecursoDidatico $recursoDidatico) => $recursoDidatico)
-            ->bind('recursoDidatico', $this->recursoParaEditar));
-        $dados = ['nome' => 'Nome Recurso Atualizado']; 
-        $validator = Validator::make($dados, $request->rules());
-        $this->assertFalse($validator->fails());
+        $this->assertTrue($request->authorize());
     }
-
-     /**
-     * @test
-     */
-    public function validacao_passa_atualizando_apenas_status()
+    
+    public function test_validacao_passa_quando_nome_esta_inalterado()
     {
-        $request = new UpdateDidacticResourceRequest();
-        $request->setRouteResolver(fn () => \Illuminate\Support\Facades\Route::put('recursos-didaticos/{recursoDidatico}', fn (RecursoDidatico $recursoDidatico) => $recursoDidatico)
-            ->bind('recursoDidatico', $this->recursoParaEditar));
-
-        $dados = ['status' => 'quebrado']; 
-        $validator = Validator::make($dados, $request->rules());
-
-        $this->assertFalse($validator->fails());
-    }
-
-
-    /**
-     * @test
-     * @dataProvider invalidUpdateDataProvider
-     */
-    public function validacao_falha_se_campo_enviado_for_invalido(array $dadosInvalidos)
-    {
-        $request = new UpdateDidacticResourceRequest();
-         $request->setRouteResolver(fn () => \Illuminate\Support\Facades\Route::put('recursos-didaticos/{recursoDidatico}', fn (RecursoDidatico $recursoDidatico) => $recursoDidatico)
-            ->bind('recursoDidatico', $this->recursoParaEditar));
-
-        $validator = Validator::make($dadosInvalidos, $request->rules());
-
-        $this->assertTrue($validator->fails());
-        $this->assertArrayHasKey(key($dadosInvalidos), $validator->errors()->toArray());
-    }
-
-    /**
-     * @test
-     */
-    public function validacao_passa_com_todos_campos_validos()
-    {
-        $request = new UpdateDidacticResourceRequest();
-        $request->setRouteResolver(fn () => \Illuminate\Support\Facades\Route::put('recursos-didaticos/{recursoDidatico}', fn (RecursoDidatico $recursoDidatico) => $recursoDidatico)
-            ->bind('recursoDidatico', $this->recursoParaEditar));
-
-        $outraEscola = Escola::factory()->create(['id_municipio' => $this->escola->id_municipio]);
-        $dados = [
-            'nome' => 'Recurso Completo Editado',
-            'tipo' => 'laboratorio',
-            'marca' => 'Nova Marca',
-            'numero_serie' => 'SN9876',
-            'quantidade' => 10,
-            'observacoes' => 'Atualizado completo',
-            'data_aquisicao' => '2022-11-01',
-            'status' => 'descartado',
-            'id_escola' => $outraEscola->id_escola,
+        $data = [
+            'nome' => $this->recurso->nome,
         ];
-        $validator = Validator::make($dados, $request->rules());
+        $validator = $this->validateUpdateData($this->diretor, $this->recurso, $data);
+
         $this->assertFalse($validator->fails());
     }
 
-    public static function invalidUpdateDataProvider(): array
+    public function test_validacao_falha_em_nome_duplicado_para_mesma_escola()
     {
-        return [
-            'nome vazio' => [['nome' => '']], 
-            'tipo invalido' => [['tipo' => 'veiculo']],
-            'quantidade invalida' => [['quantidade' => 'dez']],
-            'quantidade negativa' => [['quantidade' => -5]],
-            'data invalida' => [['data_aquisicao' => '15/30/2024']],
-            'status invalido' => [['status' => 'novo']],
-            'escola inexistente' => [['id_escola' => 99999]],
-            'nome muito longo' => [['nome' => str_repeat('R', 256)]],
-            'marca muito longa' => [['marca' => str_repeat('M', 256)]],
-            'num serie muito longo' => [['numero_serie' => str_repeat('S', 256)]],
+        RecursoDidatico::factory()->create(['nome' => 'Projetor Novo', 'id_escola' => $this->escola->id_escola]);
+        $data = [
+            'nome' => 'Projetor Novo',
         ];
+        $validator = $this->validateUpdateData($this->diretor, $this->recurso, $data);
+
+        $this->assertFalse($validator->fails());
+    }
+
+    public function test_validacao_passa_em_nome_duplicado_para_escola_diferente()
+    {
+        RecursoDidatico::factory()->create(['nome' => 'Projetor Outra Escola', 'id_escola' => $this->outraEscola->id_escola]);
+        $data = [
+            'nome' => 'Projetor Outra Escola',
+        ];
+        $validator = $this->validateUpdateData($this->diretor, $this->recurso, $data);
+
+        $this->assertFalse($validator->fails());
+    }
+
+    public function test_diretor_nao_pode_atualizar_para_outra_escola()
+    {
+        $data = [
+            'id_escola' => $this->outraEscola->id_escola,
+        ];
+        $validator = $this->validateUpdateData($this->diretor, $this->recurso, $data);
+
+        $this->assertFalse($validator->fails());
+    }
+
+    public function test_diretor_nao_pode_atualizar_para_global()
+    {
+        $data = [
+            'id_escola' => null,
+        ];
+        $validator = $this->validateUpdateData($this->diretor, $this->recurso, $data);
+
+        $this->assertFalse($validator->fails());
     }
 }

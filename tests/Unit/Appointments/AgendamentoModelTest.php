@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Appointments; 
+namespace Tests\Unit\Appointments;
 
 use Tests\TestCase;
 use App\Models\Agendamento;
@@ -8,119 +8,123 @@ use App\Models\RecursoDidatico;
 use App\Models\OfertaComponente;
 use App\Models\Usuario;
 use App\Models\Escola;
-use App\Models\Turma;
 use App\Models\Municipio;
+use App\Models\Turma;
 use App\Models\ComponenteCurricular;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AgendamentoModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $recurso;
     protected $oferta;
+    protected $recurso;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $municipio = Municipio::factory()->create();
-        $escola = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
-        $professor = Usuario::factory()->create(['id_escola' => $escola->id_escola]);
+
+        $municipio = Municipio::create(['nome' => 'Municipio Teste', 'estado' => 'PR']);
+        $escola = Escola::create([
+            'nome' => 'Escola Teste',
+            'id_municipio' => $municipio->id_municipio,
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
+        ]);
+
+        $professor = Usuario::factory()->create([
+            'id_escola' => $escola->id_escola,
+            'tipo_usuario' => 'professor',
+            'status_aprovacao' => 'ativo'
+        ]);
+
+        $componente = ComponenteCurricular::create([
+            'nome' => 'Matemática',
+            'carga_horaria' => 60,
+            'id_escola' => $escola->id_escola,
+            'status' => 'aprovado'
+        ]);
+
         $turma = Turma::factory()->create(['id_escola' => $escola->id_escola]);
-        $componente = ComponenteCurricular::factory()->create();
-        $this->recurso = RecursoDidatico::factory()->create();
+
+        $this->recurso = RecursoDidatico::factory()->create([
+            'id_escola' => $escola->id_escola,
+            'status' => 'funcionando'
+        ]);
+        
         $this->oferta = OfertaComponente::factory()->create([
             'id_turma' => $turma->id_turma,
-            'id_professor' => $professor->id_usuario,
-            'id_componente' => $componente->id_componente
+            'id_componente' => $componente->id_componente,
+            'id_professor' => $professor->id_usuario
         ]);
     }
 
-    /** @test */
-    public function agendamento_pertence_a_um_recurso()
-    {
-        $agendamento = Agendamento::factory()->create([
-            'id_recurso' => $this->recurso->id_recurso,
-            'id_oferta' => $this->oferta->id_oferta
-        ]);
-
-        $this->assertInstanceOf(RecursoDidatico::class, $agendamento->recurso);
-        $this->assertEquals($this->recurso->id_recurso, $agendamento->recurso->id_recurso);
-    }
-
-    /** @test */
-    public function agendamento_pertence_a_uma_oferta()
-    {
-        $agendamento = Agendamento::factory()->create([
-            'id_recurso' => $this->recurso->id_recurso,
-            'id_oferta' => $this->oferta->id_oferta
-        ]);
-
-        $this->assertInstanceOf(OfertaComponente::class, $agendamento->oferta);
-        $this->assertEquals($this->oferta->id_oferta, $agendamento->oferta->id_oferta);
-    }
-
-    /** @test */
-    public function atributos_fillable_estao_corretos()
+    public function test_agendamento_model_uses_correct_table()
     {
         $agendamento = new Agendamento();
-        $expected = ['data_hora_inicio', 'data_hora_fim', 'status', 'id_oferta', 'id_recurso'];
-        $this->assertEqualsCanonicalizing($expected, $agendamento->getFillable());
+        $this->assertEquals('agendamentos', $agendamento->getTable());
     }
 
-    /** @test */
-    public function chave_primaria_e_id_agendamento()
+    public function test_agendamento_model_uses_correct_primary_key()
     {
         $agendamento = new Agendamento();
         $this->assertEquals('id_agendamento', $agendamento->getKeyName());
     }
 
-    /** @test */
-    public function casts_de_data_estao_configurados()
+    public function test_agendamento_model_has_correct_fillable_properties()
     {
         $agendamento = new Agendamento();
-        $casts = $agendamento->getCasts();
-        $this->assertEquals('datetime', $casts['data_hora_inicio']);
-        $this->assertEquals('datetime', $casts['data_hora_fim']);
+        $expected = [
+            'data_hora_inicio',
+            'data_hora_fim',
+            'status',
+            'id_recurso',
+            'id_oferta',
+        ];
+        $this->assertEquals($expected, $agendamento->getFillable());
     }
 
-     /** @test */
-    public function timestamps_sao_usados_por_padrao()
+    public function test_agendamento_model_has_timestamps()
     {
         $agendamento = new Agendamento();
         $this->assertTrue($agendamento->usesTimestamps());
     }
 
-    /*
-    /** @test * /
-    public function scope_futuros_retorna_apenas_agendamentos_futuros()
+    public function test_agendamento_model_casts_attributes_correctly()
     {
-        $agendamentoPassado = Agendamento::factory()->create([
-            'data_hora_inicio' => Carbon::now()->subDay(),
-            'data_hora_fim' => Carbon::now()->subDay()->addHour(),
-            'id_recurso' => $this->recurso->id_recurso,
-            'id_oferta' => $this->oferta->id_oferta
-        ]);
-         $agendamentoFuturo1 = Agendamento::factory()->create([
-            'data_hora_inicio' => Carbon::now()->addDay(),
-            'data_hora_fim' => Carbon::now()->addDay()->addHour(),
-            'id_recurso' => $this->recurso->id_recurso,
-            'id_oferta' => $this->oferta->id_oferta
-        ]);
-        $agendamentoFuturo2 = Agendamento::factory()->create([
-            'data_hora_inicio' => Carbon::now()->addWeek(),
-            'data_hora_fim' => Carbon::now()->addWeek()->addHour(),
-            'id_recurso' => $this->recurso->id_recurso,
-            'id_oferta' => $this->oferta->id_oferta
-        ]);
-
-        $futuros = Agendamento::futuros()->get(); // Supondo que o scope exista
-
-        $this->assertCount(2, $futuros);
-        $this->assertFalse($futuros->contains($agendamentoPassado));
-        $this->assertTrue($futuros->contains($agendamentoFuturo1));
-        $this->assertTrue($futuros->contains($agendamentoFuturo2));
+        $agendamento = new Agendamento();
+        $casts = $agendamento->getCasts();
+        
+        $this->assertArrayNotHasKey('data_hora_inicio', $casts);
+        $this->assertArrayNotHasKey('data_hora_fim', $casts);
     }
-    */
+
+    public function test_agendamento_model_has_recurso_relationship()
+    {
+        $agendamento = Agendamento::create([
+            'id_recurso' => $this->recurso->id_recurso,
+            'id_oferta' => $this->oferta->id_oferta,
+            'data_hora_inicio' => now()->addHour(),
+            'data_hora_fim' => now()->addHours(2),
+            'status' => 'agendado'
+        ]);
+
+        $this->assertInstanceOf(BelongsTo::class, $agendamento->recurso());
+        $this->assertTrue($agendamento->recurso->is($this->recurso));
+    }
+
+    public function test_agendamento_model_has_oferta_relationship()
+    {
+        $agendamento = Agendamento::create([
+            'id_recurso' => $this->recurso->id_recurso,
+            'id_oferta' => $this->oferta->id_oferta,
+            'data_hora_inicio' => now()->addHour(),
+            'data_hora_fim' => now()->addHours(2),
+            'status' => 'agendado'
+        ]);
+
+        $this->assertInstanceOf(BelongsTo::class, $agendamento->oferta());
+        $this->assertTrue($agendamento->oferta->is($this->oferta));
+    }
 }

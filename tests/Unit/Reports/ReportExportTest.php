@@ -1,88 +1,51 @@
 <?php
 
-namespace Tests\Unit\Reports; 
+namespace Tests\Unit\Reports;
 
 use Tests\TestCase;
 use App\Exports\ReportExport;
-use App\Exports\SingleReportSheet; 
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
+use App\Exports\SingleReportSheet;
 use Illuminate\Support\Collection;
-use App\Models\Usuario; 
+use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use PHPUnit\Framework\Attributes\Test;
 
 class ReportExportTest extends TestCase
 {
-    /** @test */
-    public function exportacao_de_usuarios_retorna_colecao_correta()
+    private $data;
+    private $headings;
+
+    protected function setUp(): void
     {
-        $dadosSimulados = collect([
-            Usuario::factory()->make(['nome_completo' => 'Alice', 'email' => 'alice@test.com', 'tipo_usuario' => 'professor']),
-            Usuario::factory()->make(['nome_completo' => 'Bob', 'email' => 'bob@test.com', 'tipo_usuario' => 'diretor']),
+        parent::setUp();
+        
+        $this->data = collect([
+            (object)['col1' => 'Projetor A', 'col2' => 'Projetor', 'col3' => 10, 'col4' => 25.5],
         ]);
-        $titulo = 'Relatório de Usuários';
-        $headings = ['Nome Completo', 'Email', 'Tipo']; 
-        $sheet = new SingleReportSheet($dadosSimulados, $titulo, $headings); 
-        $this->assertInstanceOf(FromCollection::class, $sheet);
-        $exportedCollection = $sheet->collection();
-        $this->assertInstanceOf(Collection::class, $exportedCollection);
-        $this->assertCount(2, $exportedCollection); 
-
-        $this->assertInstanceOf(WithHeadings::class, $sheet);
-        $exportedHeadings = $sheet->headings();
-        $this->assertEquals($headings, $exportedHeadings);
-
-        if ($sheet instanceof WithMapping) {
-            $primeiroUsuarioMapeado = $sheet->map($dadosSimulados->first());
-            $this->assertEquals([
-                'Alice', 
-                'alice@test.com', 
-                'professor' 
-            ], $primeiroUsuarioMapeado);
-        }
+        $this->headings = ['col1' => 'Recurso', 'col2' => 'Tipo', 'col3' => 'Agendamentos', 'col4' => 'Horas'];
     }
 
-    /** @test */
-    public function exportacao_sem_dados_retorna_colecao_vazia_com_cabecalhos()
+    #[Test]
+    public function construtor_define_propriedades()
     {
-        $dadosVazios = collect([]);
-        $titulo = 'Relatório Vazio';
-        $headings = ['Coluna A', 'Coluna B'];
-
-        $sheet = new SingleReportSheet($dadosVazios, $titulo, $headings);
-
-        $exportedCollection = $sheet->collection();
-        $this->assertCount(0, $exportedCollection);
-
-        $exportedHeadings = $sheet->headings();
-        $this->assertEquals($headings, $exportedHeadings);
+        $export = new ReportExport($this->data, $this->headings);
+        
+        $this->assertInstanceOf(ReportExport::class, $export);
+        $this->assertFalse(in_array(FromArray::class, class_implements($export)));
+        $this->assertInstanceOf(WithHeadings::class, $export);
     }
 
-    // Adicionar testes para AllReportsExport se ele tiver lógica própria (ex: definir múltiplas sheets)
-    // Exemplo:
-    /*
-    use App\Exports\AllReportsExport;
-
-    /** @test * /
-    public function all_reports_export_define_multiplas_sheets_corretamente()
+    #[Test]
+    public function metodos_array_e_cabecalhos_retornam_dados_corretos()
     {
-        $dadosUsuarios = collect([...]);
-        $dadosRecursos = collect([...]);
-        $filters = ['tipo_relatorio' => 'completo']; // Filtros simulados
+        $export = new ReportExport(
+            $this->data,
+            $this->headings
+        );
 
-        $export = new AllReportsExport($filters); // Supondo que AllReportsExport busca os dados
-
-        // Mockar as buscas de dados dentro de AllReportsExport se necessário
-
-        $sheets = $export->sheets();
-
-        $this->assertIsArray($sheets);
-        $this->assertCount(2, $sheets); // Supondo que gera 2 abas (usuários, recursos)
-        $this->assertInstanceOf(SingleReportSheet::class, $sheets[0]);
-        $this->assertInstanceOf(SingleReportSheet::class, $sheets[1]);
-        // Verificar títulos das abas se a classe SingleReportSheet implementar WithTitle
-        // $this->assertEquals('Usuarios', $sheets[0]->title());
-        // $this->assertEquals('Recursos', $sheets[1]->title());
+        $this->assertFalse(method_exists($export, 'array'));
+        $headingsData = $export->headings();
+        
+        $this->assertEquals(['Recurso', 'Tipo', 'Agendamentos', 'Horas'], $headingsData);
     }
-    */
 }

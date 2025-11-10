@@ -66,7 +66,12 @@ class SchoolRoutesTest extends TestCase
     /** @test */
     public function admin_pode_enviar_store_escola()
     {
-        $dados = Escola::factory()->make(['id_municipio' => $this->municipio->id_municipio])->toArray();
+        $dados = [
+            'nome' => 'Escola Rota Teste',
+            'id_municipio' => $this->municipio->id_municipio,
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
+        ];
         $response = $this->actingAs($this->admin)->post(route('escolas.store'), $dados);
         $response->assertRedirect(route('escolas.index')); 
     }
@@ -74,7 +79,12 @@ class SchoolRoutesTest extends TestCase
     /** @test */
     public function diretor_nao_pode_enviar_store_escola()
     {
-        $dados = Escola::factory()->make(['id_municipio' => $this->municipio->id_municipio])->toArray();
+        $dados = [
+            'nome' => 'Escola Rota Teste Diretor',
+            'id_municipio' => $this->municipio->id_municipio,
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
+        ];
         $response = $this->actingAs($this->diretor)->post(route('escolas.store'), $dados);
         $response->assertStatus(403);
     }
@@ -82,7 +92,7 @@ class SchoolRoutesTest extends TestCase
      /** @test */
     public function admin_pode_enviar_update_escola()
     {
-        $dados = ['nome' => 'Nome Atualizado Escola'];
+        $dados = ['nome' => 'Nome Atualizado Escola', 'tipo' => 'rural'];
         $response = $this->actingAs($this->admin)->put(route('escolas.update', $this->escola), $dados);
         $response->assertRedirect(route('escolas.index'));
     }
