@@ -32,17 +32,29 @@ class ChartDataSheet implements FromArray, WithHeadings, WithTitle
                     'usuariosPorMunicipio' => 'Usuários por Localização',
                     'turmasPorTurno' => 'Turmas por Turno',
                     'componentesPorStatus' => 'Disciplinas por Status',
+                    'agendamentosPorMes' => 'Agendamentos por Mês',
                     default => Str::ucfirst($chartKey)
                 };
 
-                foreach($data as $key => $value) {
-                    $rows[] = [
-                        'Indicador' => $title,
-                        'Categoria' => $key,
-                        'Valor' => $value
-                    ];
+                $firstItem = $data->first();
+
+                if (is_array($firstItem) && isset($firstItem['label']) && isset($firstItem['value'])) {
+                    foreach($data as $item) {
+                        $rows[] = [
+                            $title,
+                            $item['label'],
+                            $item['value']
+                        ];
+                    }
+                } else {
+                    foreach($data as $key => $value) {
+                        $rows[] = [
+                            $title,
+                            $key,
+                            $value
+                        ];
+                    }
                 }
-                $rows[] = ['Indicador' => '', 'Categoria' => '', 'Valor' => ''];
             }
         }
         

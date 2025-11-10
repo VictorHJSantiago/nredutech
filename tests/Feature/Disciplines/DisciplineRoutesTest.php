@@ -1,140 +1,119 @@
 <?php
 
-namespace Tests\Feature\Disciplines; 
+namespace Tests\Feature\Disciplines;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Usuario;
-use App\Models\Municipio;
 use App\Models\Escola;
 use App\Models\ComponenteCurricular;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class DisciplineRoutesTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $admin;
-    protected $diretor;
-    protected $professor;
-    protected $componenteGlobal;
-    protected $componenteEscolaDiretor; 
-    protected $componenteEscolaProfessor; 
-    protected $componenteOutraEscola;
+    private Usuario $admin;
+    private Usuario $diretor;
+    private Usuario $professor;
+    private Escola $escola;
+    private Escola $outraEscola;
+    private ComponenteCurricular $componente;
+    private ComponenteCurricular $outroComponente;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $municipio = Municipio::factory()->create();
-        $escolaDiretor = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
-        $outraEscola = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
 
-        $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
-        $this->diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor', 'id_escola' => $escolaDiretor->id_escola]);
-        $this->professor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $escolaDiretor->id_escola]);
-        $outroProfessor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $outraEscola->id_escola]);
+        $this->escola = Escola::factory()->create();
+        $this->outraEscola = Escola::factory()->create();
+        
+        $this->componente = ComponenteCurricular::factory()->create(['id_escola' => $this->escola->id_escola]);
+        $this->outroComponente = ComponenteCurricular::factory()->create(['id_escola' => $this->outraEscola->id_escola]);
 
-
-        $this->componenteGlobal = ComponenteCurricular::factory()->create(['id_escola' => null, 'id_usuario_criador' => $this->admin->id_usuario]);
-        $this->componenteEscolaDiretor = ComponenteCurricular::factory()->create(['id_escola' => $escolaDiretor->id_escola, 'id_usuario_criador' => $this->diretor->id_usuario]);
-        $this->componenteEscolaProfessor = ComponenteCurricular::factory()->create(['id_escola' => $escolaDiretor->id_escola, 'id_usuario_criador' => $this->professor->id_usuario]);
-        $this->componenteOutraEscola = ComponenteCurricular::factory()->create(['id_escola' => $outraEscola->id_escola, 'id_usuario_criador' => $outroProfessor->id_usuario]);
+        $this->admin = Usuario::factory()->administrador()->create();
+        $this->diretor = Usuario::factory()->diretor()->create(['id_escola' => $this->escola->id_escola]);
+        $this->professor = Usuario::factory()->professor()->create(['id_escola' => $this->escola->id_escola]);
     }
 
-    /**
-     * @test
-     * @dataProvider 
-     */
-    public function usuarios_autorizados_podem_acessar_index_componentes($tipoUsuario)
+    public function test_guest_is_redirected_from_all_discipline_routes()
     {
-        $user = $this->getUserByType($tipoUsuario);
-        $response = $this->actingAs($user)->get(route('componentes.index'));
-        $response->assertStatus(200);
+        $this->get(route('disciplinas.index'))->assertRedirect(route('login'));
+        $this->get(route('disciplinas.create'))->assertRedirect(route('login'));
+        $this->post(route('disciplinas.store'))->assertRedirect(route('login'));
+        $this->get(route('disciplinas.edit', $this->componente))->assertRedirect(route('login'));
+        $this->put(route('disciplinas.update', $this->componente))->assertRedirect(route('login'));
+        $this->delete(route('disciplinas.destroy', $this->componente))->assertRedirect(route('login'));
     }
 
-    /** @test */
-    public function guest_e_redirecionado_de_index_componentes()
+    public function test_admin_can_access_all_discipline_routes()
     {
-        $response = $this->get(route('componentes.index'));
-        $response->assertRedirect(route('login'));
+        $this->actingAs($this->admin);
+
+        $this->get(route('disciplinas.index'))->assertOk();
+        $this->get(route('disciplinas.create'))->assertOk();
+        
+        $storeData = ComponenteCurricular::factory()->make(['id_escola' => $this->escola->id_escola])->toArray();
+        $this->post(route('disciplinas.store'), $storeData)->assertRedirect(route('disciplinas.index'));
+
+        $this->get(route('disciplinas.edit', $this->componente))->assertOk();
+        
+        $updateData = ComponenteCurricular::factory()->make(['id_escola' => $this->escola->id_escola])->toArray();
+        $this->put(route('disciplinas.update', $this->componente), $updateData)->assertRedirect(route('disciplinas.index'));
+        
+        $this->delete(route('disciplinas.destroy', $this->componente))->assertRedirect(route('disciplinas.index'));
     }
 
-    /**
-     * @test
-     * @dataProvider 
-     */
-    public function usuarios_autorizados_podem_acessar_create_componentes($tipoUsuario)
+    public function test_diretor_can_access_discipline_routes_for_own_school()
     {
-         $user = $this->getUserByType($tipoUsuario);
-        $response = $this->actingAs($user)->get(route('componentes.create'));
-        $response->assertStatus(200);
+        $this->actingAs($this->diretor);
+
+        $this->get(route('disciplinas.index'))->assertOk();
+        $this->get(route('disciplinas.create'))->assertOk();
+        
+        $storeData = ComponenteCurricular::factory()->make(['id_escola' => $this->escola->id_escola])->toArray();
+        $this->post(route('disciplinas.store'), $storeData)->assertRedirect(route('disciplinas.index'));
+
+        $this->get(route('disciplinas.edit', $this->componente))->assertOk();
+        
+        $updateData = ComponenteCurricular::factory()->make(['id_escola' => $this->escola->id_escola])->toArray();
+        $this->put(route('disciplinas.update', $this->componente), $updateData)->assertRedirect(route('disciplinas.index'));
+        
+        $this->delete(route('disciplinas.destroy', $this->componente))->assertRedirect(route('disciplinas.index'));
     }
 
-     /**
-     * @test
-     * @dataProvider 
-     */
-    public function usuarios_autorizados_podem_enviar_store_componentes($tipoUsuario)
+    public function test_diretor_is_forbidden_from_discipline_routes_for_other_school()
     {
-        $user = $this->getUserByType($tipoUsuario);
-        $dados = ComponenteCurricular::factory()->make()->toArray();
-        if ($tipoUsuario !== 'administrador') {
-            $dados['id_escola'] = $user->id_escola;
-            unset($dados['status']); 
-        } else {
-             $dados['id_escola'] = null; 
-             $dados['status'] = 'aprovado';
-        }
+        $this->actingAs($this->diretor);
 
-        $response = $this->actingAs($user)->post(route('componentes.store'), $dados);
-        $response->assertRedirect(route('componentes.index'));
+        $this->get(route('disciplinas.edit', $this->outroComponente))->assertForbidden();
+        
+        $updateData = ComponenteCurricular::factory()->make(['id_escola' => $this->outraEscola->id_escola])->toArray();
+        $this->put(route('disciplinas.update', $this->outroComponente), $updateData)->assertForbidden();
+        
+        $this->delete(route('disciplinas.destroy', $this->outroComponente))->assertForbidden();
     }
 
-    /** @test */
-    public function admin_pode_acessar_edit_qualquer_componente()
+    public function test_professor_can_only_access_index_route()
     {
-        $this->actingAs($this->admin)->get(route('componentes.edit', $this->componenteGlobal))->assertStatus(200);
-        $this->actingAs($this->admin)->get(route('componentes.edit', $this->componenteEscolaDiretor))->assertStatus(200);
-        $this->actingAs($this->admin)->get(route('componentes.edit', $this->componenteEscolaProfessor))->assertStatus(200);
-        $this->actingAs($this->admin)->get(route('componentes.edit', $this->componenteOutraEscola))->assertStatus(200);
+        $this->actingAs($this->professor);
+        
+        $this->get(route('disciplinas.index'))->assertOk();
     }
 
-    /** @test */
-    public function diretor_pode_acessar_edit_componente_sua_escola_ou_global()
+    public function test_professor_is_forbidden_from_modifying_discipline_routes()
     {
-        $this->actingAs($this->diretor)->get(route('componentes.edit', $this->componenteGlobal))->assertStatus(200);
-        $this->actingAs($this->diretor)->get(route('componentes.edit', $this->componenteEscolaDiretor))->assertStatus(200); 
-        $this->actingAs($this->diretor)->get(route('componentes.edit', $this->componenteEscolaProfessor))->assertStatus(200); 
-    }
+        $this->actingAs($this->professor);
 
-    /** @test */
-    public function diretor_nao_pode_acessar_edit_componente_outra_escola()
-    {
-        $this->actingAs($this->diretor)->get(route('componentes.edit', $this->componenteOutraEscola))->assertStatus(403);
-    }
+        $this->get(route('disciplinas.create'))->assertForbidden();
+        
+        $storeData = ComponenteCurricular::factory()->make(['id_escola' => $this->escola->id_escola])->toArray();
+        $this->post(route('disciplinas.store'), $storeData)->assertForbidden();
 
-     /** @test */
-    public function professor_pode_acessar_edit_componente_que_criou()
-    {
-        $this->actingAs($this->professor)->get(route('componentes.edit', $this->componenteEscolaProfessor))->assertStatus(200);
-    }
-
-     /** @test */
-    public function professor_nao_pode_acessar_edit_componente_de_outro()
-    {
-        $this->actingAs($this->professor)->get(route('componentes.edit', $this->componenteGlobal))->assertStatus(403);
-        $this->actingAs($this->professor)->get(route('componentes.edit', $this->componenteEscolaDiretor))->assertStatus(403);
-        $this->actingAs($this->professor)->get(route('componentes.edit', $this->componenteOutraEscola))->assertStatus(403);
-    }
-    private function getUserByType(string $type): Usuario
-    {
-        return match ($type) {
-            'administrador' => $this->admin,
-            'diretor' => $this->diretor,
-            'professor' => $this->professor,
-        };
-    }
-    public static function usuariosAutorizadosProvider(): array
-    {
-        return [['administrador'], ['diretor'], ['professor']];
+        $this->get(route('disciplinas.edit', $this->componente))->assertForbidden();
+        
+        $updateData = ComponenteCurricular::factory()->make(['id_escola' => $this->escola->id_escola])->toArray();
+        $this->put(route('disciplinas.update', $this->componente), $updateData)->assertForbidden();
+        
+        $this->delete(route('disciplinas.destroy', $this->componente))->assertForbidden();
     }
 }

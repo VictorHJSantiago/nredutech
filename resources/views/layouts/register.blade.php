@@ -2,14 +2,18 @@
 
 @section('title', 'Cadastro')
 
+@push('scripts')
+  @vite('resources/js/password-toogle.js')
+@endpush
+
 @section('content')
   <div class="box register-box">
     <h2>Cadastrar</h2>
 
     @if ($errors->any())
-      <div class="alert alert-danger" style="color: red; margin-bottom: 15px; font-size: 0.9rem;">
+      <div class="alert alert-danger">
         <strong>Opa! Algo deu errado:</strong>
-        <ul style="list-style-position: inside; padding-left: 10px; margin-top: 5px;">
+        <ul>
           @foreach ($errors->all() as $error)
             <li>{{ $error }}</li>
           @endforeach
@@ -41,18 +45,6 @@
         </div>
 
         <div class="form-group">
-          <label for="password">Senha</label>
-          <input type="password" id="password" name="password" placeholder="Crie uma senha (mín. 8 caracteres)"
-            required />
-        </div>
-
-        <div class="form-group">
-          <label for="password_confirmation">Confirmar Senha</label>
-          <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirme a senha"
-            required />
-        </div>
-
-        <div class="form-group">
           <label for="tipo_usuario">Eu sou</label>
           <select id="tipo_usuario" name="tipo_usuario" required>
             <option value="professor" {{ old('tipo_usuario') == 'professor' ? 'selected' : '' }}>Professor(a)</option>
@@ -74,40 +66,59 @@
 
         <div class="form-group">
           <label for="data_nascimento">Data de Nascimento</label>
-          <input type="date" id="data_nascimento" name="data_nascimento" value="{{ old('data_nascimento') }}" />
+          <input type="date" id="data_nascimento" name="data_nascimento" value="{{ old('data_nascimento') }}" required />
         </div>
 
         <div class="form-group">
-          <label for="cpf">CPF (Opcional)</label>
-          <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" value="{{ old('cpf') }}" />
+          <label for="cpf">CPF</label>
+          <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" value="{{ old('cpf') }}" required />
         </div>
 
         <div class="form-group">
-          <label for="rg">RG (Opcional)</label>
-          <input type="text" id="rg" name="rg" placeholder="Digite seu RG" value="{{ old('rg') }}" />
+          <label for="rg">RG</label>
+          <input type="text" id="rg" name="rg" placeholder="Digite seu RG" value="{{ old('rg') }}" required />
         </div>
 
         <div class="form-group">
-          <label for="telefone">Telefone (Opcional)</label>
-          <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" value="{{ old('telefone') }}" />
+          <label for="telefone">Telefone</label>
+          <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" value="{{ old('telefone') }}"
+            required />
         </div>
 
         <div class="form-group">
-          <label for="rco_siape">Registro (SIAPE ou RCO) (Opcional)</label>
-          <input type="text" id="rco_siape" name="rco_siape" placeholder="Ex: SIAPE123456"
-            value="{{ old('rco_siape') }}" />
+          <label for="rco_siape">Registro (SIAPE ou RCO)</label>
+          <input type="text" id="rco_siape" name="rco_siape" placeholder="Ex: SIAPE123456" value="{{ old('rco_siape') }}"
+            required />
         </div>
 
         <div class="form-group">
-          <label for="formacao">Formação (Opcional)</label>
+          <label for="formacao">Formação</label>
           <input type="text" id="formacao" name="formacao" placeholder="Ex: Licenciatura em Física"
-            value="{{ old('formacao') }}" />
+            value="{{ old('formacao') }}" required />
         </div>
 
         <div class="form-group">
-          <label for="area_formacao">Área de Formação (Opcional)</label>
+          <label for="area_formacao">Área de Formação</label>
           <input type="text" id="area_formacao" name="area_formacao" placeholder="Ex: Ciências Exatas"
-            value="{{ old('area_formacao') }}" />
+            value="{{ old('area_formacao') }}" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <div class="password-wrapper">
+            <input type="password" id="password" name="password" placeholder="Crie uma senha (mín. 16 caracteres)"
+              required />
+            <i class="fas fa-eye toggle-password"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password_confirmation">Confirmar Senha</label>
+          <div class="password-wrapper">
+            <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirme a senha"
+              required />
+            <i class="fas fa-eye toggle-password"></i>
+          </div>
         </div>
 
       </div>
@@ -122,14 +133,4 @@
     </p>
   </div>
 
-  <div vw class="enabled">
-    <div vw-access-button class="active"></div>
-    <div vw-plugin-wrapper>
-      <div class="vw-plugin-top-wrapper"></div>
-    </div>
-  </div>
-  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-  <script>
-    new window.VLibras.Widget('https://vlibras.gov.br/app');
-  </script>
 @endsection

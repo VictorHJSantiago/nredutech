@@ -7,8 +7,10 @@ use App\Models\Escola;
 use App\Models\Municipio;
 use App\Models\Usuario;
 use App\Models\Turma;
+use App\Models\ComponenteCurricular;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Database\QueryException;
+use PHPUnit\Framework\Attributes\Test;
 
 class EscolaModelTest extends TestCase
 {
@@ -19,83 +21,93 @@ class EscolaModelTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->municipio = Municipio::factory()->create();
+        $this->municipio = Municipio::create(['nome' => 'Municipio Teste', 'estado' => 'PR']);
+
+        ComponenteCurricular::create([
+            'nome' => 'Matemática',
+            'status' => 'aprovado',
+            'carga_horaria' => 60
+        ]);
     }
 
-    /** @test */
+    private function criarEscola(): Escola
+    {
+        return Escola::create([
+            'nome' => 'Escola Modelo',
+            'id_municipio' => $this->municipio->id_municipio,
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
+        ]);
+    }
+
+    #[Test]
     public function escola_pertence_a_um_municipio()
     {
-        $escola = Escola::factory()->create(['id_municipio' => $this->municipio->id_municipio]);
+        $escola = $this->criarEscola();
         $this->assertInstanceOf(Municipio::class, $escola->municipio);
         $this->assertEquals($this->municipio->id_municipio, $escola->municipio->id_municipio);
     }
 
-    /** @test */
+    #[Test]
     public function escola_pode_ter_muitos_usuarios()
     {
-        $escola = Escola::factory()->create(['id_municipio' => $this->municipio->id_municipio]);
+        $escola = $this->criarEscola();
         Usuario::factory(3)->create(['id_escola' => $escola->id_escola]);
-        Usuario::factory()->create(); // Admin sem escola
+        Usuario::factory()->create(); 
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $escola->usuarios);
         $this->assertCount(3, $escola->usuarios);
     }
 
-     /** @test */
+     #[Test]
     public function escola_pode_ter_muitas_turmas()
     {
-        $escola = Escola::factory()->create(['id_municipio' => $this->municipio->id_municipio]);
+        $escola = $this->criarEscola();
+        Usuario::factory()->create(['id_escola' => $escola->id_escola, 'tipo_usuario' => 'professor', 'status_aprovacao' => 'ativo']);
+
         Turma::factory(2)->create(['id_escola' => $escola->id_escola]);
-        $outraEscola = Escola::factory()->create(['id_municipio' => $this->municipio->id_municipio]);
+        
+        $outraEscola = $this->criarEscola();
+        Usuario::factory()->create(['id_escola' => $outraEscola->id_escola, 'tipo_usuario' => 'professor', 'status_aprovacao' => 'ativo']);
         Turma::factory()->create(['id_escola' => $outraEscola->id_escola]);
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $escola->turmas);
         $this->assertCount(2, $escola->turmas);
     }
 
-    /** @test */
+    #[Test]
     public function atributos_fillable_estao_corretos()
     {
         $escola = new Escola();
-        $expected = ['nome', 'id_municipio', 'nivel_ensino', 'localizacao'];
+        $expected = [
+            'nome',
+            'endereco',
+            'id_municipio',
+            'id_diretor_responsavel',
+            'nivel_ensino',
+            'tipo',
+        ];
         $this->assertEquals($expected, $escola->getFillable());
     }
 
-    /** @test */
+    #[Test]
     public function chave_primaria_e_id_escola()
     {
         $escola = new Escola();
         $this->assertEquals('id_escola', $escola->getKeyName());
     }
 
-     /** @test */
-    public function nao_usa_incrementing_ids_por_padrao_se_necessario()
+     #[Test]
+    public function usa_incrementing_ids_por_padrao()
      {
          $escola = new Escola();
          $this->assertTrue($escola->getIncrementing()); 
      }
 
-     /** @test */
-    public function timestamps_sao_usados_por_padrao()
+     #[Test]
+    public function timestamps_nao_sao_usados()
     {
         $escola = new Escola();
-        $this->assertTrue($escola->usesTimestamps()); 
+        $this->assertFalse($escola->usesTimestamps()); 
     }
-
-    /*
-    /** @test * /
-    public function scope_doNivel_retorna_escolas_do_nivel_especifico()
-    {
-        Escola::factory()->create(['id_municipio' => $this->municipio->id_municipio, 'nivel_ensino' => 'medio']);
-        Escola::factory()->create(['id_municipio' => $this->municipio->id_municipio, 'nivel_ensino' => 'fundamental_2']);
-        Escola::factory()->create(['id_municipio' => $this->municipio->id_municipio, 'nivel_ensino' => 'medio']);
-
-        $escolasMedio = Escola::doNivel('medio')->get();
-        $escolasFundamental = Escola::doNivel('fundamental_2')->get();
-
-        $this->assertCount(2, $escolasMedio);
-        $this->assertCount(1, $escolasFundamental);
-    }
-    */
-
 }

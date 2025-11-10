@@ -7,24 +7,31 @@ use App\Http\Requests\StoreSchoolClassRequest;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Escola; 
 use App\Models\Municipio;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class StoreSchoolClassRequestTest extends TestCase
 {
-    // use Illuminate\Foundation\Testing\RefreshDatabase;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
-        if (!Escola::find(1)) {
-            $municipio = Municipio::factory()->create();
-            Escola::factory()->create(['id_escola' => 1, 'id_municipio' => $municipio->id_municipio]);
-        }
+        
+        $municipio = Municipio::create(['nome' => 'Municipio Teste']);
+        
+        Escola::create([
+            'id_escola' => 1, 
+            'nome' => 'Escola Teste',
+            'id_municipio' => $municipio->id_municipio,
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
+        ]);
     }
 
-     /**
-     * @test
-     * @dataProvider 
-     */
+    #[Test]
+    #[DataProvider('validationProvider')]
     public function campos_obrigatorios_falham_quando_ausentes($campo, $valorAusente)
     {
         $request = new StoreSchoolClassRequest();
@@ -35,9 +42,7 @@ class StoreSchoolClassRequestTest extends TestCase
         $this->assertArrayHasKey($campo, $validator->errors()->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function validacao_passa_com_dados_validos()
     {
         $request = new StoreSchoolClassRequest();
@@ -47,9 +52,7 @@ class StoreSchoolClassRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-     /**
-     * @test
-     */
+    #[Test]
     public function validacao_falha_com_valores_invalidos()
     {
         $request = new StoreSchoolClassRequest();
@@ -72,9 +75,7 @@ class StoreSchoolClassRequestTest extends TestCase
         $this->assertArrayHasKey('ano_letivo', $validatorAno->errors()->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function validacao_falha_se_escola_nao_existe()
     {
         $request = new StoreSchoolClassRequest();

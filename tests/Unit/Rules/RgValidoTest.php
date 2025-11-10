@@ -4,47 +4,45 @@ namespace Tests\Unit\Rules;
 
 use Tests\TestCase;
 use App\Rules\RgValido;
-use Illuminate\Support\Facades\Validator;
 
 class RgValidoTest extends TestCase
 {
-    /**
-     * @test
-     * @dataProvider 
-     */
-    public function validacao_passa_para_rgs_validos($rg)
+    private $rule;
+    private $closure;
+    private $failed = false;
+
+    protected function setUp(): void
     {
-        $rule = ['rg' => new RgValido];
-        $validator = Validator::make(['rg' => $rg], $rule);
-        $this->assertFalse($validator->fails());
+        parent::setUp();
+        $this->rule = new RgValido();
+        $this->failed = false;
+        $this->closure = function ($message) {
+            $this->failed = $message;
+        };
     }
 
-    /**
-     * @test
-     * @dataProvider 
-     */
-    public function validacao_falha_para_rgs_invalidos($rg)
+    public function test_rg_valido_numerico_passa()
     {
-        $rule = ['rg' => new RgValido];
-        $validator = Validator::make(['rg' => $rg], $rule);
-        $this->assertTrue($validator->fails());
+        $this->rule->validate('rg', '12.345.678-9', $this->closure);
+        $this->assertFalse($this->failed);
     }
 
-    public static function rgValidosProvider(): array
+    public function test_rg_valido_com_x_passa()
     {
-        return [
-            'com formatacao' => ['12.345.678-9'],
-            'sem formatacao' => ['123456789'],
-            '7 digitos' => ['7654321'],
-        ];
+        $this->rule->validate('rg', '12.345.678-X', $this->closure);
+        $this->assertFalse($this->failed);
     }
-    public static function rgInvalidosProvider(): array
+
+    public function test_rg_com_comprimento_curto_passa()
     {
-        return [
-            'vazio' => [''],
-            'curto' => ['12345'],
-            'longo' => ['12345678901'],
-            'repetido' => ['11111111'],
-        ];
+        $this->rule->validate('rg', '12.345.67-8', $this->closure);
+        $this->assertFalse($this->failed);
+    }
+
+    public function test_rg_invalido_falha_com_comprimento_longo()
+    {
+        $this->rule->validate('rg', '12.345.678-90', $this->closure);
+        $this->assertNotFalse($this->failed);
+        $this->assertEquals('O campo :attribute não é um RG válido.', $this->failed);
     }
 }

@@ -7,6 +7,8 @@ use App\Http\Requests\StoreSchoolRequest;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Municipio;
 use Illuminate\Foundation\Testing\RefreshDatabase; 
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class StoreSchoolRequestTest extends TestCase
 {
@@ -17,13 +19,11 @@ class StoreSchoolRequestTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->municipioValido = Municipio::factory()->create();
+        $this->municipioValido = Municipio::create(['nome' => 'Municipio Valido', 'estado' => 'PR']);
     }
 
-    /**
-     * @test
-     * @dataProvider validationProviderObrigatorios
-     */
+    #[Test]
+    #[DataProvider('validationProviderObrigatorios')]
     public function campos_obrigatorios_falham_quando_ausentes($campo, $valorAusente)
     {
         $request = new StoreSchoolRequest();
@@ -36,22 +36,18 @@ class StoreSchoolRequestTest extends TestCase
         $this->assertArrayHasKey($campo, $validator->errors()->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function validacao_passa_com_dados_validos()
     {
         $request = new StoreSchoolRequest();
         $dados = $this->getValidData();
         $validator = Validator::make($dados, $request->rules());
 
-        $this->assertFalse($validator->fails());
+        $this->assertFalse($validator->fails(), $validator->errors()->toJson());
     }
 
-    /**
-     * @test
-     * @dataProvider 
-     */
+    #[Test]
+    #[DataProvider('enumInvalidosProvider')]
     public function validacao_falha_com_valores_invalidos_para_enums($campo, $valorInvalido)
     {
         $request = new StoreSchoolRequest();
@@ -64,9 +60,7 @@ class StoreSchoolRequestTest extends TestCase
         $this->assertArrayHasKey($campo, $validator->errors()->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function validacao_falha_se_municipio_nao_existe()
     {
         $request = new StoreSchoolRequest();
@@ -79,9 +73,7 @@ class StoreSchoolRequestTest extends TestCase
         $this->assertArrayHasKey('id_municipio', $validator->errors()->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function nome_nao_pode_exceder_limite_maximo()
     {
         $request = new StoreSchoolRequest();
@@ -99,8 +91,8 @@ class StoreSchoolRequestTest extends TestCase
         return [
             'nome' => 'Escola Exemplo Válida',
             'id_municipio' => $this->municipioValido->id_municipio,
-            'nivel_ensino' => 'medio', 
-            'localizacao' => 'urbana', 
+            'nivel_ensino' => 'colegio_estadual', 
+            'tipo' => 'urbana', 
         ];
     }
 
@@ -110,7 +102,7 @@ class StoreSchoolRequestTest extends TestCase
             'nome ausente' => ['nome', ''],
             'municipio ausente' => ['id_municipio', null],
             'nivel ensino ausente' => ['nivel_ensino', ''],
-            'localizacao ausente' => ['localizacao', ''],
+            'tipo ausente' => ['tipo', ''],
         ];
     }
 
@@ -118,7 +110,7 @@ class StoreSchoolRequestTest extends TestCase
     {
         return [
             'nivel ensino invalido' => ['nivel_ensino', 'superior'],
-            'localizacao invalida' => ['localizacao', 'metropolitana'],
+            'tipo invalido' => ['tipo', 'metropolitana'],
         ];
     }
 }

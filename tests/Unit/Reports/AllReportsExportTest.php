@@ -1,70 +1,75 @@
 <?php
 
-namespace Tests\Unit\Reports; // Namespace correto
+namespace Tests\Unit\Reports;
 
-use Tests\TestCase; // Classe base
+use Tests\TestCase;
 use App\Exports\AllReportsExport;
+use App\Exports\KpiSheet;
+use App\Exports\ChartDataSheet;
 use App\Exports\SingleReportSheet;
-use App\Models\Usuario;
-use App\Models\RecursoDidatico;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 
 class AllReportsExportTest extends TestCase
 {
-    use RefreshDatabase; // Necessário para criar dados simulados
+    private $reports;
+    private $stats;
+    private $chartData;
 
-    /** @test */
-    public function sheets_cria_aba_unica_para_relatorio_de_usuarios()
+    protected function setUp(): void
     {
-        $filters = ['tipo_relatorio' => 'usuarios'];
-        $export = new AllReportsExport($filters);
-
-        // Injeta dados simulados (o construtor real buscaria no BD)
-        $export->users = Usuario::factory(2)->make();
-
-        $this->assertInstanceOf(WithMultipleSheets::class, $export);
-        $sheets = $export->sheets();
+        parent::setUp();
         
-        $this->assertCount(1, $sheets);
-        $this->assertInstanceOf(SingleReportSheet::class, $sheets[0]);
-        $this->assertEquals('Usuários', $sheets[0]->title());
+        $this->reports = [
+            'usage_by_resource' => [
+                'title' => 'Uso por Recurso',
+                'columns' => ['Recurso', 'Tipo', 'Agendamentos', 'Horas'],
+                'data' => collect([
+                    ['nome' => 'Projetor A', 'tipo' => 'Projetor', 'agendamentos_count' => 10, 'total_hours' => 25.5],
+                ])
+            ],
+            'usage_by_school' => [
+                'title' => 'Uso por Escola',
+                'columns' => ['Escola', 'Agendamentos', 'Horas'],
+                'data' => collect([
+                    ['nome' => 'Escola A', 'agendamentos_count' => 50, 'total_hours' => 120],
+                ])
+            ]
+        ];
+        
+        $this->stats = ['total_agendamentos' => 100, 'total_horas' => 250.5];
+        $this->chartData = [
+            'recursosPorStatus' => collect([['label' => 'Funcionando', 'value' => 10]]),
+            'usuariosPorTipo' => collect([['label' => 'Professor', 'value' => 20]])
+        ];
     }
 
-    /** @test */
-    public function sheets_cria_aba_unica_para_relatorio_de_recursos()
+    #[Test]
+    public function construtor_define_propriedades()
     {
-        $filters = ['tipo_relatorio' => 'recursos'];
-        $export = new AllReportsExport($filters);
-        $export->resources = RecursoDidatico::factory(3)->make();
+        $export = new AllReportsExport(
+            $this->reports,
+            $this->stats,
+            $this->chartData
+        );
 
-        $sheets = $export->sheets();
-        
-        $this->assertCount(1, $sheets);
-        $this->assertInstanceOf(SingleReportSheet::class, $sheets[0]);
-        $this->assertEquals('Recursos Didáticos', $sheets[0]->title());
+        $this->assertInstanceOf(AllReportsExport::class, $export);
     }
 
-    /** @test */
-    public function sheets_cria_multiplas_abas_para_relatorio_completo()
+    #[Test]
+    public function metodo_planilhas_retorna_planilhas_corretas()
     {
-        $filters = ['tipo_relatorio' => 'completo'];
-        $export = new AllReportsExport($filters);
-
-        // Injeta dados simulados em todas as propriedades
-        $export->users = Usuario::factory(2)->make();
-        $export->schools = collect([]); // Simula
-        $export->classes = collect([]); // Simula
-        $export->resources = RecursoDidatico::factory(3)->make();
-        $export->appointments = collect([]); // Simula
-
-        $sheets = $export->sheets();
+        $export = new AllReportsExport(
+            $this->reports,
+            $this->stats,
+            $this->chartData
+        );
         
-        $this->assertCount(5, $sheets); // Usuários, Escolas, Turmas, Recursos, Agendamentos
-        $this->assertEquals('Usuários', $sheets[0]->title());
-        $this->assertEquals('Escolas', $sheets[1]->title());
-        $this->assertEquals('Turmas', $sheets[2]->title());
-        $this->assertEquals('Recursos Didáticos', $sheets[3]->title());
-        $this->assertEquals('Agendamentos', $sheets[4]->title());
+        $sheets = $export->sheets();
+
+        $this->assertCount(4, $sheets);
+        $this->assertInstanceOf(KpiSheet::class, $sheets[0]);
+        $this->assertInstanceOf(ChartDataSheet::class, $sheets[1]);
+        $this->assertInstanceOf(SingleReportSheet::class, $sheets[2]);
+        $this->assertInstanceOf(SingleReportSheet::class, $sheets[3]);
     }
 }

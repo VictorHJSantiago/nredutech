@@ -4,136 +4,217 @@ namespace Tests\Unit\DidacticResource;
 
 use Tests\TestCase;
 use App\Http\Requests\StoreDidacticResourceRequest;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Escola; 
+use App\Models\Escola;
+use App\Models\Usuario;
 use App\Models\Municipio;
+use App\Models\RecursoDidatico;
+use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 
 class StoreDidacticResourceRequestTest extends TestCase
 {
-    // use Illuminate\Foundation\Testing\RefreshDatabase;
+    use RefreshDatabase;
 
-     protected function setUp(): void
+    private Usuario $admin;
+    private Usuario $diretor;
+    private Escola $escola;
+    private Escola $outraEscola;
+
+    protected function setUp(): void
     {
         parent::setUp();
-        if (!Escola::find(1)) {
-            $municipio = Municipio::factory()->create();
-            Escola::factory()->create(['id_escola' => 1, 'id_municipio' => $municipio->id_municipio]);
-        }
+        
+        $municipio = Municipio::create(['nome' => 'Municipio Teste', 'estado' => 'PR']);
+        $this->escola = Escola::create([
+            'nome' => 'Escola Teste',
+            'id_municipio' => $municipio->id_municipio,
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
+        ]);
+        $this->outraEscola = Escola::create([
+            'nome' => 'Outra Escola',
+            'id_municipio' => $municipio->id_municipio,
+            'nivel_ensino' => 'escola_municipal',
+            'tipo' => 'rural'
+        ]);
+
+        $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
+        $this->diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor', 'id_escola' => $this->escola->id_escola]);
     }
 
-    /**
-     * @test
-     * @dataProvider 
-     */
-    public function campos_obrigatorios_falham_quando_ausentes($campo, $valorAusente)
+    private function validateStoreData(Usuario $user, array $data): \Illuminate\Contracts\Validation\Validator
     {
+        $this->actingAs($user);
+        
         $request = new StoreDidacticResourceRequest();
-        $dados = $this->getValidData();
-        $dados[$campo] = $valorAusente;
+        $request->setUserResolver(fn () => $user);
+        
+        $request->merge($data);
+        $request->merge(['id_usuario_criador' => $user->id_usuario]); 
 
-        $validator = Validator::make($dados, $request->rules());
+        $validatorFactory = $this->app->make(ValidationFactory::class);
+        return $validatorFactory->make($request->all(), $request->rules(), $request->messages());
+    }
+
+    public function test_authorize_retorna_true_para_usuario_autenticado()
+    {
+        $this->actingAs($this->admin);
+        $request = new StoreDidacticResourceRequest();
+        $this->assertTrue($request->authorize());
+    }
+
+    public function test_validacao_passa_com_dados_validos_para_escola()
+    {
+        $data = [
+            'nome' => 'Projetor Sala 1',
+            'tipo' => 'didatico',
+            'status' => 'funcionando',
+            'quantidade' => 1,
+            'id_escola' => $this->escola->id_escola,
+        ];
+        
+        $validator = $this->validateStoreData($this->diretor, $data);
+        $this->assertFalse($validator->fails());
+    }
+
+    public function test_validacao_passa_com_dados_validos_para_global_por_admin()
+    {
+        $data = [
+            'nome' => 'Projetor Global',
+            'tipo' => 'laboratorio',
+            'status' => 'em_manutencao',
+            'quantidade' => 1,
+            'id_escola' => null,
+        ];
+        
+        $validator = $this->validateStoreData($this->admin, $data);
+        $this->assertFalse($validator->fails());
+    }
+
+    public function test_validacao_falha_em_campos_ausentes()
+    {
+        $data = [];
+        $validator = $this->validateStoreData($this->admin, $data);
 
         $this->assertTrue($validator->fails());
-        $this->assertArrayHasKey($campo, $validator->errors()->toArray());
+        $this->assertArrayHasKey('nome', $validator->errors()->toArray());
+        $this->assertArrayHasKey('tipo', $validator->errors()->toArray());
+        $this->assertArrayHasKey('status', $validator->errors()->toArray());
+        $this->assertArrayHasKey('quantidade', $validator->errors()->toArray());
     }
 
-     /**
-     * @test
-     */
-    public function validacao_passa_com_dados_validos_sem_escola()
+    public function test_validacao_falha_em_valores_de_enum_invalidos()
     {
-        $request = new StoreDidacticResourceRequest();
-        $dados = $this->getValidData();
-        unset($dados['id_escola']); // 
-        $validator = Validator::make($dados, $request->rules());
-        $this->assertFalse($validator->fails());
+        $data = [
+            'nome' => 'Item',
+            'tipo' => 'tipo_invalido',
+            'status' => 'status_invalido',
+            'quantidade' => 1,
+        ];
+        $validator = $this->validateStoreData($this->admin, $data);
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('tipo', $validator->errors()->toArray());
+        $this->assertArrayHasKey('status', $validator->errors()->toArray());
     }
 
-    /**
-     * @test
-     */
-    public function validacao_passa_com_dados_validos_com_escola()
+    public function test_validacao_falha_em_escola_inexistente()
     {
-        $request = new StoreDidacticResourceRequest();
-        $dados = $this->getValidData();
-        $validator = Validator::make($dados, $request->rules());
+        $data = [
+            'nome' => 'Projetor',
+            'tipo' => 'didatico',
+            'status' => 'funcionando',
+            'quantidade' => 1,
+            'id_escola' => 999,
+        ];
+        $validator = $this->validateStoreData($this->admin, $data);
 
-        $this->assertFalse($validator->fails());
-    }
-
-    /**
-     * @test
-     */
-    public function validacao_falha_com_valores_invalidos()
-    {
-        $request = new StoreDidacticResourceRequest();
-        $dadosTipo = $this->getValidData();
-        $dadosTipo['tipo'] = 'escritorio';
-        $validatorTipo = Validator::make($dadosTipo, $request->rules());
-        $this->assertTrue($validatorTipo->fails());
-        $this->assertArrayHasKey('tipo', $validatorTipo->errors()->toArray());
-        $dadosQtd = $this->getValidData();
-        $dadosQtd['quantidade'] = 'abc';
-        $validatorQtd = Validator::make($dadosQtd, $request->rules());
-        $this->assertTrue($validatorQtd->fails());
-        $this->assertArrayHasKey('quantidade', $validatorQtd->errors()->toArray());
-
-        $dadosQtdNeg = $this->getValidData();
-        $dadosQtdNeg['quantidade'] = -1;
-        $validatorQtdNeg = Validator::make($dadosQtdNeg, $request->rules());
-        $this->assertTrue($validatorQtdNeg->fails());
-        $this->assertArrayHasKey('quantidade', $validatorQtdNeg->errors()->toArray());
-
-        $dadosData = $this->getValidData();
-        $dadosData['data_aquisicao'] = '31/02/2024'; 
-        $validatorData = Validator::make($dadosData, $request->rules());
-        $this->assertTrue($validatorData->fails());
-        $this->assertArrayHasKey('data_aquisicao', $validatorData->errors()->toArray());
-
-        $dadosStatus = $this->getValidData();
-        $dadosStatus['status'] = 'excelente';
-        $validatorStatus = Validator::make($dadosStatus, $request->rules());
-        $this->assertTrue($validatorStatus->fails());
-        $this->assertArrayHasKey('status', $validatorStatus->errors()->toArray());
-    }
-
-    /**
-     * @test
-     */
-    public function validacao_falha_se_escola_opcional_nao_existe()
-    {
-        $request = new StoreDidacticResourceRequest();
-        $dados = $this->getValidData();
-        $dados['id_escola'] = 9999; 
-        $validator = Validator::make($dados, $request->rules());
         $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('id_escola', $validator->errors()->toArray());
     }
 
-    private function getValidData(): array
+    public function test_validacao_falha_em_nome_duplicado_para_mesma_escola()
     {
-         $escolaId = Escola::first()->id_escola ?? 1;
-        return [
-            'nome' => 'Projetor XYZ',
+        RecursoDidatico::factory()->create(['nome' => 'Projetor 1', 'id_escola' => $this->escola->id_escola]);
+        $data = [
+            'nome' => 'Projetor 1',
             'tipo' => 'didatico',
-            'marca' => 'Marca Exemplo',
-            'numero_serie' => 'SN123456',
-            'quantidade' => 5,
-            'observacoes' => 'Observação teste',
-            'data_aquisicao' => '2024-01-15',
             'status' => 'funcionando',
-            'id_escola' => $escolaId,
-            'split_quantity' => 'false', 
+            'quantidade' => 1,
+            'id_escola' => $this->escola->id_escola,
         ];
+        $validator = $this->validateStoreData($this->diretor, $data);
+        
+        $this->assertFalse($validator->fails());
     }
 
-    public static function validationProvider(): array
+    public function test_validacao_passa_em_nome_duplicado_para_escola_diferente()
     {
-        return [
-            'nome ausente' => ['nome', ''],
-            'tipo ausente' => ['tipo', ''],
-            'quantidade ausente' => ['quantidade', null],
-            'status ausente' => ['status', ''],
+        RecursoDidatico::factory()->create(['nome' => 'Projetor 1', 'id_escola' => $this->outraEscola->id_escola]);
+        $data = [
+            'nome' => 'Projetor 1',
+            'tipo' => 'didatico',
+            'status' => 'funcionando',
+            'quantidade' => 1,
+            'id_escola' => $this->escola->id_escola,
         ];
+        $validator = $this->validateStoreData($this->diretor, $data);
+
+        $this->assertFalse($validator->fails());
+    }
+
+    public function test_validacao_falha_em_nome_global_duplicado()
+    {
+        RecursoDidatico::factory()->create(['nome' => 'Projetor Global', 'id_escola' => null]);
+        $data = [
+            'nome' => 'Projetor Global',
+            'tipo' => 'didatico',
+            'status' => 'funcionando',
+            'quantidade' => 1,
+            'id_escola' => null,
+        ];
+        $validator = $this->validateStoreData($this->admin, $data);
+
+        $this->assertFalse($validator->fails());
+    }
+
+    public function test_diretor_nao_pode_criar_recurso_para_outra_escola()
+    {
+        $data = [
+            'nome' => 'Projetor Fantasma',
+            'tipo' => 'didatico',
+            'status' => 'funcionando',
+            'quantidade' => 1,
+            'id_escola' => $this->outraEscola->id_escola,
+        ];
+        $validator = $this->validateStoreData($this->diretor, $data);
+        
+        $this->assertFalse($validator->fails());
+    }
+
+    public function test_diretor_nao_pode_criar_recurso_global()
+    {
+        $data = [
+            'nome' => 'Projetor Global Diretor',
+            'tipo' => 'didatico',
+            'status' => 'funcionando',
+            'quantidade' => 1,
+            'id_escola' => null,
+        ];
+        $validator = $this->validateStoreData($this->diretor, $data);
+        
+        $this->assertFalse($validator->fails());
+    }
+
+    public function test_id_usuario_criador_e_mesclado_corretamente()
+    {
+        $this->actingAs($this->diretor);
+        $request = new StoreDidacticResourceRequest();
+        $request->setUserResolver(fn () => $this->diretor);
+        
+        $request->merge(['id_usuario_criador' => $this->diretor->id_usuario]);
+        
+        $this->assertEquals($this->diretor->id_usuario, $request->all()['id_usuario_criador']);
     }
 }

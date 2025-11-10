@@ -1,37 +1,78 @@
 <?php
 
 namespace Tests\Unit\User;
+
 use Tests\TestCase;
 use App\Http\Resources\UserResource;
+use App\Models\Escola;
+use App\Models\Municipio;
 use App\Models\Usuario;
-use Illuminate\Http\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 
 class UserResourceTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function formata_corretamente_os_dados_do_usuario()
-    {
-        $usuario = Usuario::factory()->make([
-            'id_usuario' => 123,
-            'nome_completo' => 'João da Silva',
-            'username' => 'joao.silva',
-            'email' => 'joao@example.com',
-            'status_aprovacao' => 'ativo',
-            'tipo_usuario' => 'professor'
-        ]);
+    protected $escola;
 
-        $resource = new UserResource($usuario);
-        $request = Request::create('/api/usuarios/123', 'GET');
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $municipio = Municipio::create(['nome' => 'Municipio Teste', 'estado' => 'PR']);
+        $this->escola = Escola::create([
+            'nome' => 'Escola Teste',
+            'id_municipio' => $municipio->id_municipio,
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
+        ]);
+    }
+
+    public function test_recurso_de_usuario_transforma_corretamente_com_escola()
+    {
+        $user = Usuario::factory()->create([
+            'nome_completo' => 'Usuário Teste',
+            'username' => 'testeuser',
+            'email' => 'teste@example.com',
+            'tipo_usuario' => 'professor',
+            'id_escola' => $this->escola->id_escola,
+        ]);
+        $user->load('escola'); 
+
+        $resource = new UserResource($user);
+        $request = Request::create('/api/users/1', 'GET');
         $resourceArray = $resource->toArray($request);
 
-        $this->assertEquals(123, $resourceArray['id']);
-        $this->assertEquals('João da Silva', $resourceArray['nomeCompleto']);
-        $this->assertEquals('joao.silva', $resourceArray['username']);
-        $this->assertEquals('ativo', $resourceArray['status']);
+        $this->assertEquals($user->id_usuario, $resourceArray['id']);
+        $this->assertEquals('Usuário Teste', $resourceArray['nomeCompleto']);
+        $this->assertEquals('testeuser', $resourceArray['username']);
+        $this->assertEquals('teste@example.com', $resourceArray['email']);
         $this->assertEquals('professor', $resourceArray['tipo']);
-        $this->assertArrayNotHasKey('password', $resourceArray); 
+        $this->assertEquals('Escola Teste', $resourceArray['escola']->nome);
+    }
+
+    public function test_recurso_de_usuario_transforma_corretamente_sem_escola()
+    {
+        $user = Usuario::factory()->create([
+            'nome_completo' => 'Admin Teste',
+            'username' => 'adminuser',
+            'email' => 'admin@example.com',
+            'tipo_usuario' => 'administrador',
+            'id_escola' => null,
+        ]);
+        
+        $user->load('escola');
+
+        $resource = new UserResource($user);
+        $request = Request::create('/api/users/2', 'GET');
+        $resourceArray = $resource->toArray($request);
+
+        $this->assertEquals($user->id_usuario, $resourceArray['id']);
+        $this->assertEquals('Admin Teste', $resourceArray['nomeCompleto']);
+        $this->assertEquals('administrador', $resourceArray['tipo']);
+        
+        // O resource 'escola' é um objeto (SchoolResource) com um 'resource' interno nulo
+        // A asserção correta é verificar o 'resource' interno.
+        $this->assertNull($resourceArray['escola']->resource);
     }
 }

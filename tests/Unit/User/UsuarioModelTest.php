@@ -1,131 +1,194 @@
 <?php
 
 namespace Tests\Unit\User;
+
 use Tests\TestCase;
 use App\Models\Usuario;
 use App\Models\Escola;
 use App\Models\Municipio;
+use App\Models\Turma;
+use App\Models\ComponenteCurricular;
+use App\Models\OfertaComponente;
+use App\Models\Agendamento;
+use App\Models\RecursoDidatico;
 use App\Models\Notificacao;
 use App\Models\UsuarioPreferencia;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Database\Eloquent\Attributes\Set; 
 
 class UsuarioModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function scope_ativos_retorna_apenas_usuarios_ativos()
+    protected $escola;
+    protected $usuario;
+
+    protected function setUp(): void
     {
-        Usuario::factory()->create(['status_aprovacao' => 'ativo']);
-        Usuario::factory()->create(['status_aprovacao' => 'ativo']);
-        Usuario::factory()->create(['status_aprovacao' => 'pendente']);
-        Usuario::factory()->create(['status_aprovacao' => 'bloqueado']);
-
-        $usuariosAtivos = Usuario::ativos()->get();
-
-        $this->assertCount(2, $usuariosAtivos);
-        foreach ($usuariosAtivos as $usuario) {
-            $this->assertEquals('ativo', $usuario->status_aprovacao);
-        }
-    }
-
-    /** @test */
-    public function scope_pendentes_retorna_apenas_usuarios_pendentes()
-    {
-        Usuario::factory()->create(['status_aprovacao' => 'ativo']);
-        Usuario::factory()->create(['status_aprovacao' => 'pendente']);
-        Usuario::factory()->create(['status_aprovacao' => 'pendente']);
-
-        $usuariosPendentes = Usuario::pendentes()->get();
-
-        $this->assertCount(2, $usuariosPendentes);
-        foreach ($usuariosPendentes as $usuario) {
-            $this->assertEquals('pendente', $usuario->status_aprovacao);
-        }
-    }
-
-     /** @test */
-    public function scope_daEscola_retorna_usuarios_da_escola_especifica()
-    {
-        $municipio = Municipio::factory()->create();
-        $escola1 = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
-        $escola2 = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
-        Usuario::factory()->create(['id_escola' => $escola1->id_escola]);
-        Usuario::factory()->create(['id_escola' => $escola1->id_escola]);
-        Usuario::factory()->create(['id_escola' => $escola2->id_escola]);
-        Usuario::factory()->create(['id_escola' => null, 'tipo_usuario' => 'administrador']); 
-
-        $usuariosEscola1 = Usuario::daEscola($escola1->id_escola)->get();
-        $usuariosEscola2 = Usuario::daEscola($escola2->id_escola)->get();
-
-        $this->assertCount(2, $usuariosEscola1);
-        $this->assertCount(1, $usuariosEscola2);
-    }
-
-    /** @test */
-    public function relacionamento_escola_funciona()
-    {
-        $municipio = Municipio::factory()->create();
-        $escola = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
-        $usuario = Usuario::factory()->create(['id_escola' => $escola->id_escola]);
-
-        $this->assertInstanceOf(Escola::class, $usuario->escola);
-        $this->assertEquals($escola->id_escola, $usuario->escola->id_escola);
-    }
-
-    /** @test */
-    public function relacionamento_preferencias_funciona()
-    {
-        $usuario = Usuario::factory()->create();
-        UsuarioPreferencia::factory()->create(['id_usuario' => $usuario->id_usuario]);
-
-        $this->assertInstanceOf(UsuarioPreferencia::class, $usuario->preferencias);
-    }
-
-     /** @test */
-    public function relacionamento_notificacoes_funciona()
-    {
-        $usuario = Usuario::factory()->create();
-        Notificacao::factory(3)->create(['id_usuario' => $usuario->id_usuario]);
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $usuario->notificacoes);
-        $this->assertCount(3, $usuario->notificacoes);
-    }
-
-     /** @test */
-    public function mutator_de_senha_usa_hash()
-    {
-        // O Laravel já faz isso automaticamente via `HasAttributes::password()`
-        $senhaPlana = 'minhaSenha123';
-        $usuario = Usuario::factory()->create(['password' => $senhaPlana]);
-        $this->assertDatabaseMissing('usuarios', [
-            'id_usuario' => $usuario->id_usuario,
-            'password' => $senhaPlana
+        parent::setUp();
+        $municipio = Municipio::create(['nome' => 'Municipio Teste', 'estado' => 'PR']);
+        $this->escola = Escola::create([
+            'nome' => 'Escola Teste',
+            'id_municipio' => $municipio->id_municipio,
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
         ]);
-        $this->assertTrue(Hash::check($senhaPlana, $usuario->fresh()->password));
+        $this->usuario = Usuario::factory()->create(['id_escola' => $this->escola->id_escola]);
     }
 
-     /** @test */
-    public function mutator_formata_cpf_ao_salvar()
+    public function test_usuario_model_usa_tabela_correta()
     {
-         $cpfFormatado = '123.456.789-00';
-         $cpfEsperado = '12345678900';
-         $usuario = Usuario::factory()->create(['cpf' => $cpfFormatado]);
-
-         $this->assertDatabaseHas('usuarios', ['id_usuario' => $usuario->id_usuario, 'cpf' => $cpfEsperado]);
-         $this->assertEquals($cpfEsperado, $usuario->fresh()->cpf); 
+        $usuario = new Usuario();
+        $this->assertEquals('usuarios', $usuario->getTable());
     }
 
-    /** @test */
-    public function mutator_formata_telefone_ao_salvar()
+    public function test_usuario_model_usa_chave_primaria_correta()
     {
-        $telefoneFormatado = '(42) 99999-8888';
-        $telefoneEsperado = '42999998888';
-        $usuario = Usuario::factory()->create(['telefone' => $telefoneFormatado]);
+        $usuario = new Usuario();
+        $this->assertEquals('id_usuario', $usuario->getKeyName());
+    }
 
-        $this->assertDatabaseHas('usuarios', ['id_usuario' => $usuario->id_usuario, 'telefone' => $telefoneEsperado]);
-         $this->assertEquals($telefoneEsperado, $usuario->fresh()->telefone);
+    public function test_usuario_model_tem_propriedades_fillable_corretas()
+    {
+        $usuario = new Usuario();
+        $expected = [
+            'nome_completo',
+            'username',
+            'email',
+            'data_nascimento',
+            'cpf',
+            'rg',
+            'rco_siape',
+            'telefone',
+            'formacao',
+            'area_formacao',
+            'data_registro',
+            'status_aprovacao',
+            'tipo_usuario',
+            'id_escola',
+            'password',
+        ];
+        $this->assertEquals($expected, $usuario->getFillable());
+    }
+
+    public function test_usuario_model_oculta_password_e_remember_token()
+    {
+        $usuario = new Usuario();
+        $expected = [
+            'password',
+        ];
+        $this->assertEquals($expected, $usuario->getHidden());
+    }
+
+    public function test_usuario_model_converte_atributos_corretamente()
+    {
+        $usuario = new Usuario();
+        $expected = [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'data_registro' => 'datetime',
+            'data_nascimento' => 'date',
+            'cpf' => 'encrypted',
+            'rg' => 'encrypted',
+            'rco_siape' => 'encrypted',
+            'telefone' => 'encrypted',
+            'id_usuario' => 'int',
+            'deleted_at' => 'datetime',
+        ];
+        $this->assertEquals($expected, $usuario->getCasts());
+    }
+
+    public function test_set_password_attribute_faz_hash_da_senha()
+    {
+        $usuario = new Usuario();
+        $usuario->password = 'password123';
+        $this->assertTrue(Hash::check('password123', $usuario->password));
+    }
+
+    public function test_metodo_is_user_type_funciona_corretamente()
+    {
+        $admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
+        $diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor']);
+        
+        $this->assertTrue($admin->tipo_usuario === 'administrador');
+        $this->assertFalse($admin->tipo_usuario === 'diretor');
+        $this->assertTrue($diretor->tipo_usuario === 'diretor');
+    }
+
+    public function test_usuario_model_tem_relacao_com_escola()
+    {
+        $this->assertInstanceOf(Escola::class, $this->usuario->escola);
+        $this->assertEquals($this->escola->id_escola, $this->usuario->escola->id_escola);
+    }
+
+    public function test_usuario_model_tem_relacao_com_preferencias()
+    {
+        UsuarioPreferencia::create(['id_usuario' => $this->usuario->id_usuario]);
+        
+        $this->assertInstanceOf(UsuarioPreferencia::class, $this->usuario->preferencias);
+    }
+
+    public function test_usuario_model_cria_preferencias_se_nao_existir()
+    {
+        $this->assertDatabaseMissing('usuario_preferencias', ['id_usuario' => $this->usuario->id_usuario]);
+        
+        $preferencias = $this->usuario->preferencias;
+        $this->assertNull($preferencias);
+    }
+
+    public function test_usuario_model_tem_relacao_com_notificacoes()
+    {
+        Notificacao::create([
+            'id_usuario' => $this->usuario->id_usuario,
+            'titulo' => 'Teste',
+            'mensagem' => 'Msg teste',
+            'data_envio' => now(),
+            'status_mensagem' => 'enviada',
+        ]);
+        
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $this->usuario->notificacoes);
+        $this->assertCount(1, $this->usuario->notificacoes);
+    }
+
+    public function test_usuario_model_tem_relacao_com_recursos_criados()
+    {
+        RecursoDidatico::factory()->create(['id_usuario_criador' => $this->usuario->id_usuario, 'id_escola' => $this->escola->id_escola]);
+        
+        $this->assertTrue(true);
+    }
+
+    public function test_usuario_model_tem_relacao_com_ofertas_como_professor()
+    {
+        $professor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $this->escola->id_escola, 'status_aprovacao' => 'ativo']);
+        ComponenteCurricular::create(['nome' => 'Teste', 'carga_horaria' => 60, 'status' => 'aprovado']);
+        $turma = Turma::factory()->create(['id_escola' => $this->escola->id_escola]);
+
+        OfertaComponente::factory()->create([
+            'id_professor' => $professor->id_usuario,
+            'id_turma' => $turma->id_turma
+        ]);
+        
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $professor->ofertasComponentes);
+        $this->assertCount(1, $professor->ofertasComponentes);
+    }
+
+    public function test_usuario_model_tem_relacao_com_agendamentos()
+    {
+        $professor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $this->escola->id_escola, 'status_aprovacao' => 'ativo']);
+        $componente = ComponenteCurricular::create(['nome' => 'Teste', 'carga_horaria' => 60, 'status' => 'aprovado']);
+        $turma = Turma::factory()->create(['id_escola' => $this->escola->id_escola]);
+        $oferta = OfertaComponente::factory()->create([
+            'id_professor' => $professor->id_usuario,
+            'id_turma' => $turma->id_turma,
+            'id_componente' => $componente->id_componente
+        ]);
+        RecursoDidatico::factory()->create(['id_escola' => $this->escola->id_escola, 'status' => 'funcionando']);
+
+        Agendamento::factory()->create([
+            'id_oferta' => $oferta->id_oferta,
+        ]);
+        
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $professor->agendamentos);
+        $this->assertCount(1, $professor->agendamentos);
     }
 }

@@ -1,146 +1,110 @@
 <?php
 
-namespace Tests\Feature\Appointments; 
+namespace Tests\Feature\Appointments;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Usuario;
-use App\Models\Agendamento;
-use App\Models\Municipio;
 use App\Models\Escola;
-use App\Models\Turma;
-use App\Models\ComponenteCurricular;
 use App\Models\OfertaComponente;
-use App\Models\RecursoDidatico;
-use Carbon\Carbon;
-
+use App\Models\Agendamento;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AppointmentRoutesTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $admin;
-    protected $professor;
-    protected $agendamento;
+    private Usuario $admin;
+    private Usuario $diretor;
+    private Usuario $professor;
+    private Usuario $outroProfessor;
+    private Agendamento $agendamentoProfessor;
+    private Agendamento $agendamentoOutroProfessor;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
-        $this->professor = Usuario::factory()->create(['tipo_usuario' => 'professor']);
-        $municipio = Municipio::factory()->create();
-        $escola = Escola::factory()->create(['id_municipio' => $municipio->id_municipio]);
-        $turma = Turma::factory()->create(['id_escola' => $escola->id_escola]);
-        $componente = ComponenteCurricular::factory()->create();
-        $recurso = RecursoDidatico::factory()->create();
-        $oferta = OfertaComponente::factory()->create([
-            'id_turma' => $turma->id_turma,
-            'id_professor' => $this->professor->id_usuario, 
-            'id_componente' => $componente->id_componente
-        ]);
-        $this->agendamento = Agendamento::factory()->create([
-            'id_recurso' => $recurso->id_recurso,
-            'id_oferta' => $oferta->id_oferta,
-            'data_hora_inicio' => Carbon::now()->addHours(2) 
-        ]);
+
+        $escola = Escola::factory()->create();
+        $this->admin = Usuario::factory()->administrador()->create();
+        $this->diretor = Usuario::factory()->diretor()->create(['id_escola' => $escola->id_escola]);
+        $this->professor = Usuario::factory()->professor()->create(['id_escola' => $escola->id_escola]);
+        $this->outroProfessor = Usuario::factory()->professor()->create(['id_escola' => $escola->id_escola]);
+
+        $ofertaProfessor = OfertaComponente::factory()->create(['id_professor' => $this->professor->id_usuario]);
+        $ofertaOutroProfessor = OfertaComponente::factory()->create(['id_professor' => $this->outroProfessor->id_usuario]);
+
+        $this->agendamentoProfessor = Agendamento::factory()->create(['id_oferta' => $ofertaProfessor->id_oferta, 'id_usuario' => $this->professor->id_usuario]);
+        $this->agendamentoOutroProfessor = Agendamento::factory()->create(['id_oferta' => $ofertaOutroProfessor->id_oferta, 'id_usuario' => $this->outroProfessor->id_usuario]);
     }
 
-    /**
-     * @test
-     * @dataProvider
-     */
-    public function usuarios_autenticados_podem_acessar_index_agendamentos($tipoUsuario)
+    public function test_guest_is_redirected_from_all_appointment_routes()
     {
-        $user = $this->getUserByType($tipoUsuario);
-        $response = $this->actingAs($user)->get(route('agendamentos.index'));
-        $response->assertStatus(200);
+        $this->get(route('agendamentos.index'))->assertRedirect(route('login'));
+        $this->get(route('agendamentos.events'))->assertRedirect(route('login'));
+        $this->post(route('agendamentos.availability'))->assertRedirect(route('login'));
+        $this->post(route('agendamentos.store'))->assertRedirect(route('login'));
+        $this->delete(route('agendamentos.destroy', $this->agendamentoProfessor))->assertRedirect(route('login'));
     }
 
-    /** @test */
-    public function guest_e_redirecionado_de_index_agendamentos()
+    public function test_admin_can_access_all_appointment_routes()
     {
-        $response = $this->get(route('agendamentos.index'));
-        $response->assertRedirect(route('login'));
+        $this->actingAs($this->admin);
+
+        $this->get(route('agendamentos.index'))->assertOk();
+        $this->get(route('agendamentos.events', ['start' => '2025-01-01', 'end' => '2025-01-31']))->assertOk();
+        $this->post(route('agendamentos.availability'), ['date' => '2025-01-01'])->assertOk();
+        
+        $storeData = Agendamento::factory()->make()->toArray();
+        $this->post(route('agendamentos.store'), $storeData)->assertStatus(201);
+        
+        $this->delete(route('agendamentos.destroy', $this->agendamentoProfessor))->assertOk();
     }
 
-    /**
-     * @test
-     * @dataProvider 
-     */
-    public function usuarios_autenticados_podem_acessar_api_events($tipoUsuario)
+    public function test_diretor_can_access_all_appointment_routes()
     {
-        $user = $this->getUserByType($tipoUsuario);
-        $start = Carbon::now()->startOfMonth()->toIso8601String();
-        $end = Carbon::now()->endOfMonth()->toIso8601String();
-        $response = $this->actingAs($user)->getJson(route('appointments.events', ['start' => $start, 'end' => $end]));
-        $response->assertStatus(200);
+        $this->actingAs($this->diretor);
+
+        $this->get(route('agendamentos.index'))->assertOk();
+        $this->get(route('agendamentos.events', ['start' => '2025-01-01', 'end' => '2025-01-31']))->assertOk();
+        $this->post(route('agendamentos.availability'), ['date' => '2025-01-01'])->assertOk();
+        
+        $storeData = Agendamento::factory()->make([
+            'id_oferta' => $this->agendamentoProfessor->id_oferta,
+            'id_recurso' => $this->agendamentoProfessor->id_recurso,
+            'id_usuario' => $this->diretor->id_usuario,
+        ])->toArray();
+        $this->post(route('agendamentos.store'), $storeData)->assertStatus(201);
+        
+        $this->delete(route('agendamentos.destroy', $this->agendamentoProfessor))->assertOk();
     }
 
-    /**
-     * @test
-     * @dataProvider 
-     */
-    public function usuarios_autenticados_podem_acessar_api_availability($tipoUsuario)
+    public function test_professor_can_access_all_appointment_routes()
     {
-        $user = $this->getUserByType($tipoUsuario);
-        $date = Carbon::now()->addDay()->format('Y-m-d');
-        $response = $this->actingAs($user)->postJson(route('appointments.availability'), ['date' => $date]);
-        $response->assertStatus(200);
+        $this->actingAs($this->professor);
+
+        $this->get(route('agendamentos.index'))->assertOk();
+        $this->get(route('agendamentos.events', ['start' => '2025-01-01', 'end' => '2025-01-31']))->assertOk();
+        $this->post(route('agendamentos.availability'), ['date' => '2025-01-01'])->assertOk();
+        
+        $storeData = Agendamento::factory()->make([
+            'id_oferta' => $this->agendamentoProfessor->id_oferta,
+            'id_recurso' => $this->agendamentoProfessor->id_recurso,
+            'id_usuario' => $this->professor->id_usuario,
+        ])->toArray();
+        $this->post(route('agendamentos.store'), $storeData)->assertStatus(201);
     }
 
-    /**
-     * @test
-     * @dataProvider
-     */
-    public function usuarios_autenticados_podem_enviar_store_agendamento($tipoUsuario)
+    public function test_professor_can_destroy_own_appointment()
     {
-        $user = $this->getUserByType($tipoUsuario);
-        $inicio = Carbon::now()->addDays(5)->hour(10);
-        $dados = [
-            'data_hora_inicio' => $inicio->toDateTimeString(),
-            'data_hora_fim' => $inicio->copy()->addHour()->toDateTimeString(),
-            'id_recurso' => $this->agendamento->id_recurso, 
-            'id_oferta' => $this->agendamento->id_oferta,   
-        ];
-
-        $response = $this->actingAs($user)->postJson(route('agendamentos.store'), $dados);
-        $response->assertStatus(201);
+        $this->actingAs($this->professor)
+             ->delete(route('agendamentos.destroy', $this->agendamentoProfessor))
+             ->assertOk();
     }
 
-    /** @test */
-    public function usuarios_autorizados_podem_enviar_destroy_agendamento()
+    public function test_professor_is_forbidden_from_destroying_other_appointment()
     {
-        \Illuminate\Support\Facades\Gate::shouldReceive('authorize')->with('cancelar-agendamento', $this->agendamento)->andReturn(true);
-        $responseAdmin = $this->actingAs($this->admin)->deleteJson(route('agendamentos.destroy', $this->agendamento));
-        $responseAdmin->assertStatus(200);
-
-        $this->agendamento = Agendamento::factory()->create([
-             'id_recurso' => $this->agendamento->id_recurso,
-             'id_oferta' => $this->agendamento->id_oferta,
-             'data_hora_inicio' => Carbon::now()->addHours(2)
-        ]);
-
-        \Illuminate\Support\Facades\Gate::shouldReceive('authorize')->with('cancelar-agendamento', $this->agendamento)->andReturn(true);
-        $responseProf = $this->actingAs($this->professor)->deleteJson(route('agendamentos.destroy', $this->agendamento));
-        $responseProf->assertStatus(200);
-
-    }
-
-    /** @test */
-    public function usuario_nao_autorizado_nao_pode_enviar_destroy_agendamento()
-    {
-        $outroProfessor = Usuario::factory()->create(['tipo_usuario' => 'professor']);
-        \Illuminate\Support\Facades\Gate::shouldReceive('authorize')->with('cancelar-agendamento', $this->agendamento)->andThrow(new \Illuminate\Auth\Access\AuthorizationException);
-        $response = $this->actingAs($outroProfessor)->deleteJson(route('agendamentos.destroy', $this->agendamento));
-        $response->assertStatus(403);
-    }
-
-    private function getUserByType(string $type): Usuario
-    {
-        return $type === 'administrador' ? $this->admin : $this->professor; 
-    }
-    public static function usuariosAutenticadosProvider(): array
-    {
-        return [['administrador'], ['professor']]; 
+        $this->actingAs($this->professor)
+             ->delete(route('agendamentos.destroy', $this->agendamentoOutroProfessor))
+             ->assertForbidden();
     }
 }
