@@ -56,7 +56,7 @@ class CourseOfferingResourceTest extends TestCase
         Turma::factory()->create(['id_escola' => $this->escola->id_escola]);
     }
 
-    public function test_course_offering_resource_transforms_correctly()
+    public function test_recurso_oferta_componente_transforma_corretamente()
     {
         $turma = Turma::factory()->create();
         

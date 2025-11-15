@@ -57,14 +57,14 @@ class StoreDidacticResourceRequestTest extends TestCase
         return $validatorFactory->make($request->all(), $request->rules(), $request->messages());
     }
 
-    public function test_authorize_retorna_true_para_usuario_autenticado()
+    public function teste_autorizacao_retorna_verdadeiro_para_usuario_autenticado()
     {
         $this->actingAs($this->admin);
         $request = new StoreDidacticResourceRequest();
         $this->assertTrue($request->authorize());
     }
 
-    public function test_validacao_passa_com_dados_validos_para_escola()
+    public function teste_validacao_passa_com_dados_validos_para_escola()
     {
         $data = [
             'nome' => 'Projetor Sala 1',
@@ -78,7 +78,7 @@ class StoreDidacticResourceRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validacao_passa_com_dados_validos_para_global_por_admin()
+    public function teste_validacao_passa_com_dados_validos_para_global_por_admin()
     {
         $data = [
             'nome' => 'Projetor Global',
@@ -92,7 +92,7 @@ class StoreDidacticResourceRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validacao_falha_em_campos_ausentes()
+    public function teste_validacao_falha_em_campos_ausentes()
     {
         $data = [];
         $validator = $this->validateStoreData($this->admin, $data);
@@ -104,7 +104,7 @@ class StoreDidacticResourceRequestTest extends TestCase
         $this->assertArrayHasKey('quantidade', $validator->errors()->toArray());
     }
 
-    public function test_validacao_falha_em_valores_de_enum_invalidos()
+    public function teste_validacao_falha_em_valores_de_enum_invalidos()
     {
         $data = [
             'nome' => 'Item',
@@ -119,7 +119,7 @@ class StoreDidacticResourceRequestTest extends TestCase
         $this->assertArrayHasKey('status', $validator->errors()->toArray());
     }
 
-    public function test_validacao_falha_em_escola_inexistente()
+    public function teste_validacao_falha_em_escola_inexistente()
     {
         $data = [
             'nome' => 'Projetor',
@@ -134,7 +134,7 @@ class StoreDidacticResourceRequestTest extends TestCase
         $this->assertArrayHasKey('id_escola', $validator->errors()->toArray());
     }
 
-    public function test_validacao_falha_em_nome_duplicado_para_mesma_escola()
+    public function teste_validacao_falha_em_nome_duplicado_para_mesma_escola()
     {
         RecursoDidatico::factory()->create(['nome' => 'Projetor 1', 'id_escola' => $this->escola->id_escola]);
         $data = [
@@ -149,7 +149,7 @@ class StoreDidacticResourceRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validacao_passa_em_nome_duplicado_para_escola_diferente()
+    public function teste_validacao_passa_em_nome_duplicado_para_escola_diferente()
     {
         RecursoDidatico::factory()->create(['nome' => 'Projetor 1', 'id_escola' => $this->outraEscola->id_escola]);
         $data = [
@@ -164,7 +164,7 @@ class StoreDidacticResourceRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validacao_falha_em_nome_global_duplicado()
+    public function teste_validacao_falha_em_nome_global_duplicado()
     {
         RecursoDidatico::factory()->create(['nome' => 'Projetor Global', 'id_escola' => null]);
         $data = [
@@ -179,7 +179,7 @@ class StoreDidacticResourceRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_diretor_nao_pode_criar_recurso_para_outra_escola()
+    public function teste_diretor_nao_pode_criar_recurso_para_outra_escola()
     {
         $data = [
             'nome' => 'Projetor Fantasma',
@@ -193,7 +193,7 @@ class StoreDidacticResourceRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_diretor_nao_pode_criar_recurso_global()
+    public function teste_diretor_nao_pode_criar_recurso_global()
     {
         $data = [
             'nome' => 'Projetor Global Diretor',
@@ -207,7 +207,7 @@ class StoreDidacticResourceRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_id_usuario_criador_e_mesclado_corretamente()
+    public function teste_id_usuario_criador_e_mesclado_corretamente()
     {
         $this->actingAs($this->diretor);
         $request = new StoreDidacticResourceRequest();

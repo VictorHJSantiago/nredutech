@@ -75,17 +75,19 @@
             <thead>
                 <tr>
                     @php
-                        function sort_link($coluna, $titulo, $sortBy, $order) {
-                            $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
-                            $icon = $sortBy == $coluna 
-                                ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
-                                : 'fa-sort';
-                            $isActive = $sortBy == $coluna ? 'active' : '';
-                            $url = route('usuarios.index', array_merge(request()->except(['page']), [
-                                'sort_by' => $coluna,
-                                'order' => $newOrder
-                            ]));
-                            return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                        if (!function_exists('sort_link')) {
+                            function sort_link($coluna, $titulo, $sortBy, $order) {
+                                $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
+                                $icon = $sortBy == $coluna 
+                                    ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
+                                    : 'fa-sort';
+                                $isActive = $sortBy == $coluna ? 'active' : '';
+                                $url = route('usuarios.index', array_merge(request()->except(['page']), [
+                                    'sort_by' => $coluna,
+                                    'order' => $newOrder
+                                ]));
+                                return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                            }
                         }
                     @endphp
 
@@ -94,7 +96,7 @@
                     {!! sort_link('email', 'E-mail', $sortBy, $order) !!}
                     {!! sort_link('data_registro', 'Data Registro', $sortBy, $order) !!}
                     {!! sort_link('tipo_usuario', 'Tipo', $sortBy, $order) !!}
-                    {!! sort_link('status_aprovacao', 'Status', $sortBy, $order) !!}                   
+                    {!! sort_link('status_aprovacao', 'Status', $sortBy, $order) !!} 
                     {!! sort_link('data_nascimento', 'Data Nasc.', $sortBy, $order) !!}
                     {!! sort_link('cpf', 'CPF', $sortBy, $order) !!}
                     {!! sort_link('rg', 'RG', $sortBy, $order) !!}
@@ -112,7 +114,7 @@
                         <td>{{ $usuario->id_usuario }}</td>
                         <td>{{ $usuario->nome_completo }}</td>
                         <td>{{ $usuario->email }}</td>
-                        <td>{{ \Carbon\Carbon::parse($usuario->data_registro)->format('d/m/Y H:i') }}</td>                       
+                        <td>{{ \Carbon\Carbon::parse($usuario->data_registro)->format('d/m/Y H:i') }}</td> 
                         <td>{{ ucfirst($usuario->tipo_usuario) }}</td>
                         <td>
                             @switch($usuario->status_aprovacao)
@@ -168,10 +170,10 @@
                                 @if($canManage)
                                     <a href="{{ route('usuarios.edit', $usuario) }}" class="btn-edit" title="Editar Usuário">✏️</a>
                                     <button type="button"
-                                        class="delete-button btn-delete"
-                                        title="Excluir Usuário"
-                                        data-item-name="{{ $usuario->nome_completo }}"
-                                        data-form-action="{{ route('usuarios.destroy', $usuario) }}">
+                                            class="delete-button btn-delete"
+                                            title="Excluir Usuário"
+                                            data-item-name="{{ $usuario->nome_completo }}"
+                                            data-form-action="{{ route('usuarios.destroy', $usuario) }}">
                                         🗑️
                                     </button>
                                 @endif

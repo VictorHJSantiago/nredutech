@@ -59,17 +59,19 @@
             <thead>
                 <tr>
                     @php
-                        function sort_link($coluna, $titulo, $sortBy, $order) {
-                            $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
-                            $icon = $sortBy == $coluna 
-                                ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
-                                : 'fa-sort';
-                            $isActive = $sortBy == $coluna ? 'active' : '';
-                            $url = route('componentes.index', array_merge(request()->except(['page']), [
-                                'sort_by' => $coluna,
-                                'order' => $newOrder
-                            ]));
-                            return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                        if (!function_exists('sort_link')) {
+                            function sort_link($coluna, $titulo, $sortBy, $order) {
+                                $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
+                                $icon = $sortBy == $coluna 
+                                    ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
+                                    : 'fa-sort';
+                                $isActive = $sortBy == $coluna ? 'active' : '';
+                                $url = route('componentes.index', array_merge(request()->except(['page']), [
+                                    'sort_by' => $coluna,
+                                    'order' => $newOrder
+                                ]));
+                                return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                            }
                         }
                     @endphp
                     {!! sort_link('id_componente', 'ID', $sortBy, $order) !!}

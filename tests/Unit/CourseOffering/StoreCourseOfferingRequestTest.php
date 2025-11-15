@@ -86,7 +86,7 @@ class StoreCourseOfferingRequestTest extends TestCase
         return $request;
     }
 
-    public function test_authorize_returns_true_for_admin_diretor_and_professor()
+    public function test_autorizacao_retorna_verdadeiro_para_admin_diretor_e_professor()
     {
         $requestAdmin = $this->getRequestForUser($this->admin);
         $this->assertTrue($requestAdmin->authorize());
@@ -98,7 +98,7 @@ class StoreCourseOfferingRequestTest extends TestCase
         $this->assertTrue($requestProfessor->authorize());
     }
 
-    public function test_validation_passes_with_valid_data()
+    public function test_validacao_passa_com_dados_validos()
     {
         $request = $this->getRequestForUser($this->diretor);
         $data = [
@@ -112,7 +112,7 @@ class StoreCourseOfferingRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validation_fails_on_missing_fields()
+    public function test_validacao_falha_em_campos_ausentes()
     {
         $request = $this->getRequestForUser($this->admin);
         $data = [];
@@ -124,7 +124,7 @@ class StoreCourseOfferingRequestTest extends TestCase
         $this->assertArrayHasKey('id_professor', $validator->errors()->toArray());
     }
 
-    public function test_validation_fails_on_non_existent_relations()
+    public function test_validacao_falha_em_relacoes_inexistentes()
     {
         $request = $this->getRequestForUser($this->admin);
         $data = [
@@ -140,7 +140,7 @@ class StoreCourseOfferingRequestTest extends TestCase
         $this->assertArrayHasKey('id_professor', $validator->errors()->toArray());
     }
 
-    public function test_validation_fails_when_professor_is_not_professor_type()
+    public function test_validacao_falha_quando_professor_nao_e_tipo_professor()
     {
         $request = $this->getRequestForUser($this->admin);
         $data = [
@@ -153,7 +153,7 @@ class StoreCourseOfferingRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validation_fails_on_duplicate_offering()
+    public function test_validacao_falha_em_oferta_duplicada()
     {
         OfertaComponente::factory()->create([
             'id_turma' => $this->turma->id_turma,
@@ -172,7 +172,7 @@ class StoreCourseOfferingRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_diretor_fails_validation_for_other_school_turma()
+    public function test_diretor_falha_validacao_para_turma_de_outra_escola()
     {
         $request = $this->getRequestForUser($this->diretor);
         $outraTurma = Turma::factory()->create(['id_escola' => $this->outraEscola->id_escola]);
@@ -187,7 +187,7 @@ class StoreCourseOfferingRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_diretor_fails_validation_for_other_school_componente()
+    public function test_diretor_falha_validacao_para_componente_de_outra_escola()
     {
         $request = $this->getRequestForUser($this->diretor);
         $outroComponente = ComponenteCurricular::factory()->create(['id_escola' => $this->outraEscola->id_escola]);
@@ -202,7 +202,7 @@ class StoreCourseOfferingRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_diretor_fails_validation_for_other_school_professor()
+    public function test_diretor_falha_validacao_para_professor_de_outra_escola()
     {
         $request = $this->getRequestForUser($this->diretor);
         $outroProfessor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $this->outraEscola->id_escola, 'status_aprovacao' => 'ativo']);
@@ -217,7 +217,7 @@ class StoreCourseOfferingRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_professor_fails_validation_when_assigning_to_other_professor()
+    public function test_professor_falha_validacao_ao_atribuir_para_outro_professor()
     {
         $request = $this->getRequestForUser($this->professor);
         $outroProfessor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $this->escola->id_escola, 'status_aprovacao' => 'ativo']);

@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\Usuario;
 use App\Models\Municipio;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 
 class CityControllerTest extends TestCase
 {
@@ -20,14 +21,15 @@ class CityControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->municipio = Municipio::factory()->create();
+        $this->municipio = Municipio::create(['nome' => 'Municipio Teste', 'estado' => 'PR']);
 
         $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
         $this->diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor']);
         $this->professor = Usuario::factory()->create(['tipo_usuario' => 'professor']);
     }
 
-    public function test_guest_is_redirected_from_city_routes()
+    #[Test]
+    public function test_convidado_e_redirecionado_das_rotas_de_municipio()
     {
         $this->post(route('municipios.store'))->assertRedirect(route('login'));
         $this->get(route('municipios.edit', $this->municipio))->assertRedirect(route('login'));
@@ -35,7 +37,8 @@ class CityControllerTest extends TestCase
         $this->delete(route('municipios.destroy', $this->municipio))->assertRedirect(route('login'));
     }
 
-    public function test_non_admin_users_are_forbidden_from_city_routes()
+    #[Test]
+    public function test_usuarios_nao_admin_sao_proibidos_nas_rotas_de_municipio()
     {
         $users = [$this->diretor, $this->professor];
 
@@ -44,37 +47,36 @@ class CityControllerTest extends TestCase
 
             $this->post(route('municipios.store'), [
                 'nome' => 'Cidade Proibida',
-                'estado' => 'ER'
             ])->assertForbidden();
             
             $this->get(route('municipios.edit', $this->municipio))->assertForbidden();
             
             $this->put(route('municipios.update', $this->municipio), [
                 'nome' => 'Update Proibido',
-                'estado' => 'ER'
             ])->assertForbidden();
             
             $this->delete(route('municipios.destroy', $this->municipio))->assertForbidden();
         }
     }
 
-    public function test_admin_can_store_municipio()
+    #[Test]
+    public function test_admin_pode_cadastrar_municipio()
     {
         $this->actingAs($this->admin);
         
         $data = [
             'nome' => 'Nova Cidade',
-            'estado' => 'SP',
         ];
 
         $response = $this->post(route('municipios.store'), $data);
 
-        $response->assertRedirect(route('settings'));
-        $response->assertSessionHas('success', 'Município criado com sucesso!');
+        $response->assertRedirect(route('escolas.index'));
+        $response->assertSessionHas('success', 'Município adicionado com sucesso!');
         $this->assertDatabaseHas('municipios', $data);
     }
 
-    public function test_admin_can_edit_municipio()
+    #[Test]
+    public function test_admin_pode_editar_municipio()
     {
         $this->actingAs($this->admin);
 
@@ -85,33 +87,33 @@ class CityControllerTest extends TestCase
         $response->assertViewHas('municipio', $this->municipio);
     }
 
-    public function test_admin_can_update_municipio()
+    #[Test]
+    public function test_admin_pode_atualizar_municipio()
     {
         $this->actingAs($this->admin);
         
         $data = [
             'nome' => 'Cidade Atualizada',
-            'estado' => 'RJ',
         ];
 
         $response = $this->put(route('municipios.update', $this->municipio), $data);
 
-        $response->assertRedirect(route('settings'));
+        $response->assertRedirect(route('escolas.index'));
         $response->assertSessionHas('success', 'Município atualizado com sucesso!');
         $this->assertDatabaseHas('municipios', [
             'id_municipio' => $this->municipio->id_municipio,
             'nome' => 'Cidade Atualizada',
-            'estado' => 'RJ',
         ]);
     }
 
-    public function test_admin_can_destroy_municipio()
+    #[Test]
+    public function test_admin_pode_excluir_municipio()
     {
         $this->actingAs($this->admin);
 
         $response = $this->delete(route('municipios.destroy', $this->municipio));
 
-        $response->assertRedirect(route('settings'));
+        $response->assertRedirect(route('escolas.index'));
         $response->assertSessionHas('success', 'Município excluído com sucesso!');
         $this->assertDatabaseMissing('municipios', [
             'id_municipio' => $this->municipio->id_municipio,

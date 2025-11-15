@@ -52,17 +52,19 @@
                 <thead>
                     <tr>
                         @php
-                            function sort_link($coluna, $titulo, $sortBy, $order) {
-                                $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
-                                $icon = $sortBy == $coluna
-                                    ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
-                                    : 'fa-sort';
-                                $isActive = $sortBy == $coluna ? 'active' : '';
-                                $url = route('resources.index', array_merge(request()->except(['page']), [
-                                    'sort_by' => $coluna,
-                                    'order' => $newOrder
-                                ]));
-                                return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                            if (!function_exists('sort_link')) {
+                                function sort_link($coluna, $titulo, $sortBy, $order) {
+                                    $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
+                                    $icon = $sortBy == $coluna
+                                        ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
+                                        : 'fa-sort';
+                                    $isActive = $sortBy == $coluna ? 'active' : '';
+                                    $url = route('resources.index', array_merge(request()->except(['page']), [
+                                        'sort_by' => $coluna,
+                                        'order' => $newOrder
+                                    ]));
+                                    return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                                }
                             }
                         @endphp
                         {!! sort_link('id_recurso', 'ID', $sortBy, $order) !!}
@@ -72,8 +74,8 @@
                         {!! sort_link('numero_serie', 'N.º de Série', $sortBy, $order) !!}
                         {!! sort_link('quantidade', 'Qtd', $sortBy, $order) !!}
                         {!! sort_link('tipo', 'Tipo', $sortBy, $order) !!}
-                        {!! sort_link('escola_nome', 'Escola', $sortBy, $order) !!}           
-                        {!! sort_link('criador_nome', 'Cadastrado Por', $sortBy, $order) !!} 
+                        {!! sort_link('escola_nome', 'Escola', $sortBy, $order) !!}
+                        {!! sort_link('criador_nome', 'Cadastrado Por', $sortBy, $order) !!}
                         {!! sort_link('status', 'Status', $sortBy, $order) !!}
                         {!! sort_link('data_aquisicao', 'Data Aquisição', $sortBy, $order) !!}
                         <th>Ações</th>
@@ -89,8 +91,8 @@
                             <td>{{ $recurso->numero_serie ?? 'N/A' }}</td>
                             <td>{{ $recurso->quantidade }}</td>
                             <td>{{ $recurso->tipo === 'didatico' ? 'Recurso Didático' : 'Laboratório' }}</td>
-                            <td>{{ $recurso->escola_nome ?? 'Global' }}</td>           
-                            <td>{{ $recurso->criador_nome ?? 'N/A' }}</td>               
+                            <td>{{ $recurso->escola_nome ?? 'Global' }}</td>
+                            <td>{{ $recurso->criador_nome ?? 'N/A' }}</td>
                             <td><span class="status-{{ \Illuminate\Support\Str::slug($recurso->status) }}">{{ ucfirst(str_replace('_', ' ', $recurso->status)) }}</span></td>
                             <td>{{ $recurso->data_aquisicao ? \Carbon\Carbon::parse($recurso->data_aquisicao)->format('d/m/Y') : 'N/A' }}</td>
                             
@@ -106,11 +108,11 @@
                                 @if($canManage)
                                     <a href="{{ route('resources.edit', $recurso->id_recurso) }}" class="btn-edit" title="Editar Recurso">✏️ Editar</a>
                                     <button type="button"
-                                        class="delete-button btn-delete"
-                                        style="display:inline;"
-                                        title="Excluir Recurso"
-                                        data-item-name="{{ $recurso->nome }}"
-                                        data-form-action="{{ route('resources.destroy', $recurso->id_recurso) }}">
+                                            class="delete-button btn-delete"
+                                            style="display:inline;"
+                                            title="Excluir Recurso"
+                                            data-item-name="{{ $recurso->nome }}"
+                                            data-form-action="{{ route('resources.destroy', $recurso->id_recurso) }}">
                                         🗑️ Excluir
                                     </button>
                                 @endif

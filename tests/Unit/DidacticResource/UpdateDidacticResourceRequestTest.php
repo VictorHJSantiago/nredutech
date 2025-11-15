@@ -67,14 +67,14 @@ class UpdateDidacticResourceRequestTest extends TestCase
         return $validatorFactory->make($request->all(), $request->rules(), $request->messages());
     }
 
-    public function test_authorize_retorna_true_para_usuario_autenticado()
+    public function teste_autorizacao_retorna_verdadeiro_para_usuario_autenticado()
     {
         $this->actingAs($this->diretor);
         $request = new UpdateDidacticResourceRequest();
         $this->assertTrue($request->authorize());
     }
     
-    public function test_validacao_passa_quando_nome_esta_inalterado()
+    public function teste_validacao_passa_quando_nome_esta_inalterado()
     {
         $data = [
             'nome' => $this->recurso->nome,
@@ -84,7 +84,7 @@ class UpdateDidacticResourceRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validacao_falha_em_nome_duplicado_para_mesma_escola()
+    public function teste_validacao_falha_em_nome_duplicado_para_mesma_escola()
     {
         RecursoDidatico::factory()->create(['nome' => 'Projetor Novo', 'id_escola' => $this->escola->id_escola]);
         $data = [
@@ -95,7 +95,7 @@ class UpdateDidacticResourceRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validacao_passa_em_nome_duplicado_para_escola_diferente()
+    public function teste_validacao_passa_em_nome_duplicado_para_escola_diferente()
     {
         RecursoDidatico::factory()->create(['nome' => 'Projetor Outra Escola', 'id_escola' => $this->outraEscola->id_escola]);
         $data = [
@@ -106,7 +106,7 @@ class UpdateDidacticResourceRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_diretor_nao_pode_atualizar_para_outra_escola()
+    public function teste_diretor_nao_pode_atualizar_para_outra_escola()
     {
         $data = [
             'id_escola' => $this->outraEscola->id_escola,
@@ -116,7 +116,7 @@ class UpdateDidacticResourceRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_diretor_nao_pode_atualizar_para_global()
+    public function teste_diretor_nao_pode_atualizar_para_global()
     {
         $data = [
             'id_escola' => null,

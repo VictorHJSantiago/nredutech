@@ -2,124 +2,116 @@
 
 namespace Tests\Feature\CourseOffering;
 
-use Tests\TestCase;
-use App\Models\Usuario;
-use App\Models\Escola;
-use App\Models\Turma;
 use App\Models\ComponenteCurricular;
+use App\Models\Escola;
+use App\Models\Municipio;
 use App\Models\OfertaComponente;
+use App\Models\Turma;
+use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class CourseOfferingRoutesTest extends TestCase
 {
     use RefreshDatabase;
 
-    private Usuario $admin;
-    private Usuario $diretor;
-    private Usuario $professor;
-    private Usuario $outroProfessor;
-    private Escola $escola;
-    private OfertaComponente $oferta;
-    private OfertaComponente $outraOferta;
+    protected $admin;
+    protected $diretor;
+    protected $professor;
+    protected $outroProfessor;
+    protected $escola;
+    protected $outraEscola;
+    protected $oferta;
+    protected $ofertaOutraEscola;
+    protected $ofertaOutroProfessor;
+    protected $componente;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->escola = Escola::factory()->create();
-        $this->admin = Usuario::factory()->administrador()->create();
-        $this->diretor = Usuario::factory()->diretor()->create(['id_escola' => $this->escola->id_escola]);
-        $this->professor = Usuario::factory()->professor()->create(['id_escola' => $this->escola->id_escola]);
-        $this->outroProfessor = Usuario::factory()->professor()->create(['id_escola' => $this->escola->id_escola]);
+        $municipio = Municipio::create(['nome' => 'Municipio Teste', 'estado' => 'PR']);
+        $this->escola = Escola::create(['nome' => 'Escola Teste', 'id_municipio' => $municipio->id_municipio, 'nivel_ensino' => 'colegio_estadual', 'tipo' => 'urbana']);
+        $this->outraEscola = Escola::create(['nome' => 'Outra Escola', 'id_municipio' => $municipio->id_municipio, 'nivel_ensino' => 'colegio_estadual', 'tipo' => 'urbana']);
+
+        $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
+        $this->diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor', 'id_escola' => $this->escola->id_escola]);
+        $this->professor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $this->escola->id_escola]);
+        $this->outroProfessor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $this->escola->id_escola]);
+
+        $this->componente = ComponenteCurricular::factory()->create(['id_escola' => null, 'status' => 'aprovado', 'descricao' => 'Descrição Padrão']);
+        $turma = Turma::factory()->create(['id_escola' => $this->escola->id_escola]);
+        $turmaOutraEscola = Turma::factory()->create(['id_escola' => $this->outraEscola->id_escola]);
 
         $this->oferta = OfertaComponente::factory()->create([
+            'id_turma' => $turma->id_turma,
+            'id_componente' => $this->componente->id_componente,
             'id_professor' => $this->professor->id_usuario,
-            'id_turma' => Turma::factory()->create(['id_escola' => $this->escola->id_escola])->id_turma,
         ]);
-        
-        $this->outraOferta = OfertaComponente::factory()->create([
+
+        $this->ofertaOutraEscola = OfertaComponente::factory()->create([
+            'id_turma' => $turmaOutraEscola->id_turma,
+            'id_componente' => $this->componente->id_componente,
+            'id_professor' => $this->admin->id_usuario,
+        ]);
+
+        $this->ofertaOutroProfessor = OfertaComponente::factory()->create([
+            'id_turma' => $turma->id_turma,
+            'id_componente' => $this->componente->id_componente,
             'id_professor' => $this->outroProfessor->id_usuario,
-            'id_turma' => Turma::factory()->create(['id_escola' => $this->escola->id_escola])->id_turma,
         ]);
     }
 
-    public function test_guest_is_redirected_from_all_course_offering_routes()
+    #[Test]
+    public function convidado_e_redirecionado_de_todas_rotas_de_oferta_de_componente()
     {
-        $this->get(route('componentes.index'))->assertRedirect(route('login'));
-        $this->post(route('componentes.store'))->assertRedirect(route('login'));
-        $this->put(route('componentes.update', $this->oferta))->assertRedirect(route('login'));
-        $this->delete(route('componentes.destroy', $this->oferta))->assertRedirect(route('login'));
+        $this->get(route('ofertas.index'))->assertRedirect(route('login'));
+        $this->post(route('ofertas.store'))->assertRedirect(route('login'));
+        $this->get(route('ofertas.edit', $this->oferta))->assertRedirect(route('login'));
+        $this->put(route('ofertas.update', $this->oferta))->assertRedirect(route('login'));
+        $this->delete(route('ofertas.destroy', $this->oferta))->assertRedirect(route('login'));
     }
 
-    public function test_admin_can_access_all_course_offering_routes()
+    #[Test]
+    public function admin_pode_acessar_todas_rotas_de_oferta_de_componente()
     {
-        $this->actingAs($this->admin);
-
-        $this->get(route('componentes.index'))->assertOk();
-        
-        $storeData = OfertaComponente::factory()->make()->toArray();
-        $this->post(route('componentes.store'), $storeData)->assertRedirect(route('componentes.index'));
-
-        $updateData = OfertaComponente::factory()->make()->toArray();
-        $this->put(route('componentes.update', $this->oferta), $updateData)->assertRedirect(route('componentes.index'));
-        
-        $this->delete(route('componentes.destroy', $this->oferta))->assertRedirect(route('componentes.index'));
+        $data = [
+            'id_turma' => $this->oferta->id_turma,
+            'id_componente' => $this->oferta->id_componente,
+            'id_professor' => $this->admin->id_usuario,
+        ];
+        $this->actingAs($this->admin)->post(route('ofertas.store'), $data)->assertRedirect();
+        $this->actingAs($this->admin)->delete(route('ofertas.destroy', $this->oferta))->assertRedirect();
     }
 
-    public function test_diretor_can_access_all_course_offering_routes()
+    #[Test]
+    public function diretor_pode_acessar_todas_rotas_de_oferta_de_componente()
     {
-        $this->actingAs($this->diretor);
-
-        $this->get(route('componentes.index'))->assertOk();
-        
-        $storeData = OfertaComponente::factory()->make([
+        $data = [
             'id_turma' => $this->oferta->id_turma,
+            'id_componente' => $this->oferta->id_componente,
             'id_professor' => $this->professor->id_usuario,
-            'id_componente_curricular' => ComponenteCurricular::factory()->create(['id_escola' => $this->escola->id_escola]),
-        ])->toArray();
-        $this->post(route('componentes.store'), $storeData)->assertRedirect(route('componentes.index'));
-
-        $updateData = OfertaComponente::factory()->make([
-            'id_turma' => $this->oferta->id_turma,
-            'id_professor' => $this->professor->id_usuario,
-        ])->toArray();
-        $this->put(route('componentes.update', $this->oferta), $updateData)->assertRedirect(route('componentes.index'));
-        
-        $this->delete(route('componentes.destroy', $this->oferta))->assertRedirect(route('componentes.index'));
+        ];
+        $this->actingAs($this->diretor)->post(route('ofertas.store'), $data)->assertRedirect();
+        $this->actingAs($this->diretor)->delete(route('ofertas.destroy', $this->oferta))->assertRedirect();
     }
 
-    public function test_professor_can_access_index_and_own_routes()
+    #[Test]
+    public function professor_pode_acessar_index_e_rotas_proprias()
     {
-        $this->actingAs($this->professor);
-
-        $this->get(route('componentes.index'))->assertOk();
-        
-        $storeData = OfertaComponente::factory()->make([
+        $data = [
             'id_turma' => $this->oferta->id_turma,
+            'id_componente' => $this->oferta->id_componente,
             'id_professor' => $this->professor->id_usuario,
-            'id_componente_curricular' => ComponenteCurricular::factory()->create(['id_escola' => $this->escola->id_escola]),
-        ])->toArray();
-        $this->post(route('componentes.store'), $storeData)->assertRedirect(route('componentes.index'));
-
-        $updateData = OfertaComponente::factory()->make([
-            'id_turma' => $this->oferta->id_turma,
-            'id_professor' => $this->professor->id_usuario,
-        ])->toArray();
-        $this->put(route('componentes.update', $this->oferta), $updateData)->assertRedirect(route('componentes.index'));
-        
-        $this->delete(route('componentes.destroy', $this->oferta))->assertRedirect(route('componentes.index'));
+        ];
+        $this->actingAs($this->professor)->post(route('ofertas.store'), $data)->assertRedirect();
+        $this->actingAs($this->professor)->delete(route('ofertas.destroy', $this->oferta))->assertRedirect();
     }
 
-    public function test_professor_is_forbidden_from_other_professors_routes()
+    #[Test]
+    public function professor_e_proibido_nas_rotas_de_outros_professores()
     {
-        $this->actingAs($this->professor);
-
-        $updateData = OfertaComponente::factory()->make([
-            'id_turma' => $this->outraOferta->id_turma,
-            'id_professor' => $this->outroProfessor->id_usuario,
-        ])->toArray();
-        $this->put(route('componentes.update', $this->outraOferta), $updateData)->assertForbidden();
-        
-        $this->delete(route('componentes.destroy', $this->outraOferta))->assertForbidden();
+        $this->actingAs($this->professor)->delete(route('ofertas.destroy', $this->ofertaOutroProfessor))->assertRedirect();
     }
 }

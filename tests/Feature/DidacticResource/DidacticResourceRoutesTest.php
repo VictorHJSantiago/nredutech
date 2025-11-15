@@ -4,8 +4,11 @@ namespace Tests\Feature\DidacticResource;
 
 use Tests\TestCase;
 use App\Models\Usuario;
+use App\Models\Escola;
+use App\Models\Municipio;
 use App\Models\RecursoDidatico;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 
 class DidacticResourceRoutesTest extends TestCase
 {
@@ -20,13 +23,18 @@ class DidacticResourceRoutesTest extends TestCase
     {
         parent::setUp();
 
-        $this->admin = Usuario::factory()->administrador()->create();
-        $this->diretor = Usuario::factory()->diretor()->create();
-        $this->professor = Usuario::factory()->professor()->create();
-        $this->recurso = RecursoDidatico::factory()->create(['id_usuario_criador' => $this->admin->id_usuario]);
+        $municipio = Municipio::create(['nome' => 'Municipio Teste', 'estado' => 'PR']);
+        $escola = Escola::create(['nome' => 'Escola Teste', 'id_municipio' => $municipio->id_municipio, 'nivel_ensino' => 'colegio_estadual', 'tipo' => 'urbana']);
+
+        $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador', 'id_escola' => null]);
+        $this->diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor', 'id_escola' => $escola->id_escola]);
+        $this->professor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $escola->id_escola]);
+        
+        $this->recurso = RecursoDidatico::factory()->create(['id_usuario_criador' => $this->admin->id_usuario, 'id_escola' => null]);
     }
 
-    public function test_guest_is_redirected_from_all_resource_routes()
+    #[Test]
+    public function convidado_e_redirecionado_de_todas_rotas_de_recursos()
     {
         $this->get(route('resources.index'))->assertRedirect(route('login'));
         $this->get(route('resources.create'))->assertRedirect(route('login'));
@@ -36,7 +44,8 @@ class DidacticResourceRoutesTest extends TestCase
         $this->delete(route('resources.destroy', $this->recurso))->assertRedirect(route('login'));
     }
 
-    public function test_admin_can_access_all_resource_routes()
+    #[Test]
+    public function admin_pode_acessar_todas_rotas_de_recursos()
     {
         $this->actingAs($this->admin);
 
@@ -54,7 +63,8 @@ class DidacticResourceRoutesTest extends TestCase
         $this->delete(route('resources.destroy', $this->recurso))->assertRedirect(route('resources.index'));
     }
 
-    public function test_diretor_can_access_all_resource_routes()
+    #[Test]
+    public function diretor_pode_acessar_todas_rotas_de_recursos()
     {
         $this->actingAs($this->diretor);
 
@@ -73,7 +83,8 @@ class DidacticResourceRoutesTest extends TestCase
         $this->delete(route('resources.destroy', $recursoDiretor))->assertRedirect(route('resources.index'));
     }
 
-    public function test_professor_can_access_all_resource_routes()
+    #[Test]
+    public function professor_pode_acessar_todas_rotas_de_recursos()
     {
         $this->actingAs($this->professor);
 

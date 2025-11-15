@@ -5,9 +5,14 @@ namespace Tests\Feature\Appointments;
 use Tests\TestCase;
 use App\Models\Usuario;
 use App\Models\Escola;
+use App\Models\Municipio;
 use App\Models\OfertaComponente;
 use App\Models\Agendamento;
+use App\Models\Turma;
+use App\Models\ComponenteCurricular;
+use App\Models\RecursoDidatico;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 
 class AppointmentRoutesTest extends TestCase
 {
@@ -19,25 +24,86 @@ class AppointmentRoutesTest extends TestCase
     private Usuario $outroProfessor;
     private Agendamento $agendamentoProfessor;
     private Agendamento $agendamentoOutroProfessor;
+    private RecursoDidatico $recurso;
+    private OfertaComponente $ofertaProfessor;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $escola = Escola::factory()->create();
-        $this->admin = Usuario::factory()->administrador()->create();
-        $this->diretor = Usuario::factory()->diretor()->create(['id_escola' => $escola->id_escola]);
-        $this->professor = Usuario::factory()->professor()->create(['id_escola' => $escola->id_escola]);
-        $this->outroProfessor = Usuario::factory()->professor()->create(['id_escola' => $escola->id_escola]);
+        $municipio = Municipio::factory()->create();
+        $escola = new Escola([
+            'nome' => 'Escola Teste Rota',
+            'nivel_ensino' => 'Médio',
+            'tipo' => 'Estadual',
+            'id_municipio' => $municipio->id_municipio,
+        ]);
+        $escola->save();
+        
+        $this->admin = Usuario::factory()->create([
+            'tipo_usuario' => 'Administrador',
+            'id_escola' => null,
+        ]);
+        $this->diretor = Usuario::factory()->create([
+            'tipo_usuario' => 'Diretor',
+            'id_escola' => $escola->id_escola,
+        ]);
+        $this->professor = Usuario::factory()->create([
+            'tipo_usuario' => 'Professor',
+            'id_escola' => $escola->id_escola,
+        ]);
+        $this->outroProfessor = Usuario::factory()->create([
+            'tipo_usuario' => 'Professor',
+            'id_escola' => $escola->id_escola,
+        ]);
 
-        $ofertaProfessor = OfertaComponente::factory()->create(['id_professor' => $this->professor->id_usuario]);
-        $ofertaOutroProfessor = OfertaComponente::factory()->create(['id_professor' => $this->outroProfessor->id_usuario]);
+        $this->recurso = RecursoDidatico::factory()->create(['id_escola' => $escola->id_escola, 'status' => 'funcionando']);
 
-        $this->agendamentoProfessor = Agendamento::factory()->create(['id_oferta' => $ofertaProfessor->id_oferta, 'id_usuario' => $this->professor->id_usuario]);
-        $this->agendamentoOutroProfessor = Agendamento::factory()->create(['id_oferta' => $ofertaOutroProfessor->id_oferta, 'id_usuario' => $this->outroProfessor->id_usuario]);
+        $turmaA = Turma::factory()->create(['id_escola' => $escola->id_escola]);
+        $componenteA = ComponenteCurricular::factory()->create([
+            'id_escola' => $escola->id_escola,
+            'status' => 'aprovado'
+        ]);
+        $this->ofertaProfessor = new OfertaComponente([
+            'id_turma' => $turmaA->id_turma,
+            'id_componente' => $componenteA->id_componente_curricular,
+            'id_professor' => $this->professor->id_usuario
+        ]);
+        $this->ofertaProfessor->save();
+
+        $turmaB = Turma::factory()->create(['id_escola' => $escola->id_escola]);
+        $componenteB = ComponenteCurricular::factory()->create([
+            'id_escola' => $escola->id_escola,
+            'status' => 'aprovado'
+        ]);
+        $ofertaOutroProfessor = new OfertaComponente([
+            'id_turma' => $turmaB->id_turma,
+            'id_componente' => $componenteB->id_componente_curricular,
+            'id_professor' => $this->outroProfessor->id_usuario
+        ]);
+        $ofertaOutroProfessor->save();
+
+        $this->agendamentoProfessor = new Agendamento([
+            'id_oferta' => $this->ofertaProfessor->id_oferta,
+            'id_recurso' => $this->recurso->id_recurso,
+            'data_hora_inicio' => now()->addDay(),
+            'data_hora_fim' => now()->addDay()->addHour(),
+            'status' => 'aprovado',
+        ]);
+        $this->agendamentoProfessor->save();
+
+        $this->agendamentoOutroProfessor = new Agendamento([
+            'id_oferta' => $ofertaOutroProfessor->id_oferta,
+            'id_recurso' => $this->recurso->id_recurso,
+            'data_hora_inicio' => now()->addDay()->addMinutes(10),
+            'data_hora_fim' => now()->addDay()->addHour()->addMinutes(10),
+            'status' => 'aprovado',
+        ]);
+        $this->agendamentoOutroProfessor->save();
     }
 
-    public function test_guest_is_redirected_from_all_appointment_routes()
+    #[Test]
+    public function visitante_e_redirecionado_de_todas_rotas_de_agendamento()
     {
         $this->get(route('agendamentos.index'))->assertRedirect(route('login'));
         $this->get(route('agendamentos.events'))->assertRedirect(route('login'));
@@ -46,7 +112,8 @@ class AppointmentRoutesTest extends TestCase
         $this->delete(route('agendamentos.destroy', $this->agendamentoProfessor))->assertRedirect(route('login'));
     }
 
-    public function test_admin_can_access_all_appointment_routes()
+    #[Test]
+    public function admin_pode_acessar_todas_rotas_de_agendamento()
     {
         $this->actingAs($this->admin);
 
@@ -54,13 +121,19 @@ class AppointmentRoutesTest extends TestCase
         $this->get(route('agendamentos.events', ['start' => '2025-01-01', 'end' => '2025-01-31']))->assertOk();
         $this->post(route('agendamentos.availability'), ['date' => '2025-01-01'])->assertOk();
         
-        $storeData = Agendamento::factory()->make()->toArray();
+        $storeData = [
+            'id_oferta' => $this->ofertaProfessor->id_oferta,
+            'id_recurso' => $this->recurso->id_recurso,
+            'data_hora_inicio' => now()->addDays(5)->toDateTimeString(),
+            'data_hora_fim' => now()->addDays(5)->addHour()->toDateTimeString(),
+        ];
         $this->post(route('agendamentos.store'), $storeData)->assertStatus(201);
         
         $this->delete(route('agendamentos.destroy', $this->agendamentoProfessor))->assertOk();
     }
 
-    public function test_diretor_can_access_all_appointment_routes()
+    #[Test]
+    public function diretor_pode_acessar_todas_rotas_de_agendamento()
     {
         $this->actingAs($this->diretor);
 
@@ -68,17 +141,19 @@ class AppointmentRoutesTest extends TestCase
         $this->get(route('agendamentos.events', ['start' => '2025-01-01', 'end' => '2025-01-31']))->assertOk();
         $this->post(route('agendamentos.availability'), ['date' => '2025-01-01'])->assertOk();
         
-        $storeData = Agendamento::factory()->make([
-            'id_oferta' => $this->agendamentoProfessor->id_oferta,
-            'id_recurso' => $this->agendamentoProfessor->id_recurso,
-            'id_usuario' => $this->diretor->id_usuario,
-        ])->toArray();
+        $storeData = [
+            'id_oferta' => $this->ofertaProfessor->id_oferta,
+            'id_recurso' => $this->recurso->id_recurso,
+            'data_hora_inicio' => now()->addDays(5)->toDateTimeString(),
+            'data_hora_fim' => now()->addDays(5)->addHour()->toDateTimeString(),
+        ];
         $this->post(route('agendamentos.store'), $storeData)->assertStatus(201);
         
         $this->delete(route('agendamentos.destroy', $this->agendamentoProfessor))->assertOk();
     }
 
-    public function test_professor_can_access_all_appointment_routes()
+    #[Test]
+    public function professor_pode_acessar_rotas_e_criar()
     {
         $this->actingAs($this->professor);
 
@@ -86,22 +161,25 @@ class AppointmentRoutesTest extends TestCase
         $this->get(route('agendamentos.events', ['start' => '2025-01-01', 'end' => '2025-01-31']))->assertOk();
         $this->post(route('agendamentos.availability'), ['date' => '2025-01-01'])->assertOk();
         
-        $storeData = Agendamento::factory()->make([
-            'id_oferta' => $this->agendamentoProfessor->id_oferta,
-            'id_recurso' => $this->agendamentoProfessor->id_recurso,
-            'id_usuario' => $this->professor->id_usuario,
-        ])->toArray();
+        $storeData = [
+            'id_oferta' => $this->ofertaProfessor->id_oferta,
+            'id_recurso' => $this->recurso->id_recurso,
+            'data_hora_inicio' => now()->addDays(5)->toDateTimeString(),
+            'data_hora_fim' => now()->addDays(5)->addHour()->toDateTimeString(),
+        ];
         $this->post(route('agendamentos.store'), $storeData)->assertStatus(201);
     }
 
-    public function test_professor_can_destroy_own_appointment()
+    #[Test]
+    public function professor_pode_destruir_proprio_agendamento()
     {
         $this->actingAs($this->professor)
              ->delete(route('agendamentos.destroy', $this->agendamentoProfessor))
              ->assertOk();
     }
 
-    public function test_professor_is_forbidden_from_destroying_other_appointment()
+    #[Test]
+    public function professor_e_proibido_de_destruir_agendamento_de_outro()
     {
         $this->actingAs($this->professor)
              ->delete(route('agendamentos.destroy', $this->agendamentoOutroProfessor))

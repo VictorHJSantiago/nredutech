@@ -60,19 +60,19 @@ class RecursoDidaticoModelTest extends TestCase
         ]);
     }
 
-    public function test_modelo_recurso_didatico_usa_tabela_correta()
+    public function teste_modelo_recurso_didatico_usa_tabela_correta()
     {
         $recurso = new RecursoDidatico();
         $this->assertEquals('recursos_didaticos', $recurso->getTable());
     }
 
-    public function test_modelo_recurso_didatico_usa_chave_primaria_correta()
+    public function teste_modelo_recurso_didatico_usa_chave_primaria_correta()
     {
         $recurso = new RecursoDidatico();
         $this->assertEquals('id_recurso', $recurso->getKeyName());
     }
 
-    public function test_modelo_recurso_didatico_possui_propriedades_fillable_corretas()
+    public function teste_modelo_recurso_didatico_possui_propriedades_preenchiveis_corretas()
     {
         $recurso = new RecursoDidatico();
         $expected = [
@@ -90,13 +90,13 @@ class RecursoDidaticoModelTest extends TestCase
         $this->assertEquals($expected, $recurso->getFillable());
     }
 
-    public function test_modelo_recurso_didatico_possui_timestamps()
+    public function teste_modelo_recurso_didatico_possui_timestamps()
     {
         $recurso = new RecursoDidatico();
         $this->assertTrue($recurso->usesTimestamps());
     }
 
-    public function test_modelo_recurso_didatico_possui_relacionamento_escola()
+    public function teste_modelo_recurso_didatico_possui_relacionamento_escola()
     {
         $recurso = RecursoDidatico::factory()->create(['id_escola' => $this->escola->id_escola]);
         
@@ -104,7 +104,7 @@ class RecursoDidaticoModelTest extends TestCase
         $this->assertTrue($recurso->escola->is($this->escola));
     }
 
-    public function test_modelo_recurso_didatico_pode_ser_global()
+    public function teste_modelo_recurso_didatico_pode_ser_global()
     {
         $recurso = RecursoDidatico::factory()->create(['id_escola' => null]);
         
@@ -112,7 +112,7 @@ class RecursoDidaticoModelTest extends TestCase
         $this->assertNull($recurso->escola);
     }
 
-    public function test_modelo_recurso_didatico_possui_relacionamento_criador()
+    public function teste_modelo_recurso_didatico_possui_relacionamento_criador()
     {
         $recurso = RecursoDidatico::factory()->create(['id_usuario_criador' => $this->criador->id_usuario]);
 
@@ -120,7 +120,7 @@ class RecursoDidaticoModelTest extends TestCase
         $this->assertTrue($recurso->criador->is($this->criador));
     }
 
-    public function test_modelo_recurso_didatico_possui_relacionamento_agendamentos()
+    public function teste_modelo_recurso_didatico_possui_relacionamento_agendamentos()
     {
         $recurso = RecursoDidatico::factory()->create([
             'id_escola' => $this->escola->id_escola,

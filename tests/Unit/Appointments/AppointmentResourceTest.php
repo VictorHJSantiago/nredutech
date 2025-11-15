@@ -85,7 +85,7 @@ class AppointmentResourceTest extends TestCase
         $this->agendamento->load('oferta.professor', 'recurso');
     }
 
-    public function test_appointment_resource_transforms_correctly()
+    public function testa_recurso_de_agendamento_transforma_corretamente()
     {
         Auth::login($this->admin);
         $resource = new AppointmentResource($this->agendamento);

@@ -184,19 +184,21 @@
             </div>
             <div class="card-body">
                 @php
-                    function sort_link($coluna, $titulo, $sortBy, $order)
-                    {
-                        $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
-                        $icon = $sortBy == $coluna
-                            ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
-                            : 'fa-sort';
-                        $isActive = $sortBy == $coluna ? 'active' : '';
-                        $queryParams = array_filter(request()->except(['page']));
-                        $url = route('escolas.index', array_merge($queryParams, [
-                            'sort_by' => $coluna,
-                            'order' => $newOrder
-                        ]));
-                        return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                    if (!function_exists('sort_link')) {
+                        function sort_link($coluna, $titulo, $sortBy, $order)
+                        {
+                            $newOrder = ($sortBy == $coluna && $order == 'asc') ? 'desc' : 'asc';
+                            $icon = $sortBy == $coluna
+                                ? ($order == 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short')
+                                : 'fa-sort';
+                            $isActive = $sortBy == $coluna ? 'active' : '';
+                            $queryParams = array_filter(request()->except(['page']));
+                            $url = route('escolas.index', array_merge($queryParams, [
+                                'sort_by' => $coluna,
+                                'order' => $newOrder
+                            ]));
+                            return "<th><a href=\"$url\" class=\"$isActive\">$titulo <i class=\"fas $icon sort-icon\"></i></a></th>";
+                        }
                     }
                 @endphp
                 <div class="table-responsive-wrapper">

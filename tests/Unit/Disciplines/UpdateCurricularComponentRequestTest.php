@@ -69,7 +69,7 @@ class UpdateCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function authorize_returns_true_for_admin_and_diretor()
+    public function testa_autorizacao_retorna_verdadeiro_para_admin_e_diretor()
     {
         $requestAdmin = $this->createRequestFor($this->admin, $this->componenteGlobal);
         $this->assertTrue($requestAdmin->authorize());
@@ -79,7 +79,7 @@ class UpdateCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function validation_passes_when_nome_is_unchanged()
+    public function testa_validacao_passa_quando_nome_esta_inalterado()
     {
         $request = $this->createRequestFor($this->admin, $this->componenteGlobal);
         $dados = ['nome' => $this->componenteGlobal->nome];
@@ -88,7 +88,7 @@ class UpdateCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function validation_fails_on_duplicate_nome_for_same_school()
+    public function testa_validacao_falha_com_nome_duplicado_para_mesma_escola()
     {
         ComponenteCurricular::create(['nome' => 'Nome Duplicado', 'id_escola' => $this->escolaDiretor->id_escola, 'carga_horaria' => '60']);
         
@@ -100,7 +100,7 @@ class UpdateCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function validation_passes_on_duplicate_nome_for_different_school()
+    public function testa_validacao_passa_com_nome_duplicado_para_escola_diferente()
     {
         ComponenteCurricular::create(['nome' => 'Nome Duplicado', 'id_escola' => $this->outraEscola->id_escola, 'carga_horaria' => '60']);
         
@@ -112,7 +112,7 @@ class UpdateCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function diretor_cannot_update_to_other_school()
+    public function testa_diretor_nao_pode_atualizar_para_outra_escola()
     {
         $request = $this->createRequestFor($this->diretor, $this->componenteDiretor);
         $dados = ['id_escola' => $this->outraEscola->id_escola];
@@ -122,7 +122,7 @@ class UpdateCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function diretor_cannot_update_to_global()
+    public function testa_diretor_nao_pode_atualizar_para_global()
     {
         $request = $this->createRequestFor($this->diretor, $this->componenteDiretor);
         $dados = ['id_escola' => null];

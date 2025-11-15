@@ -35,7 +35,7 @@ class DidacticResourceResourceTest extends TestCase
         $this->criador = Usuario::factory()->create();
     }
 
-    public function test_recurso_didatico_resource_transforma_corretamente_para_recurso_de_escola()
+    public function teste_resource_de_recurso_didatico_transforma_corretamente_para_recurso_de_escola()
     {
         $recurso = RecursoDidatico::factory()->create([
             'nome' => 'Projetor Sala 1',
@@ -52,7 +52,7 @@ class DidacticResourceResourceTest extends TestCase
         $this->assertArrayNotHasKey('criador', $resourceArray);
     }
 
-    public function test_recurso_didatico_resource_transforma_corretamente_para_recurso_global()
+    public function teste_resource_de_recurso_didatico_transforma_corretamente_para_recurso_global()
     {
         $recurso = RecursoDidatico::factory()->create([
             'nome' => 'Projetor Global',
