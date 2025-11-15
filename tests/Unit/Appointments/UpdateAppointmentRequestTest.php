@@ -116,14 +116,14 @@ class UpdateAppointmentRequestTest extends TestCase
         return Validator::make($request->all(), $request->rules());
     }
 
-    public function test_authorize_returns_true_for_authenticated_user()
+    public function test_autorizacao_retorna_verdadeiro_para_usuario_autenticado()
     {
         $this->actingAs($this->professor);
         $request = new UpdateAppointmentRequest();
         $this->assertTrue($request->authorize());
     }
 
-    public function test_validation_passes_when_data_is_unchanged()
+    public function test_validacao_passa_quando_dados_estao_inalterados()
     {
         $data = [
             'id_recurso' => $this->agendamento->id_recurso,
@@ -137,7 +137,7 @@ class UpdateAppointmentRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validation_fails_on_resource_conflict_with_other_appointment()
+    public function test_validacao_falha_em_conflito_de_recurso_com_outro_agendamento()
     {
         $outroAgendamento = Agendamento::create([
             'id_recurso' => $this->recurso->id_recurso,
@@ -160,7 +160,7 @@ class UpdateAppointmentRequestTest extends TestCase
         $this->assertArrayHasKey('id_recurso', $validator->errors()->toArray());
     }
 
-    public function test_validation_fails_when_professor_updates_to_other_professors_offer()
+    public function test_validacao_falha_quando_professor_atualiza_para_oferta_de_outro_professor()
     {
         $outraOferta = OfertaComponente::factory()->create([
             'id_turma' => $this->turma->id_turma,
@@ -180,7 +180,7 @@ class UpdateAppointmentRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validation_fails_when_updating_to_inaccessible_resource()
+    public function test_validacao_falha_ao_atualizar_para_recurso_inacessivel()
     {
         $recursoOutraEscola = RecursoDidatico::factory()->create(['id_escola' => $this->outraEscola->id_escola, 'status' => 'funcionando']);
         

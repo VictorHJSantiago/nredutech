@@ -30,7 +30,7 @@ class CurricularComponentResourceTest extends TestCase
     }
 
     #[Test]
-    public function curricular_component_resource_transforms_correctly_with_school()
+    public function testa_recurso_de_componente_curricular_transforma_corretamente_com_escola()
     {
         $componente = ComponenteCurricular::create([
             'nome' => 'Matemática',
@@ -58,7 +58,7 @@ class CurricularComponentResourceTest extends TestCase
     }
 
     #[Test]
-    public function curricular_component_resource_transforms_correctly_when_global()
+    public function testa_recurso_de_componente_curricular_transforma_corretamente_quando_global()
     {
         $componente = ComponenteCurricular::create([
             'nome' => 'Matemática Global',

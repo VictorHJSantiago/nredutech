@@ -80,13 +80,13 @@ class UpdateCourseOfferingRequestTest extends TestCase
         return $request;
     }
 
-    public function test_authorize_returns_true()
+    public function test_autorizacao_retorna_verdadeiro()
     {
         $request = $this->getRequestForUser($this->admin, $this->oferta);
         $this->assertTrue($request->authorize());
     }
 
-    public function test_validation_passes_with_valid_data()
+    public function test_validacao_passa_com_dados_validos()
     {
         $request = $this->getRequestForUser($this->admin, $this->oferta);
         $data = [
@@ -100,7 +100,7 @@ class UpdateCourseOfferingRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validation_passes_when_offering_is_unchanged()
+    public function test_validacao_passa_quando_oferta_nao_e_alterada()
     {
         $request = $this->getRequestForUser($this->admin, $this->oferta);
         $data = [
@@ -114,7 +114,7 @@ class UpdateCourseOfferingRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validation_fails_on_duplicate_offering()
+    public function test_validacao_falha_em_oferta_duplicada()
     {
         $outraOferta = OfertaComponente::factory()->create([
             'id_turma' => $this->turma->id_turma,

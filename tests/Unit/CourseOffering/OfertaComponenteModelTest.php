@@ -49,7 +49,7 @@ class OfertaComponenteModelTest extends TestCase
         RecursoDidatico::create([
             'nome' => 'Projetor',
             'quantidade' => 1,
-            'tipo' => 'equipamento',
+            'tipo' => 'didatico',
             'status' => 'funcionando',
             'id_escola' => $escola->id_escola,
             'id_usuario_criador' => $criador->id_usuario,
@@ -58,19 +58,19 @@ class OfertaComponenteModelTest extends TestCase
         Turma::factory()->create(['id_escola' => $escola->id_escola]);
     }
 
-    public function test_oferta_componente_model_uses_correct_table()
+    public function test_modelo_oferta_componente_usa_tabela_correta()
     {
         $oferta = new OfertaComponente();
         $this->assertEquals('oferta_componentes', $oferta->getTable());
     }
 
-    public function test_oferta_componente_model_uses_correct_primary_key()
+    public function test_modelo_oferta_componente_usa_chave_primaria_correta()
     {
         $oferta = new OfertaComponente();
         $this->assertEquals('id_oferta', $oferta->getKeyName());
     }
 
-    public function test_oferta_componente_model_has_correct_fillable_properties()
+    public function test_modelo_oferta_componente_tem_propriedades_fillable_corretas()
     {
         $oferta = new OfertaComponente();
         $expected = [
@@ -81,13 +81,13 @@ class OfertaComponenteModelTest extends TestCase
         $this->assertEquals($expected, $oferta->getFillable());
     }
 
-    public function test_oferta_componente_model_timestamps_are_disabled()
+    public function test_modelo_oferta_componente_timestamps_estao_habilitados()
     {
         $oferta = new OfertaComponente();
         $this->assertTrue($oferta->usesTimestamps());
     }
 
-    public function test_oferta_componente_model_has_turma_relationship()
+    public function test_modelo_oferta_componente_tem_relacionamento_turma()
     {
         $turma = Turma::factory()->create();
         $oferta = OfertaComponente::factory()->create(['id_turma' => $turma->id_turma]);
@@ -96,7 +96,7 @@ class OfertaComponenteModelTest extends TestCase
         $this->assertTrue($oferta->turma->is($turma));
     }
 
-    public function test_oferta_componente_model_has_componente_curricular_relationship()
+    public function test_modelo_oferta_componente_tem_relacionamento_componente_curricular()
     {
         $componente = ComponenteCurricular::factory()->create();
         $oferta = OfertaComponente::factory()->create(['id_componente' => $componente->id_componente]);
@@ -105,7 +105,7 @@ class OfertaComponenteModelTest extends TestCase
         $this->assertTrue($oferta->componenteCurricular->is($componente));
     }
 
-    public function test_oferta_componente_model_has_professor_relationship()
+    public function test_modelo_oferta_componente_tem_relacionamento_professor()
     {
         $professor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'status_aprovacao' => 'ativo']);
         $oferta = OfertaComponente::factory()->create(['id_professor' => $professor->id_usuario]);
@@ -114,7 +114,7 @@ class OfertaComponenteModelTest extends TestCase
         $this->assertTrue($oferta->professor->is($professor));
     }
 
-    public function test_oferta_componente_model_has_agendamentos_relationship()
+    public function test_modelo_oferta_componente_tem_relacionamento_agendamentos()
     {
         $oferta = OfertaComponente::factory()->create();
         Agendamento::factory(3)->create(['id_oferta' => $oferta->id_oferta]);

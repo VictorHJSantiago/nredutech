@@ -61,21 +61,21 @@ class ComponenteCurricularModelTest extends TestCase
     }
 
     #[Test]
-    public function componente_curricular_model_uses_correct_table()
+    public function testa_modelo_componente_curricular_usa_tabela_correta()
     {
         $componente = new ComponenteCurricular();
         $this->assertEquals('componentes_curriculares', $componente->getTable());
     }
 
     #[Test]
-    public function componente_curricular_model_uses_correct_primary_key()
+    public function testa_modelo_componente_curricular_usa_chave_primaria_correta()
     {
         $componente = new ComponenteCurricular();
         $this->assertEquals('id_componente', $componente->getKeyName());
     }
 
     #[Test]
-    public function componente_curricular_model_has_correct_fillable_properties()
+    public function testa_modelo_componente_curricular_tem_propriedades_fillable_corretas()
     {
         $componente = new ComponenteCurricular();
         $expected = [
@@ -90,14 +90,14 @@ class ComponenteCurricularModelTest extends TestCase
     }
 
     #[Test]
-    public function componente_curricular_model_timestamps_sao_usados()
+    public function testa_modelo_componente_curricular_timestamps_sao_usados()
     {
         $componente = new ComponenteCurricular();
         $this->assertTrue($componente->usesTimestamps());
     }
 
     #[Test]
-    public function componente_curricular_model_has_escola_relationship()
+    public function testa_modelo_componente_curricular_tem_relacionamento_escola()
     {
         $componente = $this->criarComponente();
         $this->assertInstanceOf(Escola::class, $componente->escola);
@@ -105,7 +105,7 @@ class ComponenteCurricularModelTest extends TestCase
     }
 
     #[Test]
-    public function componente_curricular_model_has_ofertas_componentes_relationship()
+    public function testa_modelo_componente_curricular_tem_relacionamento_ofertas_componentes()
     {
         $componente = $this->criarComponente();
         
@@ -122,7 +122,7 @@ class ComponenteCurricularModelTest extends TestCase
     }
 
     #[Test]
-    public function componente_curricular_can_be_global()
+    public function testa_componente_curricular_pode_ser_global()
     {
         $componente = $this->criarComponente(['id_escola' => null]);
         

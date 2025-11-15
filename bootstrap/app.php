@@ -11,8 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Adicione aqui os seus middlewares globais, se necessário
+        
     })
+    ->withProviders([
+        ...in_array(env('APP_ENV'), ['local', 'testing', 'dusk'])
+            ? [Laravel\Dusk\DuskServiceProvider::class]
+            : [],
+    ])
     ->withExceptions(function (Exceptions $exceptions) {
-        // Configure aqui o tratamento de exceções, se necessário
+        
     })->create();

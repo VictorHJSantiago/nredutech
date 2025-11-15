@@ -96,14 +96,14 @@ class StoreAppointmentRequestTest extends TestCase
         return Validator::make($request->all(), $request->rules());
     }
 
-    public function test_authorize_returns_true_for_authenticated_user()
+    public function test_autorizacao_retorna_verdadeiro_para_usuario_autenticado()
     {
         $this->actingAs($this->professor);
         $request = new StoreAppointmentRequest();
         $this->assertTrue($request->authorize());
     }
 
-    public function test_validation_passes_with_valid_data()
+    public function test_validacao_passa_com_dados_validos()
     {
         $data = [
             'id_recurso' => $this->recurso->id_recurso,
@@ -117,7 +117,7 @@ class StoreAppointmentRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validation_fails_on_missing_fields()
+    public function test_validacao_falha_em_campos_ausentes()
     {
         $data = [];
         $validator = $this->validateStoreData($this->professor, $data);
@@ -129,7 +129,7 @@ class StoreAppointmentRequestTest extends TestCase
         $this->assertArrayHasKey('data_hora_fim', $validator->errors()->toArray());
     }
 
-    public function test_validation_fails_on_non_existent_relations()
+    public function test_validacao_falha_em_relacoes_inexistentes()
     {
         $data = [
             'id_recurso' => 999,
@@ -144,7 +144,7 @@ class StoreAppointmentRequestTest extends TestCase
         $this->assertArrayHasKey('id_oferta', $validator->errors()->toArray());
     }
 
-    public function test_validation_fails_on_fim_before_inicio()
+    public function test_validacao_falha_em_fim_antes_do_inicio()
     {
         $data = [
             'id_recurso' => $this->recurso->id_recurso,
@@ -158,7 +158,7 @@ class StoreAppointmentRequestTest extends TestCase
         $this->assertArrayHasKey('data_hora_fim', $validator->errors()->toArray());
     }
 
-    public function test_validation_fails_on_start_time_in_the_past()
+    public function test_validacao_falha_em_horario_de_inicio_no_passado()
     {
         $data = [
             'id_recurso' => $this->recurso->id_recurso,
@@ -172,7 +172,7 @@ class StoreAppointmentRequestTest extends TestCase
         $this->assertArrayHasKey('data_hora_inicio', $validator->errors()->toArray());
     }
 
-    public function test_validation_fails_on_resource_conflict()
+    public function test_validacao_falha_em_conflito_de_recurso()
     {
         $startTime = now()->addHour();
         $endTime = now()->addHours(2);
@@ -197,7 +197,7 @@ class StoreAppointmentRequestTest extends TestCase
         $this->assertArrayHasKey('id_recurso', $validator->errors()->toArray());
     }
 
-    public function test_validation_fails_when_professor_books_for_other_professor()
+    public function test_validacao_falha_quando_professor_agenda_para_outro_professor()
     {
         $data = [
             'id_recurso' => $this->recurso->id_recurso,
@@ -211,7 +211,7 @@ class StoreAppointmentRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validation_passes_when_diretor_books_for_any_professor_in_school()
+    public function test_validacao_passa_quando_diretor_agenda_para_qualquer_professor_da_escola()
     {
         $data = [
             'id_recurso' => $this->recurso->id_recurso,
@@ -225,7 +225,7 @@ class StoreAppointmentRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_validation_fails_when_resource_is_not_accessible()
+    public function test_validacao_falha_quando_recurso_nao_e_acessivel()
     {
         $recursoOutraEscola = RecursoDidatico::factory()->create(['id_escola' => $this->outraEscola->id_escola, 'status' => 'funcionando']);
         

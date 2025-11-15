@@ -60,19 +60,19 @@ class AgendamentoModelTest extends TestCase
         ]);
     }
 
-    public function test_agendamento_model_uses_correct_table()
+    public function test_modelo_agendamento_usa_tabela_correta()
     {
         $agendamento = new Agendamento();
         $this->assertEquals('agendamentos', $agendamento->getTable());
     }
 
-    public function test_agendamento_model_uses_correct_primary_key()
+    public function test_modelo_agendamento_usa_chave_primaria_correta()
     {
         $agendamento = new Agendamento();
         $this->assertEquals('id_agendamento', $agendamento->getKeyName());
     }
 
-    public function test_agendamento_model_has_correct_fillable_properties()
+    public function test_modelo_agendamento_tem_propriedades_fillable_corretas()
     {
         $agendamento = new Agendamento();
         $expected = [
@@ -85,13 +85,13 @@ class AgendamentoModelTest extends TestCase
         $this->assertEquals($expected, $agendamento->getFillable());
     }
 
-    public function test_agendamento_model_has_timestamps()
+    public function test_modelo_agendamento_tem_timestamps()
     {
         $agendamento = new Agendamento();
         $this->assertTrue($agendamento->usesTimestamps());
     }
 
-    public function test_agendamento_model_casts_attributes_correctly()
+    public function test_modelo_agendamento_converte_atributos_corretamente()
     {
         $agendamento = new Agendamento();
         $casts = $agendamento->getCasts();
@@ -100,7 +100,7 @@ class AgendamentoModelTest extends TestCase
         $this->assertArrayNotHasKey('data_hora_fim', $casts);
     }
 
-    public function test_agendamento_model_has_recurso_relationship()
+    public function test_modelo_agendamento_tem_relacionamento_recurso()
     {
         $agendamento = Agendamento::create([
             'id_recurso' => $this->recurso->id_recurso,
@@ -114,7 +114,7 @@ class AgendamentoModelTest extends TestCase
         $this->assertTrue($agendamento->recurso->is($this->recurso));
     }
 
-    public function test_agendamento_model_has_oferta_relationship()
+    public function test_modelo_agendamento_tem_relacionamento_oferta()
     {
         $agendamento = Agendamento::create([
             'id_recurso' => $this->recurso->id_recurso,

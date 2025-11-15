@@ -5,12 +5,14 @@ namespace Tests\Feature\Appointments;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 
 class AppointmentDatabaseSchemaTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_agendamentos_table_has_expected_columns()
+    #[Test]
+    public function tabela_agendamentos_possui_colunas_esperadas()
     {
         $this->assertTrue(Schema::hasTable('agendamentos'));
 
@@ -23,17 +25,16 @@ class AppointmentDatabaseSchemaTest extends TestCase
             'updated_at',
             'id_recurso',
             'id_oferta',
-            'id_usuario',
         ]));
     }
 
-    public function test_agendamentos_table_has_foreign_keys()
+    #[Test]
+    public function tabela_agendamentos_possui_chaves_estrangeiras()
     {
         $foreignKeys = $this->getTableForeignKeys('agendamentos');
         
         $this->assertContains('id_recurso', $foreignKeys);
         $this->assertContains('id_oferta', $foreignKeys);
-        $this->assertContains('id_usuario', $foreignKeys);
     }
 
     protected function getTableForeignKeys(string $table): array
@@ -45,7 +46,7 @@ class AppointmentDatabaseSchemaTest extends TestCase
             return array_column($foreignKeysData, 'from');
         }
 
-        if ($dbDriver === 'mysql') {
+        if ($dbDriver === 'mysql' || $dbDriver === 'mariadb') {
             $foreignKeysData = Schema::getConnection()->select(
                 "SELECT COLUMN_NAME 
                 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 

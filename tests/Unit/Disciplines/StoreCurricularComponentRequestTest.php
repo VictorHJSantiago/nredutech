@@ -57,7 +57,7 @@ class StoreCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function authorize_returns_true_for_admin_and_diretor()
+    public function testa_autorizacao_retorna_verdadeiro_para_admin_e_diretor()
     {
         $requestAdmin = new StoreCurricularComponentRequest();
         $requestAdmin->setUserResolver(fn () => $this->admin);
@@ -69,7 +69,7 @@ class StoreCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function validation_passes_with_valid_data_for_school()
+    public function testa_validacao_passa_com_dados_validos_para_escola()
     {
         $this->actingAs($this->diretor);
         $request = new StoreCurricularComponentRequest();
@@ -83,7 +83,7 @@ class StoreCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function validation_passes_with_valid_data_for_global()
+    public function testa_validacao_passa_com_dados_validos_para_global()
     {
         $this->actingAs($this->admin);
         $request = new StoreCurricularComponentRequest();
@@ -95,7 +95,7 @@ class StoreCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function validation_fails_on_missing_nome()
+    public function testa_validacao_falha_com_nome_ausente()
     {
         $this->actingAs($this->admin);
         $request = new StoreCurricularComponentRequest();
@@ -109,7 +109,7 @@ class StoreCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function validation_fails_on_non_existent_escola()
+    public function testa_validacao_falha_com_escola_inexistente()
     {
         $this->actingAs($this->admin);
         $request = new StoreCurricularComponentRequest();
@@ -122,7 +122,7 @@ class StoreCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function validation_fails_on_duplicate_nome_for_same_school()
+    public function testa_validacao_falha_com_nome_duplicado_para_mesma_escola()
     {
         ComponenteCurricular::create(array_merge($this->getValidData($this->escolaDiretor->id_escola), ['nome' => 'Nome Duplicado']));
         
@@ -139,7 +139,7 @@ class StoreCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function validation_passes_on_duplicate_nome_for_different_school()
+    public function testa_validacao_passa_com_nome_duplicado_para_escola_diferente()
     {
         ComponenteCurricular::create(array_merge($this->getValidData($this->outraEscola->id_escola), ['nome' => 'Nome Duplicado']));
         
@@ -156,7 +156,7 @@ class StoreCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function validation_fails_on_duplicate_global_nome()
+    public function testa_validacao_falha_com_nome_global_duplicado()
     {
         ComponenteCurricular::create(array_merge($this->getValidData(null), ['nome' => 'Nome Global Duplicado']));
         
@@ -171,7 +171,7 @@ class StoreCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function diretor_cannot_create_component_for_other_school()
+    public function testa_diretor_nao_pode_criar_componente_para_outra_escola()
     {
         $this->actingAs($this->diretor);
         $request = new StoreCurricularComponentRequest();
@@ -186,7 +186,7 @@ class StoreCurricularComponentRequestTest extends TestCase
     }
 
     #[Test]
-    public function diretor_cannot_create_global_component()
+    public function testa_diretor_nao_pode_criar_componente_global()
     {
         $this->actingAs($this->diretor);
         $request = new StoreCurricularComponentRequest();

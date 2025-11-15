@@ -9,6 +9,7 @@ use App\Models\Municipio;
 use App\Models\Escola;
 use App\Models\Turma;
 use App\Models\Usuario as User; 
+use PHPUnit\Framework\Attributes\Test;
 
 class SchoolControllerTest extends TestCase
 {
@@ -25,16 +26,16 @@ class SchoolControllerTest extends TestCase
     {
         parent::setUp();
         $this->admin = Usuario::factory()->create(['tipo_usuario' => 'administrador']);
-        $this->municipio1 = Municipio::factory()->create(['nome' => 'Municipio A']);
-        $this->municipio2 = Municipio::factory()->create(['nome' => 'Municipio B']);
+        $this->municipio1 = Municipio::create(['nome' => 'Municipio A', 'estado' => 'PR']);
+        $this->municipio2 = Municipio::create(['nome' => 'Municipio B', 'estado' => 'SC']);
         
-        $this->escola1 = Escola::factory()->create(['id_municipio' => $this->municipio1->id_municipio, 'nome' => 'Escola Alpha', 'nivel_ensino' => 'colegio_estadual', 'tipo' => 'urbana']);
-        $this->escola2 = Escola::factory()->create(['id_municipio' => $this->municipio1->id_municipio, 'nome' => 'Escola Beta', 'nivel_ensino' => 'escola_municipal', 'tipo' => 'rural']);
-        $this->escola3 = Escola::factory()->create(['id_municipio' => $this->municipio2->id_municipio, 'nome' => 'Escola Gamma', 'nivel_ensino' => 'escola_tecnica', 'tipo' => 'urbana']);
+        $this->escola1 = Escola::create(['id_municipio' => $this->municipio1->id_municipio, 'nome' => 'Escola Alpha', 'nivel_ensino' => 'colegio_estadual', 'tipo' => 'urbana']);
+        $this->escola2 = Escola::create(['id_municipio' => $this->municipio1->id_municipio, 'nome' => 'Escola Beta', 'nivel_ensino' => 'escola_municipal', 'tipo' => 'rural']);
+        $this->escola3 = Escola::create(['id_municipio' => $this->municipio2->id_municipio, 'nome' => 'Escola Gamma', 'nivel_ensino' => 'escola_tecnica', 'tipo' => 'urbana']);
     }
 
-    /** @test */
-    public function index_lista_todas_escolas_e_municipios_para_admin()
+    #[Test]
+    public function test_index_lista_todas_escolas_e_municipios_para_admin()
     {
         $response = $this->actingAs($this->admin)->get(route('escolas.index'));
 
@@ -49,8 +50,8 @@ class SchoolControllerTest extends TestCase
         $response->assertViewHas('municipios', fn($m) => $m->count() === 2);
     }
 
-    /** @test */
-    public function index_filtra_escolas_por_nome()
+    #[Test]
+    public function test_index_filtra_escolas_por_nome()
     {
         $response = $this->actingAs($this->admin)->get(route('escolas.index', ['search_nome' => 'Alpha']));
         $response->assertStatus(200);
@@ -59,53 +60,51 @@ class SchoolControllerTest extends TestCase
         $response->assertDontSee($this->escola3->nome);
     }
 
-    /** @test */
-    public function index_filtra_escolas_por_municipio()
+    #[Test]
+    public function test_index_filtra_escolas_por_municipio()
     {
-        $response = $this->actingAs($this->admin)->get(route('escolas.index', ['search_municipio' => $this->municipio2->id_municipio]));
+        $response = $this->actingAs($this->admin)->get(route('escolas.index', ['id_municipio' => $this->municipio2->id_municipio]));
         $response->assertStatus(200);
         $response->assertDontSee($this->escola1->nome);
         $response->assertDontSee($this->escola2->nome);
         $response->assertSee($this->escola3->nome);
     }
 
-    /** @test */
-    public function index_filtra_escolas_por_nivel_ensino()
+    #[Test]
+    public function test_index_filtra_escolas_por_nivel_ensino()
     {
-        $response = $this->actingAs($this->admin)->get(route('escolas.index', ['search_nivel' => 'escola_municipal']));
+        $response = $this->actingAs($this->admin)->get(route('escolas.index', ['nivel_ensino' => 'escola_municipal']));
         $response->assertStatus(200);
         $response->assertDontSee($this->escola1->nome);
         $response->assertSee($this->escola2->nome);
         $response->assertDontSee($this->escola3->nome);
     }
 
-    /** @test */
-    public function index_filtra_escolas_por_localizacao()
+    #[Test]
+    public function test_index_filtra_escolas_por_localizacao()
     {
-        // Assumindo que o controller mapeia 'search_localizacao' para o campo 'tipo'
-        $response = $this->actingAs($this->admin)->get(route('escolas.index', ['search_localizacao' => 'rural']));
+        $response = $this->actingAs($this->admin)->get(route('escolas.index', ['tipo' => 'rural']));
         $response->assertStatus(200);
         $response->assertDontSee($this->escola1->nome);
         $response->assertSee($this->escola2->nome);
         $response->assertDontSee($this->escola3->nome);
     }
 
-     /** @test */
-    public function index_filtra_escolas_combinando_filtros()
+    #[Test]
+    public function test_index_filtra_escolas_combinando_filtros()
     {
-        // Assumindo que o controller mapeia 'search_localizacao' para 'tipo'
         $response = $this->actingAs($this->admin)->get(route('escolas.index', [
-            'search_nivel' => 'colegio_estadual',
-            'search_localizacao' => 'urbana'
+            'nivel_ensino' => 'colegio_estadual',
+            'tipo' => 'urbana'
         ]));
         $response->assertStatus(200);
         $response->assertSee($this->escola1->nome);
         $response->assertDontSee($this->escola2->nome);
-        $response->assertDontSee($this->escola3->nome); // Escola 3 é 'escola_tecnica'
+        $response->assertDontSee($this->escola3->nome);
     }
 
-    /** @test */
-    public function administrador_pode_criar_escola_com_sucesso() 
+    #[Test]
+    public function test_administrador_pode_criar_escola_com_sucesso() 
     {
         $dadosEscola = [
             'nome' => 'Escola Delta',
@@ -121,22 +120,21 @@ class SchoolControllerTest extends TestCase
         $this->assertDatabaseHas('escolas', ['nome' => $dadosEscola['nome']]);
     }
 
-    /** @test */
-    public function store_falha_se_nome_faltar() 
+    #[Test]
+    public function test_store_falha_se_nome_faltar() 
     {
         $dadosEscola = [
-            //'nome' => 'Escola Sem Nome',
             'id_municipio' => $this->municipio1->id_municipio,
             'nivel_ensino' => 'colegio_estadual',
             'tipo' => 'urbana',
         ];
         $response = $this->actingAs($this->admin)->post(route('escolas.store'), $dadosEscola);
         $response->assertSessionHasErrors('nome');
-        $this->assertDatabaseMissing('escolas', ['id_municipio' => $dadosEscola['id_municipio']]); 
+        $this->assertDatabaseCount('escolas', 3);
     }
 
-    /** @test */
-    public function store_falha_se_municipio_nao_existir()
+    #[Test]
+    public function test_store_falha_se_municipio_nao_existir()
     {
         $dadosEscola = [
             'nome' => 'Escola Municipio Invalido',
@@ -148,8 +146,8 @@ class SchoolControllerTest extends TestCase
         $response->assertSessionHasErrors('id_municipio');
     }
 
-    /** @test */
-    public function administrador_pode_ver_pagina_edicao_escola() 
+    #[Test]
+    public function test_administrador_pode_ver_pagina_edicao_escola() 
     {
         $response = $this->actingAs($this->admin)->get(route('escolas.edit', $this->escola1));
         $response->assertStatus(200);
@@ -157,10 +155,10 @@ class SchoolControllerTest extends TestCase
         $response->assertViewHas('escola', $this->escola1);
     }
 
-    /** @test */
-    public function administrador_pode_atualizar_escola_com_sucesso() 
+    #[Test]
+    public function test_administrador_pode_atualizar_escola_com_sucesso() 
     {
-        $novoMunicipio = Municipio::factory()->create();
+        $novoMunicipio = Municipio::create(['nome' => 'Municipio C', 'estado' => 'SP']);
         $dadosAtualizados = [
             'nome' => 'Escola Alpha Renovada',
             'id_municipio' => $novoMunicipio->id_municipio,
@@ -181,8 +179,8 @@ class SchoolControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function update_falha_se_nome_for_removido()
+    #[Test]
+    public function test_update_falha_se_nome_for_removido()
     {
         $dadosAtualizados = [
             'nome' => '', 
@@ -195,26 +193,31 @@ class SchoolControllerTest extends TestCase
         $this->assertDatabaseHas('escolas', ['id_escola' => $this->escola1->id_escola, 'nome' => $this->escola1->nome]); 
     }
 
-    /** @test */
-    public function update_falha_se_municipio_enviado_nao_existir()
+    #[Test]
+    public function test_update_falha_se_municipio_enviado_nao_existir()
     {
-         $dadosAtualizados = ['id_municipio' => 987]; 
+         $dadosAtualizados = [
+            'nome' => $this->escola1->nome,
+            'id_municipio' => 987,
+            'nivel_ensino' => $this->escola1->nivel_ensino,
+            'tipo' => $this->escola1->tipo,
+        ]; 
         $response = $this->actingAs($this->admin)->put(route('escolas.update', $this->escola1), $dadosAtualizados);
         $response->assertSessionHasErrors('id_municipio');
     }
 
-    /** @test */
-    public function administrador_pode_excluir_escola_sem_dependencias() 
+    #[Test]
+    public function test_administrador_pode_excluir_escola_sem_dependencias() 
     {
-        $escolaParaExcluir = Escola::factory()->create(['id_municipio' => $this->municipio1->id_municipio]);
+        $escolaParaExcluir = Escola::create(['nome' => 'Escola Para Excluir', 'id_municipio' => $this->municipio1->id_municipio, 'nivel_ensino' => 'colegio_estadual', 'tipo' => 'urbana']);
         $response = $this->actingAs($this->admin)->delete(route('escolas.destroy', $escolaParaExcluir));
         $response->assertRedirect(route('escolas.index'));
         $response->assertSessionHas('success');
         $this->assertDatabaseMissing('escolas', ['id_escola' => $escolaParaExcluir->id_escola]);
     }
 
-    /** @test */
-    public function administrador_nao_pode_excluir_escola_com_turmas() 
+    #[Test]
+    public function test_administrador_nao_pode_excluir_escola_com_turmas() 
     {
         Turma::factory()->create(['id_escola' => $this->escola1->id_escola]);
         $response = $this->actingAs($this->admin)->delete(route('escolas.destroy', $this->escola1));
@@ -223,8 +226,8 @@ class SchoolControllerTest extends TestCase
         $this->assertDatabaseHas('escolas', ['id_escola' => $this->escola1->id_escola]);
     }
 
-     /** @test */
-    public function administrador_nao_pode_excluir_escola_com_usuarios() 
+    #[Test]
+    public function test_administrador_nao_pode_excluir_escola_com_usuarios() 
     {
         User::factory()->create(['id_escola' => $this->escola1->id_escola, 'tipo_usuario' => 'professor']);
         $response = $this->actingAs($this->admin)->delete(route('escolas.destroy', $this->escola1));
@@ -232,5 +235,4 @@ class SchoolControllerTest extends TestCase
         $response->assertSessionHas('error');
         $this->assertDatabaseHas('escolas', ['id_escola' => $this->escola1->id_escola]);
     }
-
 }

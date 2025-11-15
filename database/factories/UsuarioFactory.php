@@ -43,8 +43,51 @@ class UsuarioFactory extends Factory
             'status_aprovacao' => 'ativo',
             'tipo_usuario' => 'aluno', 
             'id_escola' => null, 
-            'password' => Hash::make('password'), 
+            'password' => Hash::make('ValidPassword@123456'), 
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * Define o estado para um usuário administrador.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function administrador(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'tipo_usuario' => 'administrador',
+                'id_escola' => null,
+            ];
+        });
+    }
+
+    /**
+     * Define o estado para um usuário diretor.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function diretor(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'tipo_usuario' => 'diretor',
+            ];
+        });
+    }
+
+    /**
+     * Define o estado para um usuário professor.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function professor(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'tipo_usuario' => 'professor',
+            ];
+        });
     }
 }
