@@ -14,8 +14,6 @@
     <section class="config-section">
         @include('settings.partials.user-account-section')
 
-        @include('settings.partials.notification-preferences-form')
-
         @include('settings.partials.backup-restore-section')
     </section>
 @endsection

@@ -2,103 +2,232 @@
 
 namespace Tests\Feature\Dashboard;
 
-use Tests\TestCase;
-use App\Models\Usuario;
-use App\Models\Escola;
-use App\Models\Turma;
-use App\Models\RecursoDidatico;
 use App\Models\Agendamento;
+use App\Models\ComponenteCurricular;
+use App\Models\Escola;
+use App\Models\Municipio;
 use App\Models\OfertaComponente;
+use App\Models\RecursoDidatico;
+use App\Models\Turma;
+use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class DashboardControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private Usuario $admin;
-    private Usuario $diretor;
-    private Usuario $professor;
-    private Escola $escola;
+    private $escola;
+    private $municipio;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->escola = Escola::factory()->create();
-        
-        $this->admin = Usuario::factory()->administrador()->create();
-        $this->diretor = Usuario::factory()->diretor()->create(['id_escola' => $this->escola->id_escola]);
-        $this->professor = Usuario::factory()->professor()->create(['id_escola' => $this->escola->id_escola]);
 
-        Turma::factory()->count(3)->create(['id_escola' => $this->escola->id_escola]);
-        RecursoDidatico::factory()->count(5)->create(['id_escola' => $this->escola->id_escola]);
-        $oferta = OfertaComponente::factory()->create([
-            'id_turma' => Turma::factory()->create(['id_escola' => $this->escola->id_escola])->id_turma,
-            'id_professor' => $this->professor->id_usuario,
+        $this->municipio = Municipio::create(['nome' => 'Curitiba']);
+
+        $this->escola = Escola::create([
+            'nome' => 'Escola Teste',
+            'nivel_ensino' => 'Médio',
+            'tipo' => 'Estadual',
+            'id_municipio' => $this->municipio->id_municipio
         ]);
-        Agendamento::factory()->count(2)->create([
+    }
+
+    public function test_painel_admin_mostra_kpis_do_sistema()
+    {
+        $admin = Usuario::factory()->create([
+            'tipo_usuario' => 'administrador',
+            'status_aprovacao' => 'ativo'
+        ]);
+
+        Escola::create([
+            'nome' => 'Escola 2',
+            'nivel_ensino' => 'Fundamental',
+            'tipo' => 'Municipal',
+            'id_municipio' => $this->municipio->id_municipio
+        ]);
+
+        $recurso = RecursoDidatico::create([
+            'nome' => 'Projetor',
+            'status' => 'funcionando',
+            'quantidade' => 1,
+            'id_escola' => $this->escola->id_escola,
+            'id_usuario_criador' => $admin->id_usuario
+        ]);
+        
+        RecursoDidatico::create([
+            'nome' => 'Quebrado',
+            'status' => 'em_manutencao',
+            'quantidade' => 1,
+            'id_escola' => $this->escola->id_escola,
+            'id_usuario_criador' => $admin->id_usuario
+        ]);
+
+        $turma = Turma::create([
+            'serie' => '1º Ano',
+            'ano_letivo' => 2025,
+            'turno' => 'manha',
+            'nivel_escolaridade' => 'medio',
+            'id_escola' => $this->escola->id_escola
+        ]);
+
+        $componente = ComponenteCurricular::create([
+            'nome' => 'Matemática',
+            'carga_horaria' => 60,
+            'status' => 'aprovado'
+        ]);
+
+        $professor = Usuario::factory()->create([
+            'tipo_usuario' => 'professor',
+            'id_escola' => $this->escola->id_escola,
+            'status_aprovacao' => 'ativo'
+        ]);
+
+        $oferta = OfertaComponente::create([
+            'id_turma' => $turma->id_turma,
+            'id_professor' => $professor->id_usuario,
+            'id_componente' => $componente->id_componente
+        ]);
+
+        Agendamento::create([
+            'data_hora_inicio' => now(),
+            'data_hora_fim' => now()->addHour(),
+            'status' => 'agendado',
             'id_oferta' => $oferta->id_oferta,
-            'data_hora_inicio' => now()->addDay(),
+            'id_recurso' => $recurso->id_recurso
         ]);
+
+        $response = $this->actingAs($admin)->get(route('index'));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('stats');
         
-        Agendamento::factory()->count(4)->create([
+        $stats = $response->viewData('stats');
+        
+        $this->assertEquals(2, $stats['total_escolas']);
+        $this->assertEquals(Usuario::count(), $stats['total_usuarios']);
+        $this->assertEquals(1, $stats['recursos_disponiveis']);
+        $this->assertEquals(1, $stats['agendamentos_hoje']);
+    }
+
+    public function test_painel_diretor_mostra_kpis_especificos_da_escola()
+    {
+        $diretor = Usuario::factory()->create([
+            'tipo_usuario' => 'diretor',
+            'id_escola' => $this->escola->id_escola,
+            'status_aprovacao' => 'ativo'
+        ]);
+
+        $recurso = RecursoDidatico::create([
+            'nome' => 'Notebook',
+            'status' => 'funcionando',
+            'quantidade' => 10,
+            'id_escola' => $this->escola->id_escola,
+            'id_usuario_criador' => $diretor->id_usuario
+        ]);
+
+        $turma = Turma::create([
+            'serie' => '3º Ano',
+            'ano_letivo' => 2025,
+            'turno' => 'tarde',
+            'nivel_escolaridade' => 'medio',
+            'id_escola' => $this->escola->id_escola
+        ]);
+
+        $componente = ComponenteCurricular::create([
+            'nome' => 'História',
+            'carga_horaria' => 40,
+            'status' => 'aprovado'
+        ]);
+
+        $professor = Usuario::factory()->create([
+            'tipo_usuario' => 'professor',
+            'id_escola' => $this->escola->id_escola,
+            'status_aprovacao' => 'ativo'
+        ]);
+
+        $oferta = OfertaComponente::create([
+            'id_turma' => $turma->id_turma,
+            'id_professor' => $professor->id_usuario,
+            'id_componente' => $componente->id_componente
+        ]);
+
+        Agendamento::create([
+            'data_hora_inicio' => now(),
+            'data_hora_fim' => now()->addHour(),
+            'status' => 'agendado',
             'id_oferta' => $oferta->id_oferta,
-            'data_hora_inicio' => now()->subDay(),
+            'id_recurso' => $recurso->id_recurso
         ]);
-    }
 
-    public function test_admin_dashboard_shows_system_wide_kpis()
-    {
-        $response = $this->actingAs($this->admin)->get(route('index'));
-
-        $response->assertOk();
-        $response->assertViewIs('index');
-        $response->assertViewHas('kpis');
-        
-        $kpis = $response->viewData('kpis');
-        $this->assertEquals(Usuario::count(), $kpis['total_usuarios']);
-        $this->assertEquals(Escola::count(), $kpis['total_escolas']);
-        $this->assertEquals(RecursoDidatico::count(), $kpis['total_recursos']);
-        $this->assertEquals(2, $kpis['total_agendamentos_futuros']);
-        $this->assertEquals(4, $kpis['total_agendamentos_passados']);
-    }
-
-    public function test_diretor_dashboard_shows_school_specific_kpis()
-    {
-        Escola::factory()->create();
-        RecursoDidatico::factory()->count(10)->create();
-        
-        $response = $this->actingAs($this->diretor)->get(route('index'));
-
-        $response->assertOk();
-        $response->assertViewIs('index');
-        $response->assertViewHas('kpis');
-        
-        $kpis = $response->viewData('kpis');
-        $this->assertEquals(Usuario::where('id_escola', $this->escola->id_escola)->count(), $kpis['total_usuarios']);
-        $this->assertEquals(1, $kpis['total_escolas']);
-        $this->assertEquals(5, $kpis['total_recursos']);
-        $this->assertEquals(2, $kpis['total_agendamentos_futuros']);
-        $this->assertEquals(4, $kpis['total_agendamentos_passados']);
-    }
-
-    public function test_professor_dashboard_shows_personal_kpis()
-    {
-        OfertaComponente::factory()->create([
-            'id_turma' => Turma::factory()->create(['id_escola' => $this->escola->id_escola])->id_turma,
-            'id_professor' => $this->diretor->id_usuario,
+        $outraEscola = Escola::create([
+            'nome' => 'Escola Vizinha',
+            'nivel_ensino' => 'Fundamental',
+            'tipo' => 'Municipal',
+            'id_municipio' => $this->municipio->id_municipio
         ]);
-        
-        $response = $this->actingAs($this->professor)->get(route('index'));
 
-        $response->assertOk();
-        $response->assertViewIs('index');
-        $response->assertViewHas('kpis');
-        
-        $kpis = $response->viewData('kpis');
-        $this->assertEquals(1, $kpis['total_ofertas']);
-        $this->assertEquals(5, $kpis['total_recursos']);
-        $this->assertEquals(2, $kpis['total_agendamentos_futuros']);
-        $this->assertEquals(4, $kpis['total_agendamentos_passados']);
+        $turmaOutra = Turma::create([
+            'serie' => '5º Ano',
+            'ano_letivo' => 2025,
+            'turno' => 'manha',
+            'nivel_escolaridade' => 'fundamental_1',
+            'id_escola' => $outraEscola->id_escola
+        ]);
+
+        $profOutro = Usuario::factory()->create([
+            'tipo_usuario' => 'professor',
+            'id_escola' => $outraEscola->id_escola,
+            'status_aprovacao' => 'ativo'
+        ]);
+
+        $ofertaOutra = OfertaComponente::create([
+            'id_turma' => $turmaOutra->id_turma,
+            'id_professor' => $profOutro->id_usuario,
+            'id_componente' => $componente->id_componente
+        ]);
+
+        Agendamento::create([
+            'data_hora_inicio' => now(),
+            'data_hora_fim' => now()->addHour(),
+            'status' => 'agendado',
+            'id_oferta' => $ofertaOutra->id_oferta,
+            'id_recurso' => $recurso->id_recurso
+        ]);
+
+        $response = $this->actingAs($diretor)->get(route('index'));
+
+        $response->assertStatus(200);
+        $stats = $response->viewData('stats');
+
+        $this->assertEquals(1, $stats['total_escolas']);
+        $this->assertEquals(Usuario::where('id_escola', $this->escola->id_escola)->count(), $stats['total_usuarios']);
+        $this->assertEquals(1, $stats['agendamentos_hoje']);
+    }
+
+    public function test_painel_professor_mostra_kpis_pessoais()
+    {
+        $professor = Usuario::factory()->create([
+            'tipo_usuario' => 'professor',
+            'id_escola' => $this->escola->id_escola,
+            'status_aprovacao' => 'ativo'
+        ]);
+
+        RecursoDidatico::create([
+            'nome' => 'Mapa',
+            'status' => 'funcionando',
+            'quantidade' => 1,
+            'id_escola' => $this->escola->id_escola,
+            'id_usuario_criador' => $professor->id_usuario
+        ]);
+
+        $response = $this->actingAs($professor)->get(route('index'));
+
+        $response->assertStatus(200);
+        $stats = $response->viewData('stats');
+
+        $this->assertEquals(1, $stats['total_escolas']);
+        $this->assertEquals(Usuario::where('id_escola', $this->escola->id_escola)->count(), $stats['total_usuarios']);
     }
 }

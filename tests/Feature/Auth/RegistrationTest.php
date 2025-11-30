@@ -3,6 +3,8 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\Escola;
+use App\Models\Municipio;
+use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,9 +12,27 @@ class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_registration_screen_can_be_rendered()
+    protected function setUp(): void
     {
-        Escola::factory()->create();
+        parent::setUp();
+        $this->withoutVite();
+    }
+
+    private function createEscola()
+    {
+        $municipio = Municipio::create(['nome' => 'Curitiba']);
+        
+        return Escola::create([
+            'nome' => 'Escola Teste',
+            'nivel_ensino' => 'Médio',
+            'tipo' => 'Estadual',
+            'id_municipio' => $municipio->id_municipio
+        ]);
+    }
+
+    public function test_tela_de_cadastro_pode_ser_renderizada()
+    {
+        $this->createEscola();
         $response = $this->get('/register');
 
         $response->assertStatus(200);
@@ -20,31 +40,32 @@ class RegistrationTest extends TestCase
         $response->assertViewHas('escolas');
     }
 
-    public function test_new_users_can_register()
+    public function test_novos_usuarios_podem_se_cadastrar()
     {
-        $escola = Escola::factory()->create();
+        $escola = $this->createEscola();
 
         $data = [
-            'nome_completo' => 'Usuário de Teste',
+            'name' => 'Usuário de Teste',
             'username' => 'usuarioteste',
             'email' => 'teste@exemplo.com',
             'tipo_usuario' => 'professor',
             'id_escola' => $escola->id_escola,
             'data_nascimento' => '1990-01-01',
-            'cpf' => '123.456.789-00',
+            'cpf' => '905.979.410-92', // CPF Válido
             'rg' => '12.345.678-9',
             'telefone' => '(42) 99999-9999',
             'rco_siape' => 'RCO123456',
             'formacao' => 'Licenciatura em Testes',
             'area_formacao' => 'TI',
-            'password' => 'passwordValido123',
-            'password_confirmation' => 'passwordValido123',
+            'password' => 'PasswordValido!123',
+            'password_confirmation' => 'PasswordValido!123',
         ];
 
         $response = $this->post('/register', $data);
 
         $response->assertRedirect(route('login'));
-        $response->assertSessionHas('success', 'Cadastro realizado com sucesso! Aguarde a aprovação de um administrador.');
+        // Correção da mensagem: "do administrador" em vez de "por um administrador"
+        $response->assertSessionHas('success', 'Cadastro realizado com sucesso! Aguarde a aprovação do administrador ou diretor.');
         
         $this->assertDatabaseHas('usuarios', [
             'username' => 'usuarioteste',
@@ -54,27 +75,38 @@ class RegistrationTest extends TestCase
         ]);
     }
 
-    public function test_registration_fails_with_invalid_data()
+    public function test_cadastro_falha_com_dados_invalidos()
     {
         $response = $this->post('/register', [
-            'nome_completo' => 'Teste',
+            'name' => 'Teste',
             'email' => 'nao-e-um-email',
             'password' => 'curto',
             'password_confirmation' => 'diferente',
         ]);
 
-        $response->assertSessionHasErrors(['nome_completo', 'email', 'password']);
+        $response->assertSessionHasErrors(['email', 'password']);
     }
 
-    public function test_registration_fails_if_admin_type_is_selected()
+    public function test_cadastro_falha_se_tipo_admin_for_selecionado()
     {
-        $escola = Escola::factory()->create();
-        $data = Usuario::factory()->make([
+        $escola = $this->createEscola();
+        
+        $data = [
+            'name' => 'Admin Fake',
+            'username' => 'adminfake',
+            'email' => 'admin@fake.com',
             'tipo_usuario' => 'administrador',
-            'id_escola' => $escola->id_escola
-        ])->toArray();
-        $data['password'] = 'passwordValido123';
-        $data['password_confirmation'] = 'passwordValido123';
+            'id_escola' => $escola->id_escola,
+            'data_nascimento' => '1990-01-01',
+            'cpf' => '905.979.410-92', // CPF Válido
+            'rg' => '99.999.999-9',
+            'telefone' => '(42) 99999-9999',
+            'rco_siape' => '123456',
+            'formacao' => 'N/A',
+            'area_formacao' => 'N/A',
+            'password' => 'PasswordValido!123',
+            'password_confirmation' => 'PasswordValido!123',
+        ];
 
         $response = $this->post('/register', $data);
 

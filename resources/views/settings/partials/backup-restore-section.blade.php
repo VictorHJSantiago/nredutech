@@ -30,26 +30,6 @@
             </div>
         @endif
 
-        <div class="mb-4 border-bottom pb-4">
-            <h3 class="section-subtitle-sm">Agendamento Automático de Backup</h3>
-            <form method="POST" action="{{ route('settings.backup.schedule.update') }}">
-                @csrf
-                @method('PATCH')
-                <div class="form-group mb-3">
-                    <label for="backup_frequency" class="form-label">Frequência do Backup Automático:</label>
-                    <select id="backup_frequency" name="backup_frequency" class="form-input">
-                        <option value="daily" @selected(old('backup_frequency', $backupFrequency ?? 'daily') == 'daily')>Diário (madrugada, ~02:00)</option>
-                        <option value="weekly" @selected(old('backup_frequency', $backupFrequency ?? 'daily') == 'weekly')>Semanal (Domingo, madrugada, ~02:00)</option>
-                    </select>
-                    @error('backup_frequency')<span class="text-danger" style="font-size: 0.8em; color: red;">{{ $message }}</span>@enderror
-                </div>
-                <button type="submit" class="btn btn-primary btn-sm">Salvar Agendamento</button>
-            </form>
-             <p class="help-text mt-2">
-                O backup automático inclui banco de dados e arquivos do sistema. As notificações de sucesso/falha serão enviadas aos administradores. O horário exato pode variar ligeiramente dependendo da carga do servidor.
-            </p>
-        </div>
-
         <form method="GET" action="{{ route('settings.backup.initiate') }}" class="mb-4">
             <h3 class="section-subtitle-sm">Backup Manual</h3>
             <p class="help-text">

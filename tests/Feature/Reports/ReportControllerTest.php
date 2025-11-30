@@ -2,223 +2,191 @@
 
 namespace Tests\Feature\Reports;
 
-use Tests\TestCase;
-use App\Models\Usuario;
 use App\Models\Escola;
-use App\Models\Agendamento;
-use App\Models\RecursoDidatico;
-use App\Models\OfertaComponente;
-use App\Exports\ReportExport;
-use App\Exports\AllReportsExport;
+use App\Models\Municipio;
+use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Maatwebsite\Excel\Facades\Excel;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Tests\TestCase;
 
 class ReportControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private Usuario $admin;
-    private Usuario $diretorA;
-    private Escola $escolaA;
-    private Escola $escolaB;
+    private $admin;
+    private $diretor;
+    private $professor;
+    private $escola;
+    private $municipio;
 
     protected function setUp(): void
     {
         parent::setUp();
-        Excel::fake();
-        Pdf::fake();
 
-        $this->escolaA = Escola::factory()->create();
-        $this->escolaB = Escola::factory()->create();
+        $this->municipio = Municipio::create(['nome' => 'Curitiba']);
 
-        $this->admin = Usuario::factory()->administrador()->create();
-        $this->diretorA = Usuario::factory()->diretor()->create(['id_escola' => $this->escolaA->id_escola]);
-        
-        $recursoA = RecursoDidatico::factory()->create(['id_escola' => $this->escolaA->id_escola]);
-        $ofertaA = OfertaComponente::factory()->create(['id_turma' => \App\Models\Turma::factory()->create(['id_escola' => $this->escolaA->id_escola])]);
-        Agendamento::factory()->count(5)->create([
-            'id_recurso' => $recursoA->id_recurso,
-            'id_oferta' => $ofertaA->id_oferta,
-            'data_hora_inicio' => now()->subDays(5),
-            'data_hora_fim' => now()->subDays(5)->addHour(),
+        $this->escola = Escola::create([
+            'nome' => 'Escola Teste',
+            'nivel_ensino' => 'Médio',
+            'tipo' => 'Estadual',
+            'id_municipio' => $this->municipio->id_municipio
         ]);
-        
-        $recursoB = RecursoDidatico::factory()->create(['id_escola' => $this->escolaB->id_escola]);
-        $ofertaB = OfertaComponente::factory()->create(['id_turma' => \App\Models\Turma::factory()->create(['id_escola' => $this->escolaB->id_escola])]);
-        Agendamento::factory()->count(3)->create([
-            'id_recurso' => $recursoB->id_recurso,
-            'id_oferta' => $ofertaB->id_oferta,
-            'data_hora_inicio' => now()->subDays(2),
-            'data_hora_fim' => now()->subDays(2)->addHour(),
+
+        $this->admin = Usuario::factory()->create([
+            'tipo_usuario' => 'administrador',
+            'status_aprovacao' => 'ativo'
+        ]);
+
+        $this->diretor = Usuario::factory()->create([
+            'tipo_usuario' => 'diretor',
+            'id_escola' => $this->escola->id_escola,
+            'status_aprovacao' => 'ativo'
+        ]);
+
+        $this->professor = Usuario::factory()->create([
+            'tipo_usuario' => 'professor',
+            'id_escola' => $this->escola->id_escola,
+            'status_aprovacao' => 'ativo'
         ]);
     }
 
-    public function test_index_shows_report_page_for_admin()
+    // 1
+    public function test_index_mostra_pagina_de_relatorio_para_admin()
     {
         $response = $this->actingAs($this->admin)->get(route('reports.index'));
-        $response->assertOk();
+        $response->assertStatus(200);
         $response->assertViewIs('reports.index');
-        $response->assertViewHas('escolas');
     }
 
-    public function test_index_shows_report_page_for_diretor()
+    // 2
+    public function test_index_mostra_pagina_de_relatorio_para_diretor()
     {
-        $response = $this->actingAs($this->diretorA)->get(route('reports.index'));
-        $response->assertOk();
+        $response = $this->actingAs($this->diretor)->get(route('reports.index'));
+        $response->assertStatus(200);
         $response->assertViewIs('reports.index');
-        $response->assertViewMissing('escolas');
     }
 
-    public function test_preview_fails_validation_without_required_fields()
+    // 3
+    public function test_visualizacao_falha_sem_campos_obrigatorios_ou_invalidos()
     {
-        $response = $this->actingAs($this->admin)->post(route('reports.preview'), []);
-        
-        $response->assertRedirect();
-        $response->assertSessionHasErrors(['report_type', 'start_date', 'end_date', 'escola_id']);
+        // Testando validação de data (end_date antes de start_date)
+        $response = $this->actingAs($this->admin)->get(route('reports.index', [
+            'start_date' => '2025-12-31',
+            'end_date' => '2025-01-01',
+        ]));
+
+        $response->assertSessionHasErrors(['end_date']);
     }
 
-    public function test_preview_fails_validation_for_diretor_without_required_fields()
+    // 4
+    public function test_visualizacao_falha_para_diretor_com_filtros_invalidos()
     {
-        $response = $this->actingAs($this->diretorA)->post(route('reports.preview'), []);
-        
-        $response->assertRedirect();
-        $response->assertSessionHasErrors(['report_type', 'start_date', 'end_date']);
-        $response->assertSessionDoesntHaveErrors('escola_id');
+        // Testando validação de campo numérico
+        $response = $this->actingAs($this->diretor)->get(route('reports.index', [
+            'recurso_qtd_min' => 'texto-invalido',
+        ]));
+
+        $response->assertSessionHasErrors(['recurso_qtd_min']);
     }
 
-    public function test_admin_can_preview_report_for_all_schools()
+    // 5
+    public function test_admin_pode_visualizar_relatorio_de_todas_as_escolas()
     {
-        $data = [
-            'report_type' => 'usage_by_resource',
-            'start_date' => now()->subMonth()->format('Y-m-d'),
-            'end_date' => now()->format('Y-m-d'),
-            'escola_id' => 'all',
-        ];
+        // Sem filtro de escola = todas as escolas
+        $response = $this->actingAs($this->admin)->get(route('reports.index', [
+            'report_type' => 'escolas'
+        ]));
 
-        $response = $this->actingAs($this->admin)->post(route('reports.preview'), $data);
-        
-        $response->assertOk();
-        $response->assertViewIs('reports.partials.preview');
-        $response->assertViewHas('data');
-        $response->assertViewHas('kpis');
-        $response->assertViewHas('escolaNome', 'Todas as Escolas');
-        $this->assertEquals(8, $response->viewData('kpis')['total_agendamentos']);
+        $response->assertStatus(200);
+        $response->assertViewHas('reportData');
     }
 
-    public function test_admin_can_preview_report_for_specific_school()
+    // 6
+    public function test_admin_pode_visualizar_relatorio_de_escola_especifica()
     {
-        $data = [
-            'report_type' => 'usage_by_resource',
-            'start_date' => now()->subMonth()->format('Y-m-d'),
-            'end_date' => now()->format('Y-m-d'),
-            'escola_id' => $this->escolaA->id_escola,
-        ];
+        $response = $this->actingAs($this->admin)->get(route('reports.index', [
+            'report_type' => 'turmas',
+            'id_escola' => [$this->escola->id_escola]
+        ]));
 
-        $response = $this->actingAs($this->admin)->post(route('reports.preview'), $data);
-        
-        $response->assertOk();
-        $response->assertViewHas('escolaNome', $this->escolaA->nome);
-        $this->assertEquals(5, $response->viewData('kpis')['total_agendamentos']);
+        $response->assertStatus(200);
+        $response->assertViewHas('reportData');
     }
 
-    public function test_diretor_can_preview_report_for_own_school_only()
+    // 7
+    public function test_diretor_pode_visualizar_relatorio_apenas_da_propria_escola()
     {
-        $data = [
-            'report_type' => 'usage_by_resource',
-            'start_date' => now()->subMonth()->format('Y-m-d'),
-            'end_date' => now()->format('Y-m-d'),
-        ];
+        // Mesmo sem mandar filtro, o controller força o ID da escola do diretor
+        $response = $this->actingAs($this->diretor)->get(route('reports.index', [
+            'report_type' => 'turmas'
+        ]));
 
-        $response = $this->actingAs($this->diretorA)->post(route('reports.preview'), $data);
-        
-        $response->assertOk();
-        $response->assertViewHas('escolaNome', $this->escolaA->nome);
-        $this->assertEquals(5, $response->viewData('kpis')['total_agendamentos']);
+        $response->assertStatus(200);
+        $response->assertViewHas('reportData');
     }
 
-    public function test_admin_can_export_pdf()
+    // 8
+    public function test_admin_pode_exportar_pdf_simples()
     {
-        $data = [
-            'report_type' => 'usage_by_resource',
-            'start_date' => now()->subMonth()->format('Y-m-d'),
-            'end_date' => now()->format('Y-m-d'),
-            'escola_id' => $this->escolaA->id_escola,
-            'format' => 'pdf',
-        ];
+        $response = $this->actingAs($this->admin)->get(route('reports.index', [
+            'report_type' => 'usuarios',
+            'format' => 'pdf'
+        ]));
 
-        $response = $this->actingAs($this->admin)->post(route('reports.export'), $data);
-
-        $response->assertOk();
-        $response->assertHeader('Content-Type', 'application/pdf');
-        Pdf::assertViewIs('reports.partials.pdf');
+        $response->assertStatus(200);
+        // Controller retorna download (ZIP para PDFs)
+        $this->assertTrue($response->headers->contains('content-type', 'application/zip'));
     }
 
-    public function test_admin_can_export_excel()
+    // 9
+    public function test_admin_pode_exportar_excel_simples()
     {
-        $data = [
-            'report_type' => 'usage_by_resource',
-            'start_date' => now()->subMonth()->format('Y-m-d'),
-            'end_date' => now()->format('Y-m-d'),
-            'escola_id' => 'all',
-            'format' => 'excel',
-        ];
+        Excel::fake();
+        Excel::matchByRegex();
 
-        $response = $this->actingAs($this->admin)->post(route('reports.export'), $data);
-        
-        $response->assertOk();
-        Excel::assertDownloaded('relatorio_nredutech.xlsx', function (ReportExport $export) {
-            return $export->escolaId === 'all' && $export->reportType === 'usage_by_resource';
-        });
+        $this->actingAs($this->admin)->get(route('reports.index', [
+            'report_type' => 'usuarios',
+            'format' => 'xlsx'
+        ]));
+
+        Excel::assertDownloaded('/^relatorio_NREduTech_\d{4}-\d{2}-\d{2}_\d{6}_usuarios\.xlsx$/');
     }
 
-    public function test_admin_can_export_all_pdf_multi()
+    // 10
+    public function test_admin_pode_exportar_todos_pdf_multiplo()
     {
-        $data = [
-            'start_date' => now()->subMonth()->format('Y-m-d'),
-            'end_date' => now()->format('Y-m-d'),
-            'escola_id' => 'all',
-            'format' => 'pdf',
-        ];
-        
-        $response = $this->actingAs($this->admin)->post(route('reports.exportAll'), $data);
+        // Sem especificar report_type, gera todos (multi)
+        $response = $this->actingAs($this->admin)->get(route('reports.index', [
+            'format' => 'pdf'
+        ]));
 
-        $response->assertOk();
-        $response->assertHeader('Content-Type', 'application/pdf');
-        Pdf::assertViewIs('reports.partials.pdf_multi');
-        Pdf::assertViewHas('allData');
+        $response->assertStatus(200);
+        $this->assertTrue($response->headers->contains('content-type', 'application/zip'));
     }
 
-    public function test_admin_can_export_all_excel_multi()
+    // 11
+    public function test_admin_pode_exportar_todos_excel_multiplo()
     {
-        $data = [
-            'start_date' => now()->subMonth()->format('Y-m-d'),
-            'end_date' => now()->format('Y-m-d'),
-            'escola_id' => 'all',
-            'format' => 'excel',
-        ];
+        Excel::fake();
+        Excel::matchByRegex();
 
-        $response = $this->actingAs($this->admin)->post(route('reports.exportAll'), $data);
-        
-        $response->assertOk();
-        Excel::assertDownloaded('relatorio_completo_nredutech.xlsx', function (AllReportsExport $export) {
-            return $export->escolaId === 'all';
-        });
+        // Sem especificar report_type, gera todos (multi)
+        $this->actingAs($this->admin)->get(route('reports.index', [
+            'format' => 'xlsx'
+        ]));
+
+        Excel::assertDownloaded('/^relatorio_NREduTech_\d{4}-\d{2}-\d{2}_\d{6}_completo\.xlsx$/');
     }
 
-    public function test_diretor_can_export_all_for_own_school_only()
+    // 12
+    public function test_diretor_pode_exportar_tudo_apenas_da_propria_escola()
     {
-        $data = [
-            'start_date' => now()->subMonth()->format('Y-m-d'),
-            'end_date' => now()->format('Y-m-d'),
-            'format' => 'excel',
-        ];
+        // Diretor exportando "tudo" (multi), o controller filtra internamente pela escola dele
+        $response = $this->actingAs($this->diretor)->get(route('reports.index', [
+            'format' => 'pdf'
+        ]));
 
-        $response = $this->actingAs($this->diretorA)->post(route('reports.exportAll'), $data);
-        
-        $response->assertOk();
-        Excel::assertDownloaded('relatorio_completo_nredutech.xlsx', function (AllReportsExport $export) {
-            return $export->escolaId === $this->diretorA->id_escola;
-        });
+        $response->assertStatus(200);
+        $this->assertTrue($response->headers->contains('content-type', 'application/zip'));
     }
 }

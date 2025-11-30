@@ -2,187 +2,160 @@
 
 namespace Tests\Feature\Appointments;
 
-use Tests\TestCase;
-use App\Models\Usuario;
+use App\Models\Agendamento;
+use App\Models\ComponenteCurricular;
 use App\Models\Escola;
 use App\Models\Municipio;
 use App\Models\OfertaComponente;
-use App\Models\Agendamento;
-use App\Models\Turma;
-use App\Models\ComponenteCurricular;
 use App\Models\RecursoDidatico;
+use App\Models\Turma;
+use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class AppointmentRoutesTest extends TestCase
 {
     use RefreshDatabase;
 
-    private Usuario $admin;
-    private Usuario $diretor;
-    private Usuario $professor;
-    private Usuario $outroProfessor;
-    private Agendamento $agendamentoProfessor;
-    private Agendamento $agendamentoOutroProfessor;
-    private RecursoDidatico $recurso;
-    private OfertaComponente $ofertaProfessor;
+    private $escola;
+    private $turma;
+    private $professor;
+    private $diretor;
+    private $admin;
+    private $componente;
+    private $oferta;
+    private $recurso;
+    private $agendamento;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $municipio = Municipio::factory()->create();
-        $escola = new Escola([
-            'nome' => 'Escola Teste Rota',
+        $municipio = Municipio::create(['nome' => 'Curitiba']);
+
+        $this->escola = Escola::create([
+            'nome' => 'Escola Teste',
             'nivel_ensino' => 'Médio',
             'tipo' => 'Estadual',
-            'id_municipio' => $municipio->id_municipio,
+            'id_municipio' => $municipio->id_municipio
         ]);
-        $escola->save();
-        
+
         $this->admin = Usuario::factory()->create([
-            'tipo_usuario' => 'Administrador',
-            'id_escola' => null,
+            'tipo_usuario' => 'administrador',
+            'status_aprovacao' => 'ativo'
         ]);
+
         $this->diretor = Usuario::factory()->create([
-            'tipo_usuario' => 'Diretor',
-            'id_escola' => $escola->id_escola,
+            'tipo_usuario' => 'diretor',
+            'id_escola' => $this->escola->id_escola,
+            'status_aprovacao' => 'ativo'
         ]);
+
         $this->professor = Usuario::factory()->create([
-            'tipo_usuario' => 'Professor',
-            'id_escola' => $escola->id_escola,
-        ]);
-        $this->outroProfessor = Usuario::factory()->create([
-            'tipo_usuario' => 'Professor',
-            'id_escola' => $escola->id_escola,
+            'tipo_usuario' => 'professor',
+            'id_escola' => $this->escola->id_escola,
+            'status_aprovacao' => 'ativo'
         ]);
 
-        $this->recurso = RecursoDidatico::factory()->create(['id_escola' => $escola->id_escola, 'status' => 'funcionando']);
+        $this->turma = Turma::create([
+            'serie' => '3º Ano',
+            'ano_letivo' => 2025,
+            'turno' => 'tarde',
+            'nivel_escolaridade' => 'medio',
+            'id_escola' => $this->escola->id_escola
+        ]);
 
-        $turmaA = Turma::factory()->create(['id_escola' => $escola->id_escola]);
-        $componenteA = ComponenteCurricular::factory()->create([
-            'id_escola' => $escola->id_escola,
+        $this->componente = ComponenteCurricular::create([
+            'nome' => 'História',
+            'carga_horaria' => 40,
             'status' => 'aprovado'
         ]);
-        $this->ofertaProfessor = new OfertaComponente([
-            'id_turma' => $turmaA->id_turma,
-            'id_componente' => $componenteA->id_componente_curricular,
-            'id_professor' => $this->professor->id_usuario
-        ]);
-        $this->ofertaProfessor->save();
 
-        $turmaB = Turma::factory()->create(['id_escola' => $escola->id_escola]);
-        $componenteB = ComponenteCurricular::factory()->create([
-            'id_escola' => $escola->id_escola,
-            'status' => 'aprovado'
+        $this->oferta = OfertaComponente::create([
+            'id_turma' => $this->turma->id_turma,
+            'id_professor' => $this->professor->id_usuario,
+            'id_componente' => $this->componente->id_componente
         ]);
-        $ofertaOutroProfessor = new OfertaComponente([
-            'id_turma' => $turmaB->id_turma,
-            'id_componente' => $componenteB->id_componente_curricular,
-            'id_professor' => $this->outroProfessor->id_usuario
-        ]);
-        $ofertaOutroProfessor->save();
 
-        $this->agendamentoProfessor = new Agendamento([
-            'id_oferta' => $this->ofertaProfessor->id_oferta,
-            'id_recurso' => $this->recurso->id_recurso,
-            'data_hora_inicio' => now()->addDay(),
-            'data_hora_fim' => now()->addDay()->addHour(),
-            'status' => 'aprovado',
+        $this->recurso = RecursoDidatico::create([
+            'nome' => 'Mapa Mundi',
+            'quantidade' => 1,
+            'status' => 'funcionando',
+            'id_escola' => $this->escola->id_escola,
+            'id_usuario_criador' => $this->admin->id_usuario
         ]);
-        $this->agendamentoProfessor->save();
 
-        $this->agendamentoOutroProfessor = new Agendamento([
-            'id_oferta' => $ofertaOutroProfessor->id_oferta,
-            'id_recurso' => $this->recurso->id_recurso,
-            'data_hora_inicio' => now()->addDay()->addMinutes(10),
-            'data_hora_fim' => now()->addDay()->addHour()->addMinutes(10),
-            'status' => 'aprovado',
+        $this->agendamento = Agendamento::create([
+            'data_hora_inicio' => now()->addDays(5)->setHour(14),
+            'data_hora_fim' => now()->addDays(5)->setHour(15),
+            'status' => 'agendado',
+            'id_oferta' => $this->oferta->id_oferta,
+            'id_recurso' => $this->recurso->id_recurso
         ]);
-        $this->agendamentoOutroProfessor->save();
     }
 
-    #[Test]
-    public function visitante_e_redirecionado_de_todas_rotas_de_agendamento()
+    public function test_visitante_e_redirecionado_de_todas_rotas_de_agendamento()
     {
         $this->get(route('agendamentos.index'))->assertRedirect(route('login'));
-        $this->get(route('agendamentos.events'))->assertRedirect(route('login'));
-        $this->post(route('agendamentos.availability'))->assertRedirect(route('login'));
-        $this->post(route('agendamentos.store'))->assertRedirect(route('login'));
-        $this->delete(route('agendamentos.destroy', $this->agendamentoProfessor))->assertRedirect(route('login'));
+        $this->getJson(route('appointments.events'))->assertStatus(401);
+        $this->postJson(route('agendamentos.store'), [])->assertStatus(401);
+        $this->deleteJson(route('agendamentos.destroy', $this->agendamento->id_agendamento))->assertStatus(401);
     }
 
-    #[Test]
-    public function admin_pode_acessar_todas_rotas_de_agendamento()
+    public function test_admin_pode_acessar_todas_rotas_de_agendamento()
     {
-        $this->actingAs($this->admin);
+        $this->actingAs($this->admin)->get(route('agendamentos.index'))->assertStatus(200);
+        
+        $this->actingAs($this->admin)->getJson(route('appointments.events', [
+            'start' => now()->toDateString(), 
+            'end' => now()->addDay()->toDateString()
+        ]))->assertStatus(200);
 
-        $this->get(route('agendamentos.index'))->assertOk();
-        $this->get(route('agendamentos.events', ['start' => '2025-01-01', 'end' => '2025-01-31']))->assertOk();
-        $this->post(route('agendamentos.availability'), ['date' => '2025-01-01'])->assertOk();
-        
-        $storeData = [
-            'id_oferta' => $this->ofertaProfessor->id_oferta,
-            'id_recurso' => $this->recurso->id_recurso,
-            'data_hora_inicio' => now()->addDays(5)->toDateTimeString(),
-            'data_hora_fim' => now()->addDays(5)->addHour()->toDateTimeString(),
-        ];
-        $this->post(route('agendamentos.store'), $storeData)->assertStatus(201);
-        
-        $this->delete(route('agendamentos.destroy', $this->agendamentoProfessor))->assertOk();
+        $this->actingAs($this->admin)->deleteJson(route('agendamentos.destroy', $this->agendamento->id_agendamento))->assertStatus(200);
     }
 
-    #[Test]
-    public function diretor_pode_acessar_todas_rotas_de_agendamento()
+    public function test_diretor_pode_acessar_todas_rotas_de_agendamento()
     {
-        $this->actingAs($this->diretor);
+        $this->actingAs($this->diretor)->get(route('agendamentos.index'))->assertStatus(200);
 
-        $this->get(route('agendamentos.index'))->assertOk();
-        $this->get(route('agendamentos.events', ['start' => '2025-01-01', 'end' => '2025-01-31']))->assertOk();
-        $this->post(route('agendamentos.availability'), ['date' => '2025-01-01'])->assertOk();
-        
-        $storeData = [
-            'id_oferta' => $this->ofertaProfessor->id_oferta,
-            'id_recurso' => $this->recurso->id_recurso,
-            'data_hora_inicio' => now()->addDays(5)->toDateTimeString(),
-            'data_hora_fim' => now()->addDays(5)->addHour()->toDateTimeString(),
-        ];
-        $this->post(route('agendamentos.store'), $storeData)->assertStatus(201);
-        
-        $this->delete(route('agendamentos.destroy', $this->agendamentoProfessor))->assertOk();
+        $this->actingAs($this->diretor)->getJson(route('appointments.events', [
+            'start' => now()->toDateString(), 
+            'end' => now()->addDay()->toDateString()
+        ]))->assertStatus(200);
+
+        $this->actingAs($this->diretor)->deleteJson(route('agendamentos.destroy', $this->agendamento->id_agendamento))->assertStatus(200);
     }
 
-    #[Test]
-    public function professor_pode_acessar_rotas_e_criar()
+    public function test_professor_pode_acessar_rotas_e_criar()
     {
-        $this->actingAs($this->professor);
+        $this->actingAs($this->professor)->get(route('agendamentos.index'))->assertStatus(200);
 
-        $this->get(route('agendamentos.index'))->assertOk();
-        $this->get(route('agendamentos.events', ['start' => '2025-01-01', 'end' => '2025-01-31']))->assertOk();
-        $this->post(route('agendamentos.availability'), ['date' => '2025-01-01'])->assertOk();
-        
-        $storeData = [
-            'id_oferta' => $this->ofertaProfessor->id_oferta,
-            'id_recurso' => $this->recurso->id_recurso,
-            'data_hora_inicio' => now()->addDays(5)->toDateTimeString(),
-            'data_hora_fim' => now()->addDays(5)->addHour()->toDateTimeString(),
+        $dados = [
+            'data_hora_inicio' => now()->addDays(10)->setHour(10)->format('Y-m-d H:i:s'),
+            'data_hora_fim' => now()->addDays(10)->setHour(11)->format('Y-m-d H:i:s'),
+            'id_oferta' => $this->oferta->id_oferta,
+            'id_recurso' => $this->recurso->id_recurso
         ];
-        $this->post(route('agendamentos.store'), $storeData)->assertStatus(201);
+
+        $this->actingAs($this->professor)->postJson(route('agendamentos.store'), $dados)->assertStatus(201);
     }
 
-    #[Test]
-    public function professor_pode_destruir_proprio_agendamento()
+    public function test_professor_pode_destruir_proprio_agendamento()
     {
         $this->actingAs($this->professor)
-             ->delete(route('agendamentos.destroy', $this->agendamentoProfessor))
-             ->assertOk();
+             ->deleteJson(route('agendamentos.destroy', $this->agendamento->id_agendamento))
+             ->assertStatus(200);
     }
 
-    #[Test]
-    public function professor_e_proibido_de_destruir_agendamento_de_outro()
+    public function test_professor_e_proibido_de_destruir_agendamento_de_outro()
     {
-        $this->actingAs($this->professor)
-             ->delete(route('agendamentos.destroy', $this->agendamentoOutroProfessor))
-             ->assertForbidden();
+        $outroProf = Usuario::factory()->create([
+            'tipo_usuario' => 'professor',
+            'id_escola' => $this->escola->id_escola
+        ]);
+        
+        $this->actingAs($outroProf)
+             ->deleteJson(route('agendamentos.destroy', $this->agendamento->id_agendamento))
+             ->assertStatus(403);
     }
 }

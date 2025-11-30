@@ -14,13 +14,19 @@ class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_reset_password_link_screen_can_be_rendered()
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutVite();
+    }
+
+    public function test_tela_de_link_de_redefinicao_de_senha_pode_ser_renderizada()
     {
         $response = $this->get('/forgot-password');
         $response->assertStatus(200);
     }
 
-    public function test_reset_password_link_can_be_requested()
+    public function test_link_de_redefinicao_de_senha_pode_ser_solicitado()
     {
         $user = Usuario::factory()->create();
 
@@ -30,7 +36,7 @@ class PasswordResetTest extends TestCase
         $response->assertSessionHas('status');
     }
 
-    public function test_reset_password_screen_can_be_rendered()
+    public function test_tela_de_redefinicao_de_senha_pode_ser_renderizada()
     {
         $user = Usuario::factory()->create();
         $token = Password::broker()->createToken($user);
@@ -41,13 +47,13 @@ class PasswordResetTest extends TestCase
         $response->assertViewIs('auth.reset-password');
     }
 
-    public function test_password_can_be_reset_with_valid_token()
+    public function test_senha_pode_ser_redefinida_com_token_valido()
     {
         Event::fake();
 
         $user = Usuario::factory()->create();
         $token = Password::broker()->createToken($user);
-        $newPassword = 'nova-senha-123';
+        $newPassword = 'Nova-Senha-Forte-123!'; 
 
         $response = $this->post('/reset-password', [
             'token' => $token,
@@ -63,10 +69,10 @@ class PasswordResetTest extends TestCase
         Event::assertDispatched(PasswordReset::class);
     }
 
-    public function test_password_reset_fails_with_invalid_token()
+    public function test_redefinicao_de_senha_falha_com_token_invalido()
     {
         $user = Usuario::factory()->create();
-        $newPassword = 'nova-senha-123';
+        $newPassword = 'Nova-Senha-Forte-123!';
 
         $response = $this->post('/reset-password', [
             'token' => 'token-invalido',
