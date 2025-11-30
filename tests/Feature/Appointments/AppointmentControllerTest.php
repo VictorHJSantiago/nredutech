@@ -200,17 +200,18 @@ class AppointmentControllerTest extends TestCase
 
     public function test_admin_pode_obter_todos_eventos_do_calendario()
     {
+        $inicioEvento = now()->addDay()->setHour(10)->setMinute(0)->setSecond(0);
         Agendamento::create([
-            'data_hora_inicio' => now()->addDay()->setHour(10),
-            'data_hora_fim' => now()->addDay()->setHour(11),
+            'data_hora_inicio' => $inicioEvento,
+            'data_hora_fim' => $inicioEvento->copy()->addHour(),
             'status' => 'agendado',
             'id_oferta' => $this->oferta->id_oferta,
             'id_recurso' => $this->recurso->id_recurso
         ]);
 
         $response = $this->actingAs($this->admin)->getJson(route('appointments.events', [
-            'start' => now()->startOfMonth()->startOfDay()->toDateTimeString(),
-            'end' => now()->endOfMonth()->endOfDay()->toDateTimeString()
+            'start' => $inicioEvento->copy()->startOfDay()->toDateTimeString(),
+            'end' => $inicioEvento->copy()->endOfDay()->toDateTimeString()
         ]));
 
         $response->assertStatus(200);
@@ -219,17 +220,18 @@ class AppointmentControllerTest extends TestCase
 
     public function test_diretor_pode_obter_eventos_do_calendario_da_propria_escola()
     {
+        $inicioEvento = now()->addDay()->setHour(10)->setMinute(30)->setSecond(0);
         Agendamento::create([
-            'data_hora_inicio' => now()->addDay()->setHour(10),
-            'data_hora_fim' => now()->addDay()->setHour(11),
+            'data_hora_inicio' => $inicioEvento,
+            'data_hora_fim' => $inicioEvento->copy()->addHour(),
             'status' => 'agendado',
             'id_oferta' => $this->oferta->id_oferta,
             'id_recurso' => $this->recurso->id_recurso
         ]);
 
         $response = $this->actingAs($this->diretor)->getJson(route('appointments.events', [
-            'start' => now()->startOfMonth()->startOfDay()->toDateTimeString(),
-            'end' => now()->endOfMonth()->endOfDay()->toDateTimeString()
+            'start' => $inicioEvento->copy()->startOfDay()->toDateTimeString(),
+            'end' => $inicioEvento->copy()->endOfDay()->toDateTimeString()
         ]));
 
         $response->assertStatus(200);
