@@ -1,718 +1,726 @@
 <div align="center">
   <br />
-  <img src="https://raw.githubusercontent.com/victorhjsantiago/nredutech/main/public/images/nredutech.png" alt="Logo NREduTech" width="150" style="border-radius: 50%;">
+  <img src="https://raw.githubusercontent.com/victorhjsantiago/nredutech/main/public/images/nredutech.png" alt="NREduTech Logo" width="150" style="border-radius: 50%;">
   
   <h1 style="border-bottom: none; font-size: 2.5em; margin-bottom: 0;">NREduTech</h1>
   
   <strong style="font-size: 1.2em; color: #555;">
-    Sistema de Gestão Acadêmica e Agendamento de Recursos Didáticos
+    Academic Management and Educational Resource Scheduling System
   </strong>
   
   <br />
   <br />
 
   <p style="font-size: 1.1em; max-width: 700px;">
-    Uma solução robusta e centralizada, desenvolvida sob a arquitetura <strong>Laravel MVC</strong>, destinada à gestão integrada de escolas, turmas, recursos didáticos e agendamentos para o <strong>Núcleo Regional de Educação (NRE)</strong>.
+    A robust, centralized solution built on the <strong>Laravel MVC</strong> architecture, designed for the integrated management of schools, classes, educational resources, and scheduling for the <strong>Regional Education Center (NRE)</strong>.
   </p>
 
   <p>
-    <img src="https://img.shields.io/badge/status-em%20desenvolvimento-yellow?style=for-the-badge" alt="Status do Projeto: Em Desenvolvimento">
-    <img src="https://img.shields.io/badge/PHP-8.4.11-777BB4?style=for-the-badge&logo=php" alt="Versão do PHP">
-    <img src="https://img.shields.io/badge/Laravel-12.28.1-FF2D20?style=for-the-badge&logo=laravel" alt="Versão do Laravel">
-    <img src="https://img.shields.io/badge/MariaDB-11.8.3-003545?style=for-the-badge&logo=mariadb" alt="Banco de Dados">
+    <img src="https://img.shields.io/badge/status-under%20development-yellow?style=for-the-badge" alt="Project Status: Under Development">
+    <img src="https://img.shields.io/badge/PHP-8.4.11-777BB4?style=for-the-badge&logo=php" alt="PHP Version">
+    <img src="https://img.shields.io/badge/Laravel-12.28.1-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel Version">
+    <img src="https://img.shields.io/badge/MariaDB-11.8.3-003545?style=for-the-badge&logo=mariadb" alt="Database">
+  </p>
+
+  <p>
+    <strong>🇺🇸 English</strong>
+    ·
+    <a href="README.pt-BR.md">🇧🇷 Português</a>
+    ·
+    <a href="README.es.md">🇪🇸 Español</a>
   </p>
 </div>
 
 ---
 
-## 📖 Sobre o Projeto
+## 📖 About the Project
 
-O **NREduTech** é um Sistema de Gestão Acadêmica (SGA) concebido para atuar como a plataforma central de administração do Núcleo Regional de Educação. A aplicação aborda o desafio de gerenciar de forma eficiente a alocação de recursos pedagógicos, o agendamento de laboratórios e a organização de componentes curriculares entre múltiplas instituições de ensino.
+**NREduTech** is an Academic Management System (AMS) designed to serve as the central administration platform for the Regional Education Center. The application addresses the challenge of efficiently managing the allocation of educational resources, lab scheduling, and the organization of curriculum components across multiple educational institutions.
 
-Do ponto de vista acadêmico, o projeto é uma implementação prática dos princípios de **Desenvolvimento de Software Orientado a Objetos (POO)** e da arquitetura **Model-View-Controller (MVC)**. Ele utiliza o framework Laravel para garantir um desenvolvimento rápido, seguro e escalável, abstraindo complexidades de baixo nível e permitindo foco total nas regras de negócio.
+From an academic standpoint, the project is a practical implementation of the principles of **Object-Oriented Software Development (OOP)** and the **Model-View-Controller (MVC)** architecture. It uses the Laravel framework to ensure rapid, secure, and scalable development, abstracting low-level complexities and allowing full focus on business rules.
 
-A plataforma é desenhada com foco em diferentes perfis de usuário (Administradores, Diretores e Professores), oferecendo *dashboards* e funcionalidades específicas para cada nível de acesso. O sistema incorpora funcionalidades essenciais como geração de relatórios complexos, um sistema de notificações proativo e rotinas de backup automatizadas, garantindo a integridade e a disponibilidade dos dados.
+The platform is designed with a focus on different user profiles (Administrators, Principals, and Teachers), offering specific dashboards and features for each access level. The system incorporates essential features such as complex report generation, a proactive notification system, and automated backup routines, ensuring data integrity and availability.
 
-## ✨ Funcionalidades Principais
+## ✨ Key Features
 
-O sistema é modularizado para cobrir todas as necessidades da gestão educacional:
+The system is modularized to cover every educational management need:
 
-* **👥 Gestão de Usuários:** Controle de acesso granular com três níveis de permissão (Administrador, Diretor, Professor).
-* **🏫 Gestão de Escolas e Municípios:** Cadastro e administração centralizada das instituições de ensino e suas localidades.
-* **👨‍🎓 Gestão de Turmas:** Organização de turmas vinculadas a cada escola.
-* **📂 Gestão de Disciplinas:** (Componentes Curriculares) Cadastro e associação das disciplinas lecionadas.
-* **📖 Gestão de Recursos Didáticos:** Catálogo de todos os recursos pedagógicos e tecnológicos disponíveis para agendamento (ex: laboratórios, projetores, kits de robótica).
-* **📅 Agendamento Inteligente:** Interface de calendário (baseada em *FullCalendar*) para que professores possam reservar recursos para suas turmas, com validação de disponibilidade.
-* **📊 Relatórios Avançados:** Geração de relatórios dinâmicos sobre a utilização de recursos, agendamentos por escola e mais, com exportação para **PDF** e **Excel**.
-* **🔔 Sistema de Notificações:** Alertas em tempo real na plataforma e envio de e-mails para ações críticas (ex: confirmação de agendamento).
-* **🗃️ Backup e Restauração:** Funcionalidade robusta para criação de *backups* da aplicação e do banco de dados, com agendamento automático e restauração.
-* **♿ Acessibilidade:** Integração nativa com o **VLibras** para garantir a acessibilidade para pessoas com deficiência.
-
----
-
-## 🛠️ Requisitos e Regras de Negócio
-
-A lógica do sistema foi modelada para refletir as hierarquias e processos de um ambiente educacional real.
-
-### Regras de Negócio Principais
-
-* 🔑 **Aprovação de Usuários:** Professores e Diretores podem se autocadastrar, mas suas contas são criadas com status `pendente`. Um `Administrador` deve aprovar manualmente o cadastro para que o usuário possa acessar o sistema.
-* 🚦 **Hierarquia de Permissões:**
-    * **Administrador:** Possui controle total (CRUD) sobre todas as entidades: Escolas, Municípios, Usuários, Turmas, Recursos e Disciplinas. É o único perfil que pode realizar backups e restaurações do sistema.
-    * **Diretor:** Possui controle (CRUD) sobre entidades *apenas* da sua própria escola (Turmas, Professores, Recursos, Disciplinas). Pode visualizar relatórios referentes à sua escola.
-    * **Professor:** O foco é no agendamento. Pode agendar recursos para suas turmas/disciplinas (Ofertas) e gerenciar (CRUD) os recursos e disciplinas que ele mesmo cadastrou.
-* 🌍 **Propriedade de Recursos:** Recursos e Disciplinas podem ser "Globais" (pertencem ao NRE, `school_id = null`) e disponíveis para todas as escolas, ou pertencer a uma escola específica (visíveis apenas para usuários daquela escola).
-* ⏱️ **Conflito de Agendamento:** O sistema impede ativamente que um mesmo recurso (`recurso_didatico_id`) seja agendado por duas pessoas no mesmo intervalo de tempo (validação de sobreposição de `data_inicio` e `data_fim`).
-* 🔗 **Integridade de Dados:** O sistema utiliza restrições de chave estrangeira (`FOREIGN KEY`) para garantir a integridade referencial. Não é possível excluir uma Escola se ela possuir Turmas ou Usuários vinculados; não é possível excluir um Município se ele possuir Escolas.
-
-### Regras de Negócio (RN)
-<div style="width: 100%; overflow-x: auto;">
-  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <thead style="background-color: #0169b4; color: white;">
-      <tr>
-        <th style="padding: 12px 15px; text-align: left;">ID</th>
-        <th style="padding: 12px 15px; text-align: left;">Ator(es) afetado(s)</th>
-        <th style="padding: 12px 15px; text-align: left;">Descrição da regra</th>
-        <th style="padding: 12px 15px; text-align: left;">Justificativa/origem</th>
-      </tr>
-    </thead>
-    <tbody style="background-color: #fff; color: #333;">
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-001</td>
-        <td style="padding: 12px 15px;">Usuário (todos)</td>
-        <td style="padding: 12px 15px;">Ao atualizar o e-mail no perfil, a conta do usuário deve ser marcada como "não verificada", exigindo nova confirmação.</td>
-        <td style="padding: 12px 15px;">Garantir a posse e validade do novo endereço de e-mail.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-002</td>
-        <td style="padding: 12px 15px;">Usuário (Todos)</td>
-        <td style="padding: 12px 15px;">Para excluir a própria conta, o usuário deve confirmar sua senha atual.</td>
-        <td style="padding: 12px 15px;">Medida de segurança para evitar exclusão acidental ou maliciosa.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-003</td>
-        <td style="padding: 12px 15px;">Usuário (novo)</td>
-        <td style="padding: 12px 15px;">Campos de registro (username, e-mail, CPF, RG, etc.) devem ser únicos no sistema.</td>
-        <td style="padding: 12px 15px;">Garantir a unicidade de cada usuário na base de dados.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-004</td>
-        <td style="padding: 12px 15px;">Administrador</td>
-        <td style="padding: 12px 15px;">Apenas administradores podem visualizar e gerenciar usuários de todas as escolas.</td>
-        <td style="padding: 12px 15px;">Centralização do controle de acesso e gestão de contas no NRE.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-005</td>
-        <td style="padding: 12px 15px;">Diretor, professor</td>
-        <td style="padding: 12px 15px;">Diretores e professores só podem visualizar usuários da sua própria escola.</td>
-        <td style="padding: 12px 15px;">Garantir o isolamento de dados (privacidade) entre instituições.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-006</td>
-        <td style="padding: 12px 15px;">Diretor</td>
-        <td style="padding: 12px 15px;">Diretores só podem criar usuários (ex: professores) para a sua própria escola.</td>
-        <td style="padding: 12px 15px;">Delegação da gestão de pessoal no nível da escola.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-007</td>
-        <td style="padding: 12px 15px;">Diretor</td>
-        <td style="padding: 12px 15px;">Diretores não podem criar ou promover usuários ao nível de "administrador".</td>
-        <td style="padding: 12px 15px;">Manter a hierarquia de permissões e a segurança do sistema.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-008</td>
-        <td style="padding: 12px 15px;">Administrador</td>
-        <td style="padding: 12px 15px;">Um usuário administrador (ou qualquer usuário) não pode excluir a si mesmo.</td>
-        <td style="padding: 12px 15px;">Prevenir o bloqueio acidental do sistema.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-009</td>
-        <td style="padding: 12px 15px;">Administrador, diretor</td>
-        <td style="padding: 12px 15px;">O sistema deve impedir a exclusão de usuários que possuam dependências (recursos criados ou ofertas).</td>
-        <td style="padding: 12px 15px;">Garantir a integridade referencial e o histórico de ações.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-010</td>
-        <td style="padding: 12px 15px;">Administrador</td>
-        <td style="padding: 12px 15px;">Apenas Administradores podem gerenciar (CRUD) municípios e escolas.</td>
-        <td style="padding: 12px 15px;">Centralização da gestão da infraestrutura de unidades do NRE.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-011</td>
-        <td style="padding: 12px 15px;">Administrador (ao criar escola)</td>
-        <td style="padding: 12px 15px;">Uma Escola deve, obrigatoriamente, estar associada a um município.</td>
-        <td style="padding: 12px 15px;">Requisito de organização estrutural do NRE.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-012</td>
-        <td style="padding: 12px 15px;">Administrador (ao criar escola)</td>
-        <td style="padding: 12px 15px;">Os campos nível ensino e tipo de uma escola devem ser valores pré-definidos (enum).</td>
-        <td style="padding: 12px 15px;">Garantir a padronização e consistência dos dados para relatórios.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-013</td>
-        <td style="padding: 12px 15px;">Diretor, professor</td>
-        <td style="padding: 12px 15px;">Diretores e professores só podem gerenciar (visualizar, criar, editar) turmas da sua própria escola.</td>
-        <td style="padding: 12px 15px;">Manter o escopo de gestão restrito à própria instituição.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-014</td>
-        <td style="padding: 12px 15px;">Usuário (ao criar turma)</td>
-        <td style="padding: 12px 15px;">O ano letivo deve ser um número inteiro dentro de um intervalo válido (ex: 2000-2100).</td>
-        <td style="padding: 12px 15px;">Garantir a validade e consistência dos dados de ano letivo.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-015</td>
-        <td style="padding: 12px 15px;">Usuário (ao excluir turma)</td>
-        <td style="padding: 12px 15px;">O sistema deve impedir a exclusão de turmas que possuam ofertas de componentes.</td>
-        <td style="padding: 12px 15px;">Proteger o histórico de alocação de disciplinas e professores.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-016</td>
-        <td style="padding: 12px 15px;">Administrador, diretor, professor</td>
-        <td style="padding: 12px 15px;">Disciplinas podem ser "globais" ou "específicas" (vinculadas a uma escola).</td>
-        <td style="padding: 12px 15px;">Permitir componentes curriculares comuns a todas as escolas e componentes únicos.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-017</td>
-        <td style="padding: 12px 15px;">Administrador</td>
-        <td style="padding: 12px 15px;">Apenas administradores podem criar ou editar disciplinas globais.</td>
-        <td style="padding: 12px 15px;">Controle centralizado sobre o currículo básico regional.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-018</td>
-        <td style="padding: 12px 15px;">Diretor, professor</td>
-        <td style="padding: 12px 15px;">Diretores e professores visualizam disciplinas globais e as específicas da sua escola.</td>
-        <td style="padding: 12px 15px;">Fornecer acesso ao currículo relevante para a instituição.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-019</td>
-        <td style="padding: 12px 15px;">Usuário (ao excluir disciplina)</td>
-        <td style="padding: 12px 15px;">O sistema deve impedir a exclusão de disciplinas que possuam ofertas vinculadas.</td>
-        <td style="padding: 12px 15px;">Garantir a integridade do histórico de turmas.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-020</td>
-        <td style="padding: 12px 15px;">Professor</td>
-        <td style="padding: 12px 15px;">Professores só podem criar ofertas de componentes para si mesmos (e não para outros professores).</td>
-        <td style="padding: 12px 15px;">Garantir que o professor só gerencie suas próprias atribuições.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-021</td>
-        <td style="padding: 12px 15px;">Usuário (ao excluir oferta)</td>
-        <td style="padding: 12px 15px;">O sistema deve impedir a exclusão de ofertas que possuam agendamentos vinculados.</td>
-        <td style="padding: 12px 15px;">Proteger o histórico de uso de recursos em agendamentos.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-022</td>
-        <td style="padding: 12px 15px;">Usuário (ao criar recurso)</td>
-        <td style="padding: 12px 15px;">A quantidade de um recurso deve ser um número inteiro igual ou maior que 1.</td>
-        <td style="padding: 12px 15px;">Garantir que o inventário de recursos tenha valores válidos.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-023</td>
-        <td style="padding: 12px 15px;">Usuário (ao excluir recurso)</td>
-        <td style="padding: 12px 15px;">O sistema deve impedir a exclusão de recursos que possuam agendamentos vinculados.</td>
-        <td style="padding: 12px 15px;">Garantir a integridade do histórico de agendamentos.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-024</td>
-        <td style="padding: 12px 15px;">Usuário (ao criar agendamento)</td>
-        <td style="padding: 12px 15px;">A data/hora de fim de um agendamento deve ser, obrigatoriamente, após a data/hora de início.</td>
-        <td style="padding: 12px 15px;">Garantir a lógica temporal e a validade do período agendado.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-025</td>
-        <td style="padding: 12px 15px;">Usuário (ao criar agendamento)</td>
-        <td style="padding: 12px 15px;">A data/hora de início deve ser, no mínimo, 10 minutos no futuro em relação ao momento da criação.</td>
-        <td style="padding: 12px 15px;">Evitar agendamentos retroativos ou instantâneos impossíveis de atender.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-026</td>
-        <td style="padding: 12px 15px;">Sistema</td>
-        <td style="padding: 12px 15px;">O sistema não deve permitir agendar o mesmo recurso em horários sobrepostos (conflitantes).</td>
-        <td style="padding: 12px 15px;">Prevenção de conflitos de alocação (dupla reserva).</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-027</td>
-        <td style="padding: 12px 15px;">Sistema</td>
-        <td style="padding: 12px 15px;">Não é permitido criar agendamentos em horários específicos (ex: madrugada, entre 23:00 e 06:00).</td>
-        <td style="padding: 12px 15px;">Restrição de segurança e adequação ao horário de funcionamento.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-028</td>
-        <td style="padding: 12px 15px;">Usuário (ao cancelar agendamento)</td>
-        <td style="padding: 12px 15px;">Um agendamento não pode ser cancelado com menos de 10 minutos de antecedência do seu início.</td>
-        <td style="padding: 12px 15px;">Evitar cancelamentos de última hora que prejudicam a alocação de recursos.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-029</td>
-        <td style="padding: 12px 15px;">Sistema</td>
-        <td style="padding: 12px 15px;">A criação e cancelamento de agendamentos deve disparar notificações aos envolvidos.</td>
-        <td style="padding: 12px 15px;">Manter os usuários informados sobre mudanças no calendário.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-030</td>
-        <td style="padding: 12px 15px;">Diretor</td>
-        <td style="padding: 12px 15px;">Relatórios gerados por diretores devem conter apenas dados da sua própria escola.</td>
-        <td style="padding: 12px 15px;">Garantir o isolamento de dados e a privacidade entre instituições.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-031</td>
-        <td style="padding: 12px 15px;">Administrador</td>
-        <td style="padding: 12px 15px;">Apenas administradores podem acessar a área de configurações (backups, etc.).</td>
-        <td style="padding: 12px 15px;">Restringir o acesso a funcionalidades críticas do sistema.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-032</td>
-        <td style="padding: 12px 15px;">Sistema</td>
-        <td style="padding: 12px 15px;">O sistema deve notificar o administrador por e-mail quando um backup for concluído com sucesso.</td>
-        <td style="padding: 12px 15px;">Fornecer confirmação e monitoramento de tarefas críticas.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-033</td>
-        <td style="padding: 12px 15px;">Administrador</td>
-        <td style="padding: 12px 15px;">O sistema deve impedir a exclusão de municípios que possuam escolas vinculadas.</td>
-        <td style="padding: 12px 15px;">Garantir a integridade referencial da localização das escolas.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-034</td>
-        <td style="padding: 12px 15px;">Administrador</td>
-        <td style="padding: 12px 15px;">O sistema deve impedir a exclusão de escolas que possuam turmas ou usuários vinculados.</td>
-        <td style="padding: 12px 15px;">Proteger dados associados (turmas, usuários) da instituição.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-035</td>
-        <td style="padding: 12px 15px;">Sistema</td>
-        <td style="padding: 12px 15px;">O sistema deve impedir a criação de ofertas duplicadas (mesma disciplina, professor e turma).</td>
-        <td style="padding: 12px 15px;">Evitar redundância e inconsistência nos dados pedagógicos.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-036</td>
-        <td style="padding: 12px 15px;">Administrador, diretor, professor</td>
-        <td style="padding: 12px 15px;">(A edição de uma disciplina é permitida apenas ao seu criador, ao diretor da escola ou a um administrador.</td>
-        <td style="padding: 12px 15px;">Controle de quem pode alterar os dados de um componente curricular.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-037</td>
-        <td style="padding: 12px 15px;">Administrador</td>
-        <td style="padding: 12px 15px;">Apenas administradores podem alterar a escola associada a uma disciplina (ou torná-la global).</td>
-        <td style="padding: 12px 15px;">Controle centralizado sobre a estrutura curricular regional.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-038</td>
-        <td style="padding: 12px 15px;">Sistema</td>
-        <td style="padding: 12px 15px;">Novas disciplinas cadastradas por professores ou diretores iniciam com status "Pendente".</td>
-        <td style="padding: 12px 15px;">Garantir o controle e a padronização do catálogo de componentes.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-039</td>
-        <td style="padding: 12px 15px;">Usuário (ao criar recurso)</td>
-        <td style="padding: 12px 15px;">Ao cadastrar um recurso com quantidade maior que 1, o sistema deve oferecer a opção de criar itens individuais ou um lote único.</td>
-        <td style="padding: 12px 15px;">Facilitar o cadastro em massa de inventário (usabilidade).</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-040</td>
-        <td style="padding: 12px 15px;">Sistema</td>
-        <td style="padding: 12px 15px;">Novos usuários cadastrados (Registro Público) iniciam com status "Pendente" e devem ser aprovados.</td>
-        <td style="padding: 12px 15px;">Medida de segurança para validar novos usuários antes de conceder acesso.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-041</td>
-        <td style="padding: 12px 15px;">Administrador, diretor</td>
-        <td style="padding: 12px 15px;">Diretores só podem excluir usuários (que não sejam administradores) de sua própria escola.</td>
-        <td style="padding: 12px 15px;">Manter a hierarquia de permissões e o escopo de gestão.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-042</td>
-        <td style="padding: 12px 15px;">Administrador, diretor, professor</td>
-        <td style="padding: 12px 15px;">Um agendamento só pode ser cancelado pelo seu criador (professor), pelo diretor da escola ou por um administrador.</td>
-        <td style="padding: 12px 15px;">Definir responsabilidade sobre o cancelamento de reservas.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-043</td>
-        <td style="padding: 12px 15px;">Administrador, diretor</td>
-        <td style="padding: 12px 15px;">O acesso ao módulo de relatórios é restrito a administradores e diretores.</td>
-        <td style="padding: 12px 15px;">Proteger o acesso a dados analíticos e consolidados.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RN-044</td>
-        <td style="padding: 12px 15px;">Administrador</td>
-        <td style="padding: 12px 15px;">Ações críticas (executar backup, baixar backup, restaurar) exigem que o administrador confirme sua senha atual.</td>
-        <td style="padding: 12px 15px;">Medida de segurança (step-up authentication) para operações sensíveis.</td>
-      </tr>
-      <tr style="background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RN-045</td>
-        <td style="padding: 12px 15px;">Usuário (novo ao alterar senha)</td>
-        <td style="padding: 12px 15px;">A senha do usuário deve ter no mínimo 16 caracteres.</td>
-        <td style="padding: 12px 15px;">Garantir um nível mínimo de complexidade e segurança para as senhas.</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-### Requisitos Funcionais (RF)
-<div style="width: 100%; overflow-x: auto;">
-  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <thead style="background-color: #0169b4; color: white;">
-      <tr>
-        <th style="padding: 12px 15px; text-align: left;">ID</th>
-        <th style="padding: 12px 15px; text-align: left;">Módulo</th>
-        <th style="padding: 12px 15px; text-align: left;">Nome do requisito</th>
-        <th style="padding: 12px 15px; text-align: left;">Descrição</th>
-        <th style="padding: 12px 15px; text-align: left;">Prioridade</th>
-      </tr>
-    </thead>
-    <tbody style="background-color: #fff; color: #333;">
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-001</td>
-        <td style="padding: 12px 15px;">Autenticação</td>
-        <td style="padding: 12px 15px;">Cadastro de usuário (público)</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir que usuários (professores, diretores) se cadastrem através de um formulário público.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-002</td>
-        <td style="padding: 12px 15px;">Autenticação</td>
-        <td style="padding: 12px 15px;">Login de usuário</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir que usuários autenticados façam login com e-mail e senha.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-003</td>
-        <td style="padding: 12px 15px;">Autenticação</td>
-        <td style="padding: 12px 15px;">Recuperação de senha</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir que usuários recuperem suas senhas através de um fluxo de "Esqueci minha senha".</td>
-        <td style="padding: 12px 15px;">Alta</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-004</td>
-        <td style="padding: 12px 15px;">Perfil</td>
-        <td style="padding: 12px 15px;">Atualizar informações do perfil</td>
-        <td style="padding: 12px 15px;">O usuário deve poder visualizar e atualizar suas informações de perfil (nome, e-mail, telefone).</td>
-        <td style="padding: 12px 15px;">Média</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-005</td>
-        <td style="padding: 12px 15px;">Perfil</td>
-        <td style="padding: 12px 15px;">Atualizar senha</td>
-        <td style="padding: 12px 15px;">O usuário deve poder atualizar sua senha, fornecendo a senha atual.</td>
-        <td style="padding: 12px 15px;">Alta</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-006</td>
-        <td style="padding: 12px 15px;">Perfil</td>
-        <td style="padding: 12px 15px;">Excluir conta</td>
-        <td style="padding: 12px 15px;">O usuário pode excluir sua própria conta por um administrador/diretor.</td>
-        <td style="padding: 12px 15px;">Média</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-007</td>
-        <td style="padding: 12px 15px;">Gestão de usuários</td>
-        <td style="padding: 12px 15px;">CRUD de usuários</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir o CRUD de usuários.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-008</td>
-        <td style="padding: 12px 15px;">Gestão de usuários</td>
-        <td style="padding: 12px 15px;">Filtrar usuários</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir filtrar a lista de usuários (por nome, e-mail, status, tipo, CPF, RG, formação, etc.).</td>
-        <td style="padding: 12px 15px;">Alta</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-009</td>
-        <td style="padding: 12px 15px;">Gestão escolar</td>
-        <td style="padding: 12px 15px;">CRUD de municípios</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir o CRUD de municípios.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-010</td>
-        <td style="padding: 12px 15px;">Gestão escolar</td>
-        <td style="padding: 12px 15px;">CRUD de escolas</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir o CRUD de escolas.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-011</td>
-        <td style="padding: 12px 15px;">Gestão de turmas</td>
-        <td style="padding: 12px 15px;">CRUD de turmas</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir o CRUD de turmas.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-012</td>
-        <td style="padding: 12px 15px;">Gestão de turmas</td>
-        <td style="padding: 12px 15px;">Detalhar turma (ofertas)</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir visualizar os detalhes de uma turma e suas ofertas.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-013</td>
-        <td style="padding: 12px 15px;">Disciplinas</td>
-        <td style="padding: 12px 15px;">CRUD de componentes curriculares</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir o CRUD de componentes curriculares (disciplinas).</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-014</td>
-        <td style="padding: 12px 15px;">Disciplinas</td>
-        <td style="padding: 12px 15px;">Filtrar componentes</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir a filtragem de componentes (nome/descrição, carga horária, status, escola).</td>
-        <td style="padding: 12px 15px;">Alta</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-015</td>
-        <td style="padding: 12px 15px;">Oferta de componentes</td>
-        <td style="padding: 12px 15px;">CRUD de ofertas</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir o CRUD de ofertas.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-016</td>
-        <td style="padding: 12px 15px;">Recursos didáticos</td>
-        <td style="padding: 12px 15px;">CRUD de recursos didáticos</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir o CRUD de recursos didáticos e laboratórios.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-017</td>
-        <td style="padding: 12px 15px;">Agendamento</td>
-        <td style="padding: 12px 15px;">Gerenciar agendamento</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir que usuários criem, visualizem e cancelem agendamentos de recursos didáticos.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-018</td>
-        <td style="padding: 12px 15px;">Agendamento</td>
-        <td style="padding: 12px 15px;">Calendário de agendamento</td>
-        <td style="padding: 12px 15px;">O sistema deve exibir os agendamentos em uma interface de calendário interativo (FullCalendar).</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-019</td>
-        <td style="padding: 12px 15px;">Relatórios</td>
-        <td style="padding: 12px 15px;">Visualizar relatórios</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir a visualização (preview) de relatórios analíticos com filtros avançados e gráficos.</td>
-        <td style="padding: 12px 15px;">Alta</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-020</td>
-        <td style="padding: 12px 15px;">Relatórios</td>
-        <td style="padding: 12px 15px;">Exportar relatórios</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir a exportação de relatórios em múltiplos formatos (PDF, XLSX, CSV, ODS, HTML).</td>
-        <td style="padding: 12px 15px;">Alta</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-021</td>
-        <td style="padding: 12px 15px;">Configurações</td>
-        <td style="padding: 12px 15px;">Gestão de backup</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir a gestão de backups (criar manualmente, baixar e excluir).</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-022</td>
-        <td style="padding: 12px 15px;">Configurações</td>
-        <td style="padding: 12px 15px;">Restauração de backup</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir a restauração de dados a partir de um arquivo de backup.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-023</td>
-        <td style="padding: 12px 15px;">Notificações</td>
-        <td style="padding: 12px 15px;">Exibir notificações</td>
-        <td style="padding: 12px 15px;">O sistema deve exibir notificações aos usuários (via interface e e-mail) sobre eventos relevantes.</td>
-        <td style="padding: 12px 15px;">Alta</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-024</td>
-        <td style="padding: 12px 15px;">Notificações</td>
-        <td style="padding: 12px 15px;">Marcar notificações como lidas</td>
-        <td style="padding: 12px 15px;">O sistema deve marcar notificações como lidas (automaticamente ao visualizar a lista).</td>
-        <td style="padding: 12px 15px;">Média</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-025</td>
-        <td style="padding: 12px 15px;">Gestão de usuários</td>
-        <td style="padding: 12px 15px;">Aprovação de usuários</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir que administradores e diretores aprovem ou rejeitem/bloqueiem novos cadastros pendentes.</td>
-        <td style="padding: 12px 15px;">Alta</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-026</td>
-        <td style="padding: 12px 15px;">Disciplinas</td>
-        <td style="padding: 12px 15px;">Aprovação de disciplinas</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir que usuários autorizados (administrador, diretor) aprovem ou reprovem componentes com status "Pendente".</td>
-        <td style="padding: 12px 15px;">Alta</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-027</td>
-        <td style="padding: 12px 15px;">Agendamento</td>
-        <td style="padding: 12px 15px;">Consultar disponibilidade</td>
-        <td style="padding: 12px 15px;">O sistema deve exibir a disponibilidade de recursos (disponíveis e agendados) para um dia específico.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-028</td>
-        <td style="padding: 12px 15px;">Recursos didáticos</td>
-        <td style="padding: 12px 15px;">Cadastro em lote</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir o cadastro de múltiplos recursos individuais a partir de um único formulário (via checkbox de quantidade).</td>
-        <td style="padding: 12px 15px;">Média</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-029</td>
-        <td style="padding: 12px 15px;">Notificações</td>
-        <td style="padding: 12px 15px;">Limpar notificações</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir ao usuário excluir notificações individualmente ou limpar todo o histórico.</td>
-        <td style="padding: 12px 15px;">Média</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RF-030</td>
-        <td style="padding: 12px 15px;">Agendamento</td>
-        <td style="padding: 12px 15px;">Consultar disponibilidade diária</td>
-        <td style="padding: 12px 15px;">O sistema deve exibir a disponibilidade de recursos (disponíveis e agendados) para um dia específico selecionado.</td>
-        <td style="padding: 12px 15px;">Essencial</td>
-      </tr>
-      <tr style="background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RF-031</td>
-        <td style="padding: 12px 15px;">Notificações</td>
-        <td style="padding: 12px 15px;">Excluir notificações</td>
-        <td style="padding: 12px 15px;">O sistema deve permitir ao usuário excluir notificações (individualmente ou "Limpar Todas").</td>
-        <td style="padding: 12px 15px;">Média</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-### Requisitos Não-Funcionais (RNF)
-<div style="width: 100%; overflow-x: auto;">
-  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <thead style="background-color: #0169b4; color: white;">
-      <tr>
-        <th style="padding: 12px 15px; text-align: left;">ID</th>
-        <th style="padding: 12px 15px; text-align: left;">Atributo de qualidade</th>
-        <th style="padding: 12px 15px; text-align: left;">Descrição do requisito</th>
-        <th style="padding: 12px 15px; text-align: left;">Métrica de verificação</th>
-      </tr>
-    </thead>
-    <tbody style="background-color: #fff; color: #333;">
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RNF-001</td>
-        <td style="padding: 12px 15px;">Segurança (controle de acesso)</td>
-        <td style="padding: 12px 15px;">O sistema deve possuir um controle de acesso robusto baseado em papéis (administrador, diretor, professor).</td>
-        <td style="padding: 12px 15px;">Testes de integração validando que cada perfil só acessa as rotas e dados permitidos (testes de status HTTP 403).</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RNF-002</td>
-        <td style="padding: 12px 15px;">Segurança (dados)</td>
-        <td style="padding: 12px 15px;">Senhas de usuários devem ser armazenadas scandals hashing forte e moderno (Argon2id).</td>
-        <td style="padding: 12px 15px;">Revisão de código e testes de unidade que verificam se o hash é gerado corretamente.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RNF-003</td>
-        <td style="padding: 12px 15px;">Segurança (dados)</td>
-        <td style="padding: 12px 15px;">Dados pessoais sensíveis (como CPF e RG) devem ser armazenados de forma criptografada (ex: AES-256-CBC).</td>
-        <td style="padding: 12px 15px;">Auditoria da implementação e verificação manual do banco de dados para confirmar que os dados não estão em texto plano.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RNF-004</td>
-        <td style="padding: 12px 15px;">Segurança (web)</td>
-        <td style="padding: 12px 15px;">O sistema deve ser protegido contra ataques comuns (CSRF, XSS, SQL Injection).</td>
-        <td style="padding: 12px 15px;">Revisão de código (uso de Eloquent ORM, Blade, middleware, CRSF) e execução de testes de penetração básicos.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RNF-005</td>
-        <td style="padding: 12px 15px;">Integridade</td>
-        <td style="padding: 12px 15px;">O sistema deve garantir a integridade referencial, impedindo a exclusão de dados “pais”/registros “filhos”.</td>
-        <td style="padding: 12px 15px;">Testes de integração (Feature Tests) que tentam excluir registros com dependências e validam o recebimento de erro.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RNF-006</td>
-        <td style="padding: 12px 15px;">Confiabilidade (backup)</td>
-        <td style="padding: 12px 15px;">O sistema deve fornecer mecanismos para backup (manual) e restauração da base de dados.</td>
-        <td style="padding: 12px 15px;">Testes funcionais da interface de "Backup e Restauração". Verificação da criação dos arquivos de backup no servidor.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RNF-007</td>
-        <td style="padding: 12px 15px;">Manutenibilidade (testabilidade)</td>
-        <td style="padding: 12px 15px;">O código deve ser testável, padrões de testes unitários e de integração (PHPUnit).</td>
-        <td style="padding: 12px 15px;">Execução da suíte de testes e verificação da cobertura de código.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RNF-008</td>
-        <td style="padding: 12px 15px;">Localização</td>
-        <td style="padding: 12px 15px;">O sistema deve ter seu idioma principal definido como Português (Brasil).</td>
-        <td style="padding: 12px 15px;">Verificação dos arquivos de linguagem e da interface do usuário.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RNF-009</td>
-        <td style="padding: 12px 15px;">Plataforma (tecnologia)</td>
-        <td style="padding: 12px 15px;">O sistema deve ser desenvolvido scandals o framework Laravel (PHP), MariaDB, e ferramentas frontend como Vite.js e Alpine.js.</td>
-        <td style="padding: 12px 15px;">Verificação dos arquivos de configuração do projeto (exemplo: composer.json, package.json).</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">RNF-010</td>
-        <td style="padding: 12px 15px;">Desempenho (interface)</td>
-        <td style="padding: 12px 15px;">O módulo de agendamentos deve usar AJAX (Axios) para carregar a disponibilidade de recursos sem recarregar a página.</td>
-        <td style="padding: 12px 15px;">Teste funcional do calendário (clicar em um dia) e verificação de que uma requisição é feita.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RNF-011</td>
-        <td style="padding: 12px 15px;">Usabilidade (visualização de dados)</td>
-        <td style="padding: 12px 15px;">O módulo de relatórios deve usar gráficos (ex: Chart.js) para facilitar.</td>
-        <td style="padding: 12px 15px;">Teste funcional da página de relatórios e verificação dos gráficos.</td>
-      </tr>
-      <tr style="background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">RNF-012</td>
-        <td style="padding: 12px 15px;">Usabilidade (interação)</td>
-        <td style="padding: 12px 15px;">O sistema deve usar modais (SweetAlert2) para ações destrutivas.</td>
-        <td style="padding: 12px 15px;">Teste funcional e verificação de que o modal de confirmação é exibido.</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+* **👥 User Management:** Granular access control with three permission levels (Administrator, Principal, Teacher).
+* **🏫 School and Municipality Management:** Centralized registration and administration of educational institutions and their locations.
+* **👨‍🎓 Class Management:** Organization of classes linked to each school.
+* **📂 Subject Management:** (Curriculum Components) Registration and association of taught subjects.
+* **📖 Educational Resource Management:** Catalog of all pedagogical and technological resources available for scheduling (e.g., labs, projectors, robotics kits).
+* **📅 Smart Scheduling:** Calendar interface (based on *FullCalendar*) for teachers to book resources for their classes, with availability validation.
+* **📊 Advanced Reports:** Generation of dynamic reports on resource usage, scheduling by school, and more, with export to **PDF** and **Excel**.
+* **🔔 Notification System:** Real-time in-app alerts and email notifications for critical actions (e.g., scheduling confirmations).
+* **🗃️ Backup and Restore:** Robust functionality for creating application and database *backups*, with automatic scheduling and restoration.
+* **♿ Accessibility:** Native integration with **VLibras** to ensure accessibility for people with disabilities.
 
 ---
 
-## 💻 Ambiente de Desenvolvimento
+## 🛠️ Requirements and Business Rules
 
-O projeto foi desenvolvido scandals um conjunto de ferramentas moderno, focado em segurança e produtividade, em um ambiente híbrido.
+The system logic was modeled to reflect the hierarchies and processes of a real educational environment.
+
+### Core Business Rules
+
+* 🔑 **User Approval:** Teachers and Principals can self-register, but their accounts are created with `pending` status. An `Administrator` must manually approve the registration before the user can access the system.
+* 🚦 **Permission Hierarchy:**
+    * **Administrator:** Has full control (CRUD) over all entities: Schools, Municipalities, Users, Classes, Resources, and Subjects. The only profile that can perform system backups and restorations.
+    * **Principal:** Has control (CRUD) over entities *only* from their own school (Classes, Teachers, Resources, Subjects). Can view reports related to their school.
+    * **Teacher:** The focus is on scheduling. Can schedule resources for their classes/subjects (Offerings) and manage (CRUD) the resources and subjects they themselves registered.
+* 🌍 **Resource Ownership:** Resources and Subjects can be "Global" (belonging to the NRE, `school_id = null`) and available to all schools, or belong to a specific school (visible only to users of that school).
+* ⏱️ **Scheduling Conflicts:** The system actively prevents the same resource (`recurso_didatico_id`) from being booked by two people for the same time slot (overlap validation of `data_inicio` and `data_fim`).
+* 🔗 **Data Integrity:** The system uses foreign key constraints (`FOREIGN KEY`) to ensure referential integrity. A School cannot be deleted if it has linked Classes or Users; a Municipality cannot be deleted if it has linked Schools.
+
+### Business Rules (BR)
+<div style="width: 100%; overflow-x: auto;">
+  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <thead style="background-color: #0169b4; color: white;">
+      <tr>
+        <th style="padding: 12px 15px; text-align: left;">ID</th>
+        <th style="padding: 12px 15px; text-align: left;">Affected Actor(s)</th>
+        <th style="padding: 12px 15px; text-align: left;">Rule Description</th>
+        <th style="padding: 12px 15px; text-align: left;">Justification/Origin</th>
+      </tr>
+    </thead>
+    <tbody style="background-color: #fff; color: #333;">
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-001</td>
+        <td style="padding: 12px 15px;">User (all)</td>
+        <td style="padding: 12px 15px;">When a user updates their email in their profile, the account must be marked as "unverified", requiring re-confirmation.</td>
+        <td style="padding: 12px 15px;">Ensure ownership and validity of the new email address.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-002</td>
+        <td style="padding: 12px 15px;">User (all)</td>
+        <td style="padding: 12px 15px;">To delete their own account, the user must confirm their current password.</td>
+        <td style="padding: 12px 15px;">Security measure to prevent accidental or malicious deletion.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-003</td>
+        <td style="padding: 12px 15px;">User (new)</td>
+        <td style="padding: 12px 15px;">Registration fields (username, email, CPF, RG, etc.) must be unique in the system.</td>
+        <td style="padding: 12px 15px;">Ensure the uniqueness of each user in the database.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-004</td>
+        <td style="padding: 12px 15px;">Administrator</td>
+        <td style="padding: 12px 15px;">Only administrators can view and manage users from all schools.</td>
+        <td style="padding: 12px 15px;">Centralization of access control and account management at the NRE.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-005</td>
+        <td style="padding: 12px 15px;">Principal, teacher</td>
+        <td style="padding: 12px 15px;">Principals and teachers can only view users from their own school.</td>
+        <td style="padding: 12px 15px;">Ensure data isolation (privacy) between institutions.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-006</td>
+        <td style="padding: 12px 15px;">Principal</td>
+        <td style="padding: 12px 15px;">Principals can only create users (e.g., teachers) for their own school.</td>
+        <td style="padding: 12px 15px;">Delegation of personnel management at the school level.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-007</td>
+        <td style="padding: 12px 15px;">Principal</td>
+        <td style="padding: 12px 15px;">Principals cannot create or promote users to the "administrator" level.</td>
+        <td style="padding: 12px 15px;">Maintain the permission hierarchy and system security.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-008</td>
+        <td style="padding: 12px 15px;">Administrator</td>
+        <td style="padding: 12px 15px;">An administrator (or any user) cannot delete their own account.</td>
+        <td style="padding: 12px 15px;">Prevent accidental system lockout.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-009</td>
+        <td style="padding: 12px 15px;">Administrator, principal</td>
+        <td style="padding: 12px 15px;">The system must prevent the deletion of users who have dependencies (created resources or offerings).</td>
+        <td style="padding: 12px 15px;">Ensure referential integrity and the history of actions.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-010</td>
+        <td style="padding: 12px 15px;">Administrator</td>
+        <td style="padding: 12px 15px;">Only Administrators can manage (CRUD) municipalities and schools.</td>
+        <td style="padding: 12px 15px;">Centralization of NRE infrastructure management.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-011</td>
+        <td style="padding: 12px 15px;">Administrator (when creating a school)</td>
+        <td style="padding: 12px 15px;">A School must mandatorily be associated with a municipality.</td>
+        <td style="padding: 12px 15px;">NRE structural organization requirement.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-012</td>
+        <td style="padding: 12px 15px;">Administrator (when creating a school)</td>
+        <td style="padding: 12px 15px;">The education level and type fields of a school must be predefined values (enum).</td>
+        <td style="padding: 12px 15px;">Ensure data standardization and consistency for reports.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-013</td>
+        <td style="padding: 12px 15px;">Principal, teacher</td>
+        <td style="padding: 12px 15px;">Principals and teachers can only manage (view, create, edit) classes from their own school.</td>
+        <td style="padding: 12px 15px;">Keep the management scope restricted to the institution itself.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-014</td>
+        <td style="padding: 12px 15px;">User (when creating a class)</td>
+        <td style="padding: 12px 15px;">The school year must be an integer within a valid range (e.g., 2000-2100).</td>
+        <td style="padding: 12px 15px;">Ensure the validity and consistency of school year data.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-015</td>
+        <td style="padding: 12px 15px;">User (when deleting a class)</td>
+        <td style="padding: 12px 15px;">The system must prevent the deletion of classes that have component offerings.</td>
+        <td style="padding: 12px 15px;">Protect the history of subject and teacher allocations.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-016</td>
+        <td style="padding: 12px 15px;">Administrator, principal, teacher</td>
+        <td style="padding: 12px 15px;">Subjects can be "global" or "specific" (linked to a school).</td>
+        <td style="padding: 12px 15px;">Allow curriculum components common to all schools as well as unique components.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-017</td>
+        <td style="padding: 12px 15px;">Administrator</td>
+        <td style="padding: 12px 15px;">Only administrators can create or edit global subjects.</td>
+        <td style="padding: 12px 15px;">Centralized control over the regional core curriculum.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-018</td>
+        <td style="padding: 12px 15px;">Principal, teacher</td>
+        <td style="padding: 12px 15px;">Principals and teachers view global subjects as well as those specific to their school.</td>
+        <td style="padding: 12px 15px;">Provide access to the curriculum relevant to the institution.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-019</td>
+        <td style="padding: 12px 15px;">User (when deleting a subject)</td>
+        <td style="padding: 12px 15px;">The system must prevent the deletion of subjects that have linked offerings.</td>
+        <td style="padding: 12px 15px;">Ensure the integrity of the class history.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-020</td>
+        <td style="padding: 12px 15px;">Teacher</td>
+        <td style="padding: 12px 15px;">Teachers can only create component offerings for themselves (not for other teachers).</td>
+        <td style="padding: 12px 15px;">Ensure that teachers only manage their own assignments.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-021</td>
+        <td style="padding: 12px 15px;">User (when deleting an offering)</td>
+        <td style="padding: 12px 15px;">The system must prevent the deletion of offerings that have linked appointments.</td>
+        <td style="padding: 12px 15px;">Protect the history of resource usage in appointments.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-022</td>
+        <td style="padding: 12px 15px;">User (when creating a resource)</td>
+        <td style="padding: 12px 15px;">The quantity of a resource must be an integer equal to or greater than 1.</td>
+        <td style="padding: 12px 15px;">Ensure that the resource inventory has valid values.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-023</td>
+        <td style="padding: 12px 15px;">User (when deleting a resource)</td>
+        <td style="padding: 12px 15px;">The system must prevent the deletion of resources that have linked appointments.</td>
+        <td style="padding: 12px 15px;">Ensure the integrity of the appointment history.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-024</td>
+        <td style="padding: 12px 15px;">User (when creating an appointment)</td>
+        <td style="padding: 12px 15px;">The end date/time of an appointment must mandatorily be after the start date/time.</td>
+        <td style="padding: 12px 15px;">Ensure temporal logic and the validity of the scheduled period.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-025</td>
+        <td style="padding: 12px 15px;">User (when creating an appointment)</td>
+        <td style="padding: 12px 15px;">The start date/time must be at least 10 minutes ahead of the moment of creation.</td>
+        <td style="padding: 12px 15px;">Avoid retroactive or instantaneous appointments that are impossible to fulfill.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-026</td>
+        <td style="padding: 12px 15px;">System</td>
+        <td style="padding: 12px 15px;">The system must not allow the same resource to be booked for overlapping (conflicting) time slots.</td>
+        <td style="padding: 12px 15px;">Prevention of allocation conflicts (double booking).</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-027</td>
+        <td style="padding: 12px 15px;">System</td>
+        <td style="padding: 12px 15px;">Appointments cannot be created at certain times (e.g., overnight, between 11:00 PM and 6:00 AM).</td>
+        <td style="padding: 12px 15px;">Security restriction and compliance with operating hours.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-028</td>
+        <td style="padding: 12px 15px;">User (when canceling an appointment)</td>
+        <td style="padding: 12px 15px;">An appointment cannot be canceled less than 10 minutes before it starts.</td>
+        <td style="padding: 12px 15px;">Avoid last-minute cancellations that disrupt resource allocation.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-029</td>
+        <td style="padding: 12px 15px;">System</td>
+        <td style="padding: 12px 15px;">Creating and canceling appointments must trigger notifications to everyone involved.</td>
+        <td style="padding: 12px 15px;">Keep users informed about changes to the calendar.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-030</td>
+        <td style="padding: 12px 15px;">Principal</td>
+        <td style="padding: 12px 15px;">Reports generated by principals must contain only data from their own school.</td>
+        <td style="padding: 12px 15px;">Ensure data isolation and privacy between institutions.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-031</td>
+        <td style="padding: 12px 15px;">Administrator</td>
+        <td style="padding: 12px 15px;">Only administrators can access the settings area (backups, etc.).</td>
+        <td style="padding: 12px 15px;">Restrict access to critical system features.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-032</td>
+        <td style="padding: 12px 15px;">System</td>
+        <td style="padding: 12px 15px;">The system must notify the administrator by email when a backup completes successfully.</td>
+        <td style="padding: 12px 15px;">Provide confirmation and monitoring of critical tasks.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-033</td>
+        <td style="padding: 12px 15px;">Administrator</td>
+        <td style="padding: 12px 15px;">The system must prevent the deletion of municipalities that have linked schools.</td>
+        <td style="padding: 12px 15px;">Ensure the referential integrity of school locations.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-034</td>
+        <td style="padding: 12px 15px;">Administrator</td>
+        <td style="padding: 12px 15px;">The system must prevent the deletion of schools that have linked classes or users.</td>
+        <td style="padding: 12px 15px;">Protect associated data (classes, users) of the institution.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-035</td>
+        <td style="padding: 12px 15px;">System</td>
+        <td style="padding: 12px 15px;">The system must prevent the creation of duplicate offerings (same subject, teacher, and class).</td>
+        <td style="padding: 12px 15px;">Avoid redundancy and inconsistency in pedagogical data.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-036</td>
+        <td style="padding: 12px 15px;">Administrator, principal, teacher</td>
+        <td style="padding: 12px 15px;">Editing a subject is permitted only by its creator, the school principal, or an administrator.</td>
+        <td style="padding: 12px 15px;">Control over who can change the data of a curriculum component.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-037</td>
+        <td style="padding: 12px 15px;">Administrator</td>
+        <td style="padding: 12px 15px;">Only administrators can change the school associated with a subject (or make it global).</td>
+        <td style="padding: 12px 15px;">Centralized control over the regional curriculum structure.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-038</td>
+        <td style="padding: 12px 15px;">System</td>
+        <td style="padding: 12px 15px;">New subjects registered by teachers or principals start with "Pending" status.</td>
+        <td style="padding: 12px 15px;">Ensure control and standardization of the component catalog.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-039</td>
+        <td style="padding: 12px 15px;">User (when creating a resource)</td>
+        <td style="padding: 12px 15px;">When registering a resource with a quantity greater than 1, the system must offer the option to create individual items or a single batch.</td>
+        <td style="padding: 12px 15px;">Facilitate bulk inventory registration (usability).</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-040</td>
+        <td style="padding: 12px 15px;">System</td>
+        <td style="padding: 12px 15px;">Newly registered users (Public Registration) start with "Pending" status and must be approved.</td>
+        <td style="padding: 12px 15px;">Security measure to validate new users before granting access.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-041</td>
+        <td style="padding: 12px 15px;">Administrator, principal</td>
+        <td style="padding: 12px 15px;">Principals can only delete users (who are not administrators) from their own school.</td>
+        <td style="padding: 12px 15px;">Maintain the permission hierarchy and management scope.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-042</td>
+        <td style="padding: 12px 15px;">Administrator, principal, teacher</td>
+        <td style="padding: 12px 15px;">An appointment can only be canceled by its creator (teacher), the school principal, or an administrator.</td>
+        <td style="padding: 12px 15px;">Define responsibility over booking cancellations.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-043</td>
+        <td style="padding: 12px 15px;">Administrator, principal</td>
+        <td style="padding: 12px 15px;">Access to the reports module is restricted to administrators and principals.</td>
+        <td style="padding: 12px 15px;">Protect access to analytical and consolidated data.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">BR-044</td>
+        <td style="padding: 12px 15px;">Administrator</td>
+        <td style="padding: 12px 15px;">Critical actions (running a backup, downloading a backup, restoring) require the administrator to confirm their current password.</td>
+        <td style="padding: 12px 15px;">Security measure (step-up authentication) for sensitive operations.</td>
+      </tr>
+      <tr style="background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">BR-045</td>
+        <td style="padding: 12px 15px;">User (when changing password)</td>
+        <td style="padding: 12px 15px;">User passwords must be at least 16 characters long.</td>
+        <td style="padding: 12px 15px;">Ensure a minimum level of complexity and security for passwords.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+### Functional Requirements (FR)
+<div style="width: 100%; overflow-x: auto;">
+  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <thead style="background-color: #0169b4; color: white;">
+      <tr>
+        <th style="padding: 12px 15px; text-align: left;">ID</th>
+        <th style="padding: 12px 15px; text-align: left;">Module</th>
+        <th style="padding: 12px 15px; text-align: left;">Requirement Name</th>
+        <th style="padding: 12px 15px; text-align: left;">Description</th>
+        <th style="padding: 12px 15px; text-align: left;">Priority</th>
+      </tr>
+    </thead>
+    <tbody style="background-color: #fff; color: #333;">
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-001</td>
+        <td style="padding: 12px 15px;">Authentication</td>
+        <td style="padding: 12px 15px;">User registration (public)</td>
+        <td style="padding: 12px 15px;">The system must allow users (teachers, principals) to register through a public form.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-002</td>
+        <td style="padding: 12px 15px;">Authentication</td>
+        <td style="padding: 12px 15px;">User login</td>
+        <td style="padding: 12px 15px;">The system must allow registered users to log in with email and password.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-003</td>
+        <td style="padding: 12px 15px;">Authentication</td>
+        <td style="padding: 12px 15px;">Password recovery</td>
+        <td style="padding: 12px 15px;">The system must allow users to recover their passwords through a "Forgot my password" flow.</td>
+        <td style="padding: 12px 15px;">High</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-004</td>
+        <td style="padding: 12px 15px;">Profile</td>
+        <td style="padding: 12px 15px;">Update profile information</td>
+        <td style="padding: 12px 15px;">The user must be able to view and update their profile information (name, email, phone).</td>
+        <td style="padding: 12px 15px;">Medium</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-005</td>
+        <td style="padding: 12px 15px;">Profile</td>
+        <td style="padding: 12px 15px;">Update password</td>
+        <td style="padding: 12px 15px;">The user must be able to update their password by providing their current password.</td>
+        <td style="padding: 12px 15px;">High</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-006</td>
+        <td style="padding: 12px 15px;">Profile</td>
+        <td style="padding: 12px 15px;">Delete account</td>
+        <td style="padding: 12px 15px;">A user's account can be deleted by themselves or by an administrator/principal.</td>
+        <td style="padding: 12px 15px;">Medium</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-007</td>
+        <td style="padding: 12px 15px;">User management</td>
+        <td style="padding: 12px 15px;">User CRUD</td>
+        <td style="padding: 12px 15px;">The system must support CRUD operations for users.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-008</td>
+        <td style="padding: 12px 15px;">User management</td>
+        <td style="padding: 12px 15px;">Filter users</td>
+        <td style="padding: 12px 15px;">The system must allow filtering the user list (by name, email, status, type, CPF, RG, education, etc.).</td>
+        <td style="padding: 12px 15px;">High</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-009</td>
+        <td style="padding: 12px 15px;">School management</td>
+        <td style="padding: 12px 15px;">Municipality CRUD</td>
+        <td style="padding: 12px 15px;">The system must support CRUD operations for municipalities.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-010</td>
+        <td style="padding: 12px 15px;">School management</td>
+        <td style="padding: 12px 15px;">School CRUD</td>
+        <td style="padding: 12px 15px;">The system must support CRUD operations for schools.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-011</td>
+        <td style="padding: 12px 15px;">Class management</td>
+        <td style="padding: 12px 15px;">Class CRUD</td>
+        <td style="padding: 12px 15px;">The system must support CRUD operations for classes.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-012</td>
+        <td style="padding: 12px 15px;">Class management</td>
+        <td style="padding: 12px 15px;">View class details (offerings)</td>
+        <td style="padding: 12px 15px;">The system must allow viewing the details of a class and its offerings.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-013</td>
+        <td style="padding: 12px 15px;">Subjects</td>
+        <td style="padding: 12px 15px;">Curriculum component CRUD</td>
+        <td style="padding: 12px 15px;">The system must support CRUD operations for curriculum components (subjects).</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-014</td>
+        <td style="padding: 12px 15px;">Subjects</td>
+        <td style="padding: 12px 15px;">Filter components</td>
+        <td style="padding: 12px 15px;">The system must allow filtering components (name/description, workload, status, school).</td>
+        <td style="padding: 12px 15px;">High</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-015</td>
+        <td style="padding: 12px 15px;">Component offerings</td>
+        <td style="padding: 12px 15px;">Offering CRUD</td>
+        <td style="padding: 12px 15px;">The system must support CRUD operations for offerings.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-016</td>
+        <td style="padding: 12px 15px;">Educational resources</td>
+        <td style="padding: 12px 15px;">Educational resource CRUD</td>
+        <td style="padding: 12px 15px;">The system must support CRUD operations for educational resources and labs.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-017</td>
+        <td style="padding: 12px 15px;">Scheduling</td>
+        <td style="padding: 12px 15px;">Manage scheduling</td>
+        <td style="padding: 12px 15px;">The system must allow users to create, view, and cancel appointments for educational resources.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-018</td>
+        <td style="padding: 12px 15px;">Scheduling</td>
+        <td style="padding: 12px 15px;">Scheduling calendar</td>
+        <td style="padding: 12px 15px;">The system must display appointments in an interactive calendar interface (FullCalendar).</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-019</td>
+        <td style="padding: 12px 15px;">Reports</td>
+        <td style="padding: 12px 15px;">View reports</td>
+        <td style="padding: 12px 15px;">The system must allow previewing analytical reports with advanced filters and charts.</td>
+        <td style="padding: 12px 15px;">High</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-020</td>
+        <td style="padding: 12px 15px;">Reports</td>
+        <td style="padding: 12px 15px;">Export reports</td>
+        <td style="padding: 12px 15px;">The system must allow exporting reports in multiple formats (PDF, XLSX, CSV, ODS, HTML).</td>
+        <td style="padding: 12px 15px;">High</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-021</td>
+        <td style="padding: 12px 15px;">Settings</td>
+        <td style="padding: 12px 15px;">Backup management</td>
+        <td style="padding: 12px 15px;">The system must allow backup management (manual creation, download, and deletion).</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-022</td>
+        <td style="padding: 12px 15px;">Settings</td>
+        <td style="padding: 12px 15px;">Backup restoration</td>
+        <td style="padding: 12px 15px;">The system must allow data restoration from a backup file.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-023</td>
+        <td style="padding: 12px 15px;">Notifications</td>
+        <td style="padding: 12px 15px;">Display notifications</td>
+        <td style="padding: 12px 15px;">The system must display notifications to users (via the interface and email) about relevant events.</td>
+        <td style="padding: 12px 15px;">High</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-024</td>
+        <td style="padding: 12px 15px;">Notifications</td>
+        <td style="padding: 12px 15px;">Mark notifications as read</td>
+        <td style="padding: 12px 15px;">The system must mark notifications as read (automatically when the list is viewed).</td>
+        <td style="padding: 12px 15px;">Medium</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-025</td>
+        <td style="padding: 12px 15px;">User management</td>
+        <td style="padding: 12px 15px;">User approval</td>
+        <td style="padding: 12px 15px;">The system must allow administrators and principals to approve or reject/block new pending registrations.</td>
+        <td style="padding: 12px 15px;">High</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-026</td>
+        <td style="padding: 12px 15px;">Subjects</td>
+        <td style="padding: 12px 15px;">Subject approval</td>
+        <td style="padding: 12px 15px;">The system must allow authorized users (administrator, principal) to approve or reject components with "Pending" status.</td>
+        <td style="padding: 12px 15px;">High</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-027</td>
+        <td style="padding: 12px 15px;">Scheduling</td>
+        <td style="padding: 12px 15px;">Check availability</td>
+        <td style="padding: 12px 15px;">The system must display resource availability (available and booked) for a specific day.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-028</td>
+        <td style="padding: 12px 15px;">Educational resources</td>
+        <td style="padding: 12px 15px;">Batch registration</td>
+        <td style="padding: 12px 15px;">The system must allow registering multiple individual resources from a single form (via a quantity checkbox).</td>
+        <td style="padding: 12px 15px;">Medium</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-029</td>
+        <td style="padding: 12px 15px;">Notifications</td>
+        <td style="padding: 12px 15px;">Clear notifications</td>
+        <td style="padding: 12px 15px;">The system must allow the user to delete notifications individually or clear the entire history.</td>
+        <td style="padding: 12px 15px;">Medium</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">FR-030</td>
+        <td style="padding: 12px 15px;">Scheduling</td>
+        <td style="padding: 12px 15px;">Check daily availability</td>
+        <td style="padding: 12px 15px;">The system must display resource availability (available and booked) for a specific selected day.</td>
+        <td style="padding: 12px 15px;">Essential</td>
+      </tr>
+      <tr style="background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">FR-031</td>
+        <td style="padding: 12px 15px;">Notifications</td>
+        <td style="padding: 12px 15px;">Delete notifications</td>
+        <td style="padding: 12px 15px;">The system must allow the user to delete notifications (individually or via "Clear All").</td>
+        <td style="padding: 12px 15px;">Medium</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+### Non-Functional Requirements (NFR)
+<div style="width: 100%; overflow-x: auto;">
+  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <thead style="background-color: #0169b4; color: white;">
+      <tr>
+        <th style="padding: 12px 15px; text-align: left;">ID</th>
+        <th style="padding: 12px 15px; text-align: left;">Quality Attribute</th>
+        <th style="padding: 12px 15px; text-align: left;">Requirement Description</th>
+        <th style="padding: 12px 15px; text-align: left;">Verification Metric</th>
+      </tr>
+    </thead>
+    <tbody style="background-color: #fff; color: #333;">
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">NFR-001</td>
+        <td style="padding: 12px 15px;">Security (access control)</td>
+        <td style="padding: 12px 15px;">The system must have robust role-based access control (administrator, principal, teacher).</td>
+        <td style="padding: 12px 15px;">Integration tests validating that each profile can only access allowed routes and data (HTTP 403 status tests).</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">NFR-002</td>
+        <td style="padding: 12px 15px;">Security (data)</td>
+        <td style="padding: 12px 15px;">User passwords must be stored using strong, modern hashing (Argon2id).</td>
+        <td style="padding: 12px 15px;">Code review and unit tests verifying that the hash is generated correctly.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">NFR-003</td>
+        <td style="padding: 12px 15px;">Security (data)</td>
+        <td style="padding: 12px 15px;">Sensitive personal data (such as CPF and RG) must be stored encrypted (e.g., AES-256-CBC).</td>
+        <td style="padding: 12px 15px;">Implementation audit and manual database verification to confirm data is not stored in plain text.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">NFR-004</td>
+        <td style="padding: 12px 15px;">Security (web)</td>
+        <td style="padding: 12px 15px;">The system must be protected against common attacks (CSRF, XSS, SQL Injection).</td>
+        <td style="padding: 12px 15px;">Code review (use of Eloquent ORM, Blade, middleware, CSRF) and basic penetration testing.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">NFR-005</td>
+        <td style="padding: 12px 15px;">Integrity</td>
+        <td style="padding: 12px 15px;">The system must ensure referential integrity, preventing the deletion of "parent" records that have "child" records.</td>
+        <td style="padding: 12px 15px;">Integration tests (Feature Tests) that attempt to delete records with dependencies and validate the resulting error.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">NFR-006</td>
+        <td style="padding: 12px 15px;">Reliability (backup)</td>
+        <td style="padding: 12px 15px;">The system must provide mechanisms for (manual) backup and database restoration.</td>
+        <td style="padding: 12px 15px;">Functional tests of the "Backup and Restore" interface. Verification that backup files are created on the server.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">NFR-007</td>
+        <td style="padding: 12px 15px;">Maintainability (testability)</td>
+        <td style="padding: 12px 15px;">The code must be testable, following unit and integration testing standards (PHPUnit).</td>
+        <td style="padding: 12px 15px;">Running the test suite and checking code coverage.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">NFR-008</td>
+        <td style="padding: 12px 15px;">Localization</td>
+        <td style="padding: 12px 15px;">The system's primary language must be set to Portuguese (Brazil).</td>
+        <td style="padding: 12px 15px;">Verification of language files and the user interface.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">NFR-009</td>
+        <td style="padding: 12px 15px;">Platform (technology)</td>
+        <td style="padding: 12px 15px;">The system must be built with the Laravel framework (PHP), MariaDB, and frontend tools such as Vite.js and Alpine.js.</td>
+        <td style="padding: 12px 15px;">Verification of the project's configuration files (e.g., composer.json, package.json).</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">NFR-010</td>
+        <td style="padding: 12px 15px;">Performance (interface)</td>
+        <td style="padding: 12px 15px;">The scheduling module must use AJAX (Axios) to load resource availability without reloading the page.</td>
+        <td style="padding: 12px 15px;">Functional test of the calendar (clicking on a day) and verification that a request is made.</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">NFR-011</td>
+        <td style="padding: 12px 15px;">Usability (data visualization)</td>
+        <td style="padding: 12px 15px;">The reports module must use charts (e.g., Chart.js) for easier interpretation.</td>
+        <td style="padding: 12px 15px;">Functional test of the reports page and verification of the charts.</td>
+      </tr>
+      <tr style="background-color: #f9f9f9;">
+        <td style="padding: 12px 15px;">NFR-012</td>
+        <td style="padding: 12px 15px;">Usability (interaction)</td>
+        <td style="padding: 12px 15px;">The system must use modals (SweetAlert2) for destructive actions.</td>
+        <td style="padding: 12px 15px;">Functional test and verification that the confirmation modal is displayed.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+---
+
+## 💻 Development Environment
+
+The project was developed with a modern set of tools, focused on security and productivity, in a hybrid environment.
 
 <div style="width: 100%; overflow-x: auto;">
   <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
     <thead style="background-color: #444; color: white;">
       <tr>
-        <th style="padding: 12px 15px; text-align: left;">Categoria</th>
-        <th style="padding: 12px 15px; text-align: left;">Ferramenta</th>
-        <th style="padding: 12px 15px; text-align: left;">Versão</th>
-        <th style="padding: 12px 15px; text-align: left;">Propósito</th>
+        <th style="padding: 12px 15px; text-align: left;">Category</th>
+        <th style="padding: 12px 15px; text-align: left;">Tool</th>
+        <th style="padding: 12px 15px; text-align: left;">Version</th>
+        <th style="padding: 12px 15px; text-align: left;">Purpose</th>
       </tr>
     </thead>
     <tbody style="background-color: #fff; color: #333;">
       <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">Sistema Operacional</td>
+        <td style="padding: 12px 15px;">Operating System</td>
         <td style="padding: 12px 15px;"><strong>Windows 11 + WSL 2 (Ubuntu)</strong></td>
         <td style="padding: 12px 15px;">-</td>
-        <td style="padding: 12px 15px;">Ambiente de desenvolvimento híbrido, combinando a UI do Windows com um terminal Linux nativo (WSL) para performance.</td>
+        <td style="padding: 12px 15px;">Hybrid development environment, combining the Windows UI with a native Linux terminal (WSL) for performance.</td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">Sistema Operacional</td>
+        <td style="padding: 12px 15px;">Operating System</td>
         <td style="padding: 12px 15px;"><strong>Kali GNU/Linux Rolling</strong></td>
         <td style="padding: 12px 15px;">2025.3</td>
-        <td style="padding: 12px 15px;">Utilizado para testes de segurança (Pentest) e validação da robustez da aplicação.</td>
+        <td style="padding: 12px 15px;">Used for security testing (pentesting) and validating the robustness of the application.</td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">Editor de Código</td>
+        <td style="padding: 12px 15px;">Code Editor</td>
         <td style="padding: 12px 15px;"><strong>Visual Studio Code</strong></td>
         <td style="padding: 12px 15px;">1.103.1</td>
-        <td style="padding: 12px 15px;">Editor principal com extensões para PHP, Laravel, Blade e Tailwind.</td>
+        <td style="padding: 12px 15px;">Main editor with extensions for PHP, Laravel, Blade, and Tailwind.</td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">Controle de Versão</td>
+        <td style="padding: 12px 15px;">Version Control</td>
         <td style="padding: 12px 15px;"><strong>Git</strong></td>
         <td style="padding: 12px 15px;">2.50.1</td>
-        <td style="padding: 12px 15px;">Gerenciamento do código-fonte e versionamento.</td>
+        <td style="padding: 12px 15px;">Source code management and versioning.</td>
       </tr>
     </tbody>
   </table>
@@ -720,17 +728,17 @@ O projeto foi desenvolvido scandals um conjunto de ferramentas moderno, focado e
 
 ---
 
-## 🚀 Stack Tecnológica e Justificativa Acadêmica
+## 🚀 Tech Stack and Academic Rationale
 
-A seleção de tecnologias (o *stack*) do NREduTech foi deliberada para otimizar a performance, a segurança e a produtividade do desenvolvimento.
+The technology selection (the *stack*) for NREduTech was made deliberately, aiming to optimize performance, security, and development productivity.
 
 <div style="width: 100%; overflow-x: auto;">
   <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
     <thead style="background-color: #444; color: white;">
       <tr>
-        <th style="padding: 12px 15px; text-align: left;">Tecnologia</th>
-        <th style="padding: 12px 15px; text-align: left;">Versão</th>
-        <th style="padding: 12px 15px; text-align: left;">Por que foi escolhida? (Vantagens sobre concorrentes)</th>
+        <th style="padding: 12px 15px; text-align: left;">Technology</th>
+        <th style="padding: 12px 15px; text-align: left;">Version</th>
+        <th style="padding: 12px 15px; text-align: left;">Why was it chosen? (Advantages over alternatives)</th>
       </tr>
     </thead>
     <tbody style="background-color: #fff; color: #333;">
@@ -738,64 +746,64 @@ A seleção de tecnologias (o *stack*) do NREduTech foi deliberada para otimizar
         <td style="padding: 12px 15px;"><strong>PHP</strong></td>
         <td style="padding: 12px 15px;">8.4.11</td>
         <td style="padding: 12px 15px;">
-          <strong>Performance e Modernidade:</strong> O PHP 8.4 oferece melhorias drásticas de performance com o compilador <strong>JIT (Just-In-Time)</strong>. Seus recursos modernos (tipagem estrita, Enums, Readonly Properties) o tornam mais robusto e menos propenso a erros.<br>
-          <strong>Vantagem vs. Concorrentes (Python/Node.js):</strong> A facilidade de *deploy* (hospedagem) do PHP é incomparável. Sua curva de aprendizado é mais rápida que a de frameworks como Django (Python), e seu modelo *multi-process* é mais simples de gerenciar para aplicações web tradicionais do que o *event-loop* do Node.js.
+          <strong>Performance and Modernity:</strong> PHP 8.4 offers drastic performance improvements via the <strong>JIT (Just-In-Time)</strong> compiler. Its modern features (strict typing, Enums, Readonly Properties) make it more robust and less error-prone.<br>
+          <strong>Advantage vs. Alternatives (Python/Node.js):</strong> PHP's ease of deployment (hosting) is unmatched. Its learning curve is faster than frameworks like Django (Python), and its multi-process model is simpler to manage for traditional web applications than Node.js's event loop.
         </td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd;">
         <td style="padding: 12px 15px;"><strong>Laravel</strong></td>
         <td style="padding: 12px 15px;">12.28.1</td>
         <td style="padding: 12px 15px;">
-          <strong>Ecossistema "Baterias Inclusas":</strong> Escolhido por seu ecossistema completo. O <strong>Eloquent ORM</strong> é considerado mais elegante e produtivo que o Doctrine (Symfony) ou o TypeORM (Node.js). O *template engine* <strong>Blade</strong> é simples e extensível. Ferramentas integradas como `artisan` e agendamento de tarefas abstraem complexidades que em *frameworks* mais "agnósticos" exigiriam implementação manual.
+          <strong>"Batteries-Included" Ecosystem:</strong> Chosen for its complete ecosystem. The <strong>Eloquent ORM</strong> is considered more elegant and productive than Doctrine (Symfony) or TypeORM (Node.js). The <strong>Blade</strong> template engine is simple and extensible. Built-in tools such as `artisan` and task scheduling abstract away complexities that more "agnostic" frameworks would require to be implemented manually.
         </td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
         <td style="padding: 12px 15px;"><strong>MariaDB (Server/Client)</strong></td>
         <td style="padding: 12px 15px;">11.8.3 / 15.2</td>
         <td style="padding: 12px 15px;">
-          <strong>Performance Open-Source:</strong> Um *fork* do MySQL mantido pela comunidade, focado em performance e abertura. Oferece compatibilidade total com o MySQL (e Eloquent), mas com otimizações de performance (ex: *storage engines* como Aria) e um ciclo de *features* mais rápido. É superior ao MySQL em termos de licenciamento e abertura, e frequentemente supera o MySQL em performance de *queries* complexas.
+          <strong>Open-Source Performance:</strong> A community-maintained fork of MySQL focused on performance and openness. It offers full compatibility with MySQL (and Eloquent), but with performance optimizations (e.g., storage engines such as Aria) and a faster release cycle for new features. It is superior to MySQL in licensing and openness, and often outperforms MySQL on complex queries.
         </td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd;">
         <td style="padding: 12px 15px;"><strong>Tailwind CSS</strong></td>
         <td style="padding: 12px 15px;">3.x</td>
         <td style="padding: 12px 15px;">
-          <strong>Produtividade e Customização:</strong> Superior a *frameworks* baseados em componentes (como Bootstrap). Em vez de fornecer componentes prontos (ex: `.card`) que precisam ser sobrescritos, o Tailwind fornece classes utilitárias de baixo nível. Isso permite criar designs 100% customizados e responsivos sem "lutar" contra estilos pré-definidos, resultando em um CSS final menor.
+          <strong>Productivity and Customization:</strong> Superior to component-based frameworks (such as Bootstrap). Instead of providing ready-made components (e.g., `.card`) that need to be overridden, Tailwind provides low-level utility classes. This makes it possible to build 100% custom, responsive designs without "fighting" predefined styles, resulting in a smaller final CSS bundle.
         </td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
         <td style="padding: 12px 15px;"><strong>Vite.js</strong></td>
         <td style="padding: 12px 15px;">7.1.10</td>
         <td style="padding: 12px 15px;">
-          <strong>Velocidade de Desenvolvimento:</strong> Substitui o Webpack/Mix. Sua principal vantagem é o <strong>Hot Module Replacement (HMR)</strong> quase instantâneo. Ele usa o ESBuild (escrito em Go) para pré-compilar dependências, tornando o *build* e a atualização do servidor de desenvolvimento ordens de magnitude mais rápidos que o Webpack.
+          <strong>Development Speed:</strong> Replaces Webpack/Mix. Its main advantage is near-instant <strong>Hot Module Replacement (HMR)</strong>. It uses ESBuild (written in Go) to pre-bundle dependencies, making builds and dev-server updates orders of magnitude faster than Webpack.
         </td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd;">
         <td style="padding: 12px 15px;"><strong>Node.js / NPM</strong></td>
         <td style="padding: 12px 15px;">20.19.2 / 9.2.0</td>
         <td style="padding: 12px 15px;">
-          <strong>Ecossistema Frontend:</strong> Runtime de JavaScript essencial para o processo de *build* do frontend (Vite, Tailwind). A versão 20.x é a LTS (Long-Term Support), garantindo estabilidade. O NPM é usado para a gestão de pacotes do frontend.
+          <strong>Frontend Ecosystem:</strong> The JavaScript runtime essential for the frontend build process (Vite, Tailwind). Version 20.x is the LTS (Long-Term Support) release, ensuring stability. NPM is used for frontend package management.
         </td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
         <td style="padding: 12px 15px;"><strong>Composer</strong></td>
         <td style="padding: 12px 15px;">2.8.10</td>
         <td style="padding: 12px 15px;">
-          <strong>Gerenciador de Dependências PHP:</strong> Padrão de-facto, essencial para gerenciar os pacotes do Laravel e suas dependências (Spatie, Maatwebsite, etc.).
+          <strong>PHP Dependency Manager:</strong> The de-facto standard, essential for managing Laravel's packages and their dependencies (Spatie, Maatwebsite, etc.).
         </td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd;">
         <td style="padding: 12px 15px;"><strong>Maatwebsite/Excel</strong></td>
         <td style="padding: 12px 15px;">3.1</td>
         <td style="padding: 12px 15px;">
-          <strong>Exportação de Relatórios:</strong> Padrão da comunidade Laravel para exportação de dados. Abstrai a complexidade da PHPOffice/PhpSpreadsheet, permitindo a exportação de *views* Blade ou coleções Eloquent diretamente para XLSX, CSV, ODS ou PDF.
+          <strong>Report Export:</strong> The Laravel community standard for data export. It abstracts away the complexity of PHPOffice/PhpSpreadsheet, allowing Blade views or Eloquent collections to be exported directly to XLSX, CSV, ODS, or PDF.
         </td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
         <td style="padding: 12px 15px;"><strong>Spatie/laravel-backup</strong></td>
         <td style="padding: 12px 15px;">8.x</td>
         <td style="padding: 12px 15px;">
-          <strong>Confiabilidade de Backup:</strong> Solução superior a *scripts cron* manuais, pois cuida de todo o ciclo de vida do backup: agendamento, execução do *dump* do DB, compactação, notificação por e-mail e limpeza de backups antigos.
+          <strong>Backup Reliability:</strong> A solution superior to manual cron scripts, as it handles the entire backup lifecycle: scheduling, running the DB dump, compression, email notification, and cleanup of old backups.
         </td>
       </tr>
     </tbody>
@@ -804,44 +812,44 @@ A seleção de tecnologias (o *stack*) do NREduTech foi deliberada para otimizar
 
 ---
 
-## 🔒 Segurança e Criptografia
+## 🔒 Security and Encryption
 
-A segurança é um pilar central do NREduTech, implementando padrões modernos para proteção de dados.
+Security is a core pillar of NREduTech, implementing modern standards for data protection.
 
 <div style="width: 100%; overflow-x: auto;">
   <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
     <thead style="background-color: #444; color: white;">
       <tr>
-        <th style="padding: 12px 15px; text-align: left;">Tópico</th>
-        <th style="padding: 12px 15px; text-align: left;">Implementação</th>
-        <th style="padding: 12px 15px; text-align: left;">Justificativa (Por que é superior?)</th>
+        <th style="padding: 12px 15px; text-align: left;">Topic</th>
+        <th style="padding: 12px 15px; text-align: left;">Implementation</th>
+        <th style="padding: 12px 15px; text-align: left;">Justification (Why is it superior?)</th>
       </tr>
     </thead>
     <tbody style="background-color: #fff; color: #333;">
       <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;"><strong>Hashing de Senhas</strong></td>
+        <td style="padding: 12px 15px;"><strong>Password Hashing</strong></td>
         <td style="padding: 12px 15px;"><strong>Argon2id</strong> (via <code>config/hashing.php</code>)</td>
         <td style="padding: 12px 15px;">
-          <strong>Resistência a Hardware Específico:</strong> Argon2id é o vencedor da <strong>Password Hashing Competition (2015)</strong> e o padrão recomendado pelo OWASP.
+          <strong>Resistance to Specialized Hardware:</strong> Argon2id is the winner of the <strong>Password Hashing Competition (2015)</strong> and the standard recommended by OWASP.
           <ul>
-            <li><strong>Superior ao Bcrypt:</strong> Bcrypt é resistente a ataques de força bruta, mas vulnerável a hardware especializado (GPUs).</li>
-            <li><strong>Superior ao scrypt:</strong> scrypt foi pioneiro em ser "memory-hard" (resistente a GPU), mas o Argon2id é mais robusto contra uma gama maior de ataques.</li>
-            <li><strong>Superior ao Argon2d/2i:</strong> A variante <strong>Argon2id</strong> é híbrida, oferecendo a resistência a GPU do Argon2d e a resistência a ataques de <em>side-channel</em> do Argon2i, sendo a escolha mais segura.</li>
+            <li><strong>Superior to Bcrypt:</strong> Bcrypt resists brute-force attacks but is vulnerable to specialized hardware (GPUs).</li>
+            <li><strong>Superior to scrypt:</strong> scrypt pioneered being "memory-hard" (GPU-resistant), but Argon2id is more robust against a wider range of attacks.</li>
+            <li><strong>Superior to Argon2d/2i:</strong> The <strong>Argon2id</strong> variant is hybrid, combining the GPU resistance of Argon2d with the side-channel attack resistance of Argon2i, making it the safest choice.</li>
           </ul>
         </td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;"><strong>Criptografia de Sessão</strong></td>
+        <td style="padding: 12px 15px;"><strong>Session Encryption</strong></td>
         <td style="padding: 12px 15px;"><strong>AES-256-CBC</strong></td>
         <td style="padding: 12px 15px;">
-          <strong>Padrão da Indústria:</strong> Utiliza criptografia simétrica forte para proteger os dados da sessão e cookies de "lembrar-me". Isso impede que um invasor leia ou falsifique o conteúdo da sessão de um usuário, pois ele não possui a chave secreta (<code>APP_KEY</code>) para descriptografar os dados.
+          <strong>Industry Standard:</strong> Uses strong symmetric encryption to protect session data and "remember me" cookies. This prevents an attacker from reading or forging the contents of a user's session, since they do not have the secret key (<code>APP_KEY</code>) needed to decrypt the data.
         </td>
       </tr>
       <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;"><strong>Proteção de Formulários</strong></td>
-        <td style="padding: 12px 15px;"><strong>Tokens CSRF</strong> (via <code>@csrf</code> e Middleware)</td>
+        <td style="padding: 12px 15px;"><strong>Form Protection</strong></td>
+        <td style="padding: 12px 15px;"><strong>CSRF Tokens</strong> (via <code>@csrf</code> and Middleware)</td>
         <td style="padding: 12px 15px;">
-          <strong>Prevenção de Ataques:</strong> Garante que requisições que alteram dados (<code>POST</code>, <code>PUT</code>, <code>DELETE</code>) só possam se originar de dentro da própria aplicação. Isso previne que um site malicioso externo engane um usuário logado a executar ações indesejadas (ex: excluir um agendamento).
+          <strong>Attack Prevention:</strong> Ensures that requests that modify data (<code>POST</code>, <code>PUT</code>, <code>DELETE</code>) can only originate from within the application itself. This prevents an external malicious site from tricking a logged-in user into performing unwanted actions (e.g., deleting an appointment).
         </td>
       </tr>
     </tbody>
@@ -850,30 +858,30 @@ A segurança é um pilar central do NREduTech, implementando padrões modernos p
 
 ---
 
-## 💡 Notas de Arquitetura e Curiosidades
+## 💡 Architecture Notes and Trivia
 
-* **Validação Desacoplada:** O projeto faz uso extensivo de *Form Requests* (ex: `StoreUserRequest`, `StoreAppointmentRequest`). Esta é uma *best practice* do Laravel que move toda a lógica de validação de dados para fora dos Controladores, tornando-os mais limpos, legíveis e fáceis de testar.
-* **Consultas Eficientes:** A funcionalidade de Relatórios (`ReportController`) utiliza *Model Scopes* (ex: `scopeFiltroRecursos`, `scopeFiltroUsuarios`) definidos diretamente nos Modelos. Isso torna as consultas ao banco de dados dinâmicas, eficientes e reutilizáveis.
-* **Seeders Prontos para Produção:** O projeto inclui *seeders* como o `NreIratiSeeder`, que populam o banco com dados reais (municípios e escolas do NRE de Irati), demonstrando um foco na implantação prática.
-* **Tempo de Desenvolvimento:**
-    * **Início:** 31/07/2025
-    * **Conclusão (v1.0):** 26/11/2025
-    * **Total de Horas (Aprox.):** 250 horas
-    * **Total de dias decorridos:** 119 dias
+* **Decoupled Validation:** The project makes extensive use of *Form Requests* (e.g., `StoreUserRequest`, `StoreAppointmentRequest`). This is a Laravel *best practice* that moves all data validation logic out of the Controllers, making them cleaner, more readable, and easier to test.
+* **Efficient Queries:** The Reports feature (`ReportController`) uses *Model Scopes* (e.g., `scopeFiltroRecursos`, `scopeFiltroUsuarios`) defined directly on the Models. This makes database queries dynamic, efficient, and reusable.
+* **Production-Ready Seeders:** The project includes *seeders* such as `NreIratiSeeder`, which populate the database with real data (municipalities and schools from the Irati NRE), demonstrating a focus on practical deployment.
+* **Development Time:**
+    * **Start:** July 31, 2025
+    * **Completion (v1.0):** November 26, 2025
+    * **Total Hours (approx.):** 250 hours
+    * **Total Elapsed Days:** 119 days
 
 ---
 
-## 👨‍💻 Autor
+## 👨‍💻 Author
 
 <div style="width: 100%; overflow-x: auto;">
   <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9;">
     <tr>
       <td style="padding: 20px; width: 100px; text-align: center;">
-        <img src="https://avatars.githubusercontent.com/u/142981329?v=4" width="90" alt="Avatar do Victor" style="border-radius: 50%;">
+        <img src="https://avatars.githubusercontent.com/u/142981329?v=4" width="90" alt="Victor's avatar" style="border-radius: 50%;">
       </td>
       <td style="padding: 20px; color: #333;">
         <strong style="font-size: 1.3em; color: #0169b4;">Victor Henrique Jesus Santiago</strong><br>
-        Desenvolvedor Full Stack<br><br>
+        Full Stack Developer<br><br>
         📧 <a href="mailto:victorhenriquedejesussantiago@gmail.com" style="color: #0169b4; text-decoration: none;">victorhenriquedejesussantiago@gmail.com</a><br>
         👔 <a href="https://www.linkedin.com/in/victor-henrique-de-jesus-santiago/" style="color: #0169b4; text-decoration: none;">LinkedIn/victorhjsantiago</a><br>
         🐙 <a href="https://github.com/victorhjsantiago" style="color: #0169b4; text-decoration: none;">GitHub/victorhjsantiago</a>
