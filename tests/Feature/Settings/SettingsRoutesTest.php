@@ -56,7 +56,7 @@ class SettingsRoutesTest extends TestCase
     {
         $this->actingAs($this->professor)
              ->patch(route('settings.preferences.update'), [])
-             ->assertStatus(302); // Redireciona (sucesso ou erro de validação)
+             ->assertStatus(302);
     }
 
     public function test_professor_nao_consegue_acessar_rotas_de_backup()

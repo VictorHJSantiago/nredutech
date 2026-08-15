@@ -51,7 +51,7 @@ class RegistrationTest extends TestCase
             'tipo_usuario' => 'professor',
             'id_escola' => $escola->id_escola,
             'data_nascimento' => '1990-01-01',
-            'cpf' => '905.979.410-92', // CPF Válido
+            'cpf' => '905.979.410-92',
             'rg' => '12.345.678-9',
             'telefone' => '(42) 99999-9999',
             'rco_siape' => 'RCO123456',
@@ -64,7 +64,6 @@ class RegistrationTest extends TestCase
         $response = $this->post('/register', $data);
 
         $response->assertRedirect(route('login'));
-        // Correção da mensagem: "do administrador" em vez de "por um administrador"
         $response->assertSessionHas('success', 'Cadastro realizado com sucesso! Aguarde a aprovação do administrador ou diretor.');
         
         $this->assertDatabaseHas('usuarios', [
@@ -98,7 +97,7 @@ class RegistrationTest extends TestCase
             'tipo_usuario' => 'administrador',
             'id_escola' => $escola->id_escola,
             'data_nascimento' => '1990-01-01',
-            'cpf' => '905.979.410-92', // CPF Válido
+            'cpf' => '905.979.410-92',
             'rg' => '99.999.999-9',
             'telefone' => '(42) 99999-9999',
             'rco_siape' => '123456',

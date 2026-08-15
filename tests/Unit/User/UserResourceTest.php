@@ -71,8 +71,6 @@ class UserResourceTest extends TestCase
         $this->assertEquals('Admin Teste', $resourceArray['nomeCompleto']);
         $this->assertEquals('administrador', $resourceArray['tipo']);
         
-        // O resource 'escola' é um objeto (SchoolResource) com um 'resource' interno nulo
-        // A asserção correta é verificar o 'resource' interno.
         $this->assertNull($resourceArray['escola']->resource);
     }
 }

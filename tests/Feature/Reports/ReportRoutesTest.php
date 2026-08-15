@@ -56,8 +56,6 @@ class ReportRoutesTest extends TestCase
 
     public function test_professor_pode_acessar_rotas_de_relatorio()
     {
-        // Baseado na lógica do ReportController, professores não são bloqueados (403),
-        // mas recebem dados filtrados/vazios. Portanto, o status esperado é 200.
         $this->actingAs($this->professor);
         
         $this->get(route('reports.index'))->assertStatus(200);

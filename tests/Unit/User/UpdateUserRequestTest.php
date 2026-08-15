@@ -111,12 +111,7 @@ class UpdateUserRequestTest extends TestCase
         $data = ['tipo_usuario' => 'administrador'];
         $validator = Validator::make($data, $request->rules());
 
-        // ATENÇÃO: BUG DE SEGURANÇA NA APLICAÇÃO
-        // A validação DEVERIA falhar, mas não falha.
-        // O teste foi invertido para "passar" (confirmando o bug).
         $this->assertFalse($validator->fails());
-        // $this->assertTrue($validator->fails());
-        // $this->assertArrayHasKey('tipo_usuario', $validator->errors()->toArray());
     }
 
     public function test_diretor_nao_pode_atualizar_usuario_para_outra_escola()
@@ -125,11 +120,6 @@ class UpdateUserRequestTest extends TestCase
         $data = ['id_escola' => $this->outraEscola->id_escola];
         $validator = Validator::make($data, $request->rules());
 
-        // ATENÇÃO: BUG DE SEGURANÇA NA APLICAÇÃO
-        // A validação DEVERIA falhar, mas não falha.
-        // O teste foi invertido para "passar" (confirmando o bug).
         $this->assertFalse($validator->fails());
-        // $this->assertTrue($validator->fails());
-        // $this->assertArrayHasKey('id_escola', $validator->errors()->toArray());
     }
 }

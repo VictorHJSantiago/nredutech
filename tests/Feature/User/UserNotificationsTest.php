@@ -42,7 +42,6 @@ class UserNotificationsTest extends TestCase
 
         $this->actingAs($this->user)->get(route('notifications.index'));
 
-        // Se o controller usar 'update' para marcar como lida
         $this->assertDatabaseHas('notificacoes', [
             'id_notificacao' => $notificacao->id_notificacao,
             'status_mensagem' => 'lida'
@@ -78,7 +77,6 @@ class UserNotificationsTest extends TestCase
 
         $response = $this->actingAs($this->user)->delete(route('notifications.destroy', $notificacao->id_notificacao));
         
-        // Pode ser 403 ou 404 (se o scope filtrar antes) ou 302
         if ($response->status() === 404) {
              $this->assertTrue(true);
         } elseif ($response->status() === 302) {

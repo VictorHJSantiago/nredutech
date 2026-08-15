@@ -100,8 +100,6 @@ class LoginRequest extends FormRequest
 
     public function throttleKey(): string
     {
-        // Nota: os métodos string() e ip() podem ser marcados como erro pelo Intelephense,
-        // mas eles funcionam corretamente pois são herdados da classe Request do Laravel.
         return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

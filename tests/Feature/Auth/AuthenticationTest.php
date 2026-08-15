@@ -43,7 +43,6 @@ class AuthenticationTest extends TestCase
 
     public function test_usuarios_nao_podem_se_autenticar_usando_username_pois_exige_email()
     {
-        // A aplicação exige formato de email no login, então login por username deve falhar
         $user = Usuario::factory()->create([
             'username' => 'usuarioativo',
             'password' => Hash::make('senha123'),
@@ -51,7 +50,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response = $this->post('/login', [
-            'email' => 'usuarioativo', // Não é um email válido
+            'email' => 'usuarioativo',
             'password' => 'senha123',
         ]);
 

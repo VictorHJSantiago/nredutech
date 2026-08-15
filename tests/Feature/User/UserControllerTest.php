@@ -237,7 +237,6 @@ class UserControllerTest extends TestCase
     {
         $response = $this->actingAs($this->diretorA)->delete(route('usuarios.destroy', $this->diretorB));
         
-        // A aplicação retorna 302 (Redirect) quando o diretor tenta excluir usuário de outra escola
         $response->assertStatus(302);
     }
 

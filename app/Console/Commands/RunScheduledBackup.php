@@ -22,22 +22,18 @@ class RunScheduledBackup extends Command
         Log::info('[Backup Agendado] Iniciando verificação.');
         $this->info('[Backup Agendado] Iniciando verificação.');
 
-        // Tenta buscar a configuração de *qualquer* administrador ativo primeiro.
-        // Se houver múltiplos admins com configurações diferentes, pegará a do primeiro encontrado.
         $adminPreference = UsuarioPreferencia::whereHas('usuario', function ($query) {
             $query->where('tipo_usuario', 'administrador')->where('status_aprovacao', 'ativo');
         })->orderBy('id_usuario')->first();
 
         if (!$adminPreference) {
              Log::warning('[Backup Agendado] Nenhuma configuração de preferência encontrada para administradores ativos. Verificando padrão.');
-             // Se nenhum admin ativo tem preferência salva, busca o primeiro admin qualquer para compatibilidade.
              $adminUser = Usuario::where('tipo_usuario', 'administrador')->orderBy('id_usuario')->first();
              if ($adminUser) {
                  $adminPreference = UsuarioPreferencia::find($adminUser->id_usuario);
              }
         }
 
-        // Define um padrão seguro caso nenhuma configuração seja encontrada
         $frequency = $adminPreference->backup_frequency ?? 'daily';
         if (!in_array($frequency, ['daily', 'weekly'])) {
              Log::warning("[Backup Agendado] Frequência inválida ('{$frequency}') encontrada ou nenhuma configuração definida. Usando 'daily' como padrão.");
@@ -55,8 +51,7 @@ class RunScheduledBackup extends Command
             Log::info("[Backup Agendado] Agendamento diário. Backup será executado.");
             $this->info("[Backup Agendado] Agendamento diário. Backup será executado.");
         } elseif ($frequency === 'weekly') {
-            // Verifica se hoje é o dia configurado para semanal (Domingo por padrão)
-            if ($today->isSunday()) { // Pode mudar para ->isMonday(), ->isTuesday(), etc. se necessário
+            if ($today->isSunday()) {
                 $runBackup = true;
                 Log::info("[Backup Agendado] Agendamento semanal. Hoje é Domingo. Backup será executado.");
                 $this->info("[Backup Agendado] Agendamento semanal. Hoje é Domingo. Backup será executado.");
@@ -71,8 +66,6 @@ class RunScheduledBackup extends Command
                 Log::info('[Backup Agendado] Executando Artisan::call(\'backup:run\')...');
                 $this->info('[Backup Agendado] Executando Artisan::call(\'backup:run\')...');
 
-                // Executa o backup (DB + Arquivos, conforme config/backup.php)
-                // O '--only-db' e '--only-files' são false por padrão, mas explicitamos para clareza
                 Artisan::call('backup:run', ['--only-db' => false, '--only-files' => false]);
 
                 $output = Artisan::output();
@@ -84,20 +77,20 @@ class RunScheduledBackup extends Command
             } catch (Throwable $e) {
                 Log::error('[Backup Agendado] Falha na execução do backup: ' . $e->getMessage(), [
                     'exception' => $e->getFile() . ':' . $e->getLine(),
-                    'trace' => Str::limit($e->getTraceAsString(), 1000) // Limita o tamanho do trace no log
+                    'trace' => Str::limit($e->getTraceAsString(), 1000)
                 ]);
                 $this->error('[Backup Agendado] Falha no backup automático: ' . $e->getMessage());
 
                 $this->notifyAdmins('Falha no Backup Automático', 'Ocorreu um erro durante a execução do backup automático agendado. Verifique os logs do sistema. Erro: '.$e->getMessage());
                 Log::info('[Backup Agendado] Notificações de falha enviadas.');
-                return Command::FAILURE; // Indica falha na execução do comando
+                return Command::FAILURE;
             }
         } else {
              Log::info('[Backup Agendado] Verificação concluída. Backup não necessário hoje.');
              $this->info('[Backup Agendado] Verificação concluída. Backup não necessário hoje.');
         }
 
-        return Command::SUCCESS; // Indica sucesso na execução do comando (mesmo que o backup não tenha rodado)
+        return Command::SUCCESS;
     }
 
     private function notifyAdmins(string $title, string $message): void
@@ -106,7 +99,7 @@ class RunScheduledBackup extends Command
          try {
              $administradores = Usuario::where('tipo_usuario', 'administrador')
                                        ->where('status_aprovacao', 'ativo')
-                                       ->with('preferencias') // Carrega as preferências para checar email
+                                       ->with('preferencias')
                                        ->get();
 
              if ($administradores->isEmpty()) {
@@ -118,7 +111,6 @@ class RunScheduledBackup extends Command
              $fullMessage = $message . " (Data da execução: {$backupDate})";
 
              foreach ($administradores as $admin) {
-                 // Notificação interna do sistema
                  Notificacao::create([
                      'titulo' => $title,
                      'mensagem' => $fullMessage,
@@ -127,9 +119,7 @@ class RunScheduledBackup extends Command
                      'id_usuario' => $admin->id_usuario,
                  ]);
 
-                 // Notificação por e-mail, se habilitada
                  if ($admin->preferencias && $admin->preferencias->notif_email && $admin->email) {
-                    // Implementar envio de e-mail aqui se necessário, usando Mail::to()...
                     Log::info("[Backup Agendado] (Simulação) Enviando e-mail para {$admin->email}.");
                  }
              }

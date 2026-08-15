@@ -53,7 +53,6 @@ class SchoolRoutesTest extends TestCase
 
     public function test_visitante_redirecionado_ao_tentar_acessar_create()
     {
-        // Verifica se a rota existe antes de testar
         if (\Illuminate\Support\Facades\Route::has('escolas.create')) {
             $this->get(route('escolas.create'))->assertRedirect(route('login'));
         } else {
@@ -111,7 +110,6 @@ class SchoolRoutesTest extends TestCase
 
     public function test_admin_autorizado_acessar_create_na_index()
     {
-        // Como a rota create não existe no controller, testamos o acesso à index
         $this->actingAs($this->admin)->get(route('escolas.index'))->assertStatus(200);
     }
 

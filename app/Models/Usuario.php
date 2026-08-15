@@ -52,7 +52,6 @@ class Usuario extends Authenticatable implements CanResetPasswordContract
      */
     protected $hidden = [
         'password',
-        //'remember_token',
     ];
 
     /**
@@ -103,7 +102,6 @@ class Usuario extends Authenticatable implements CanResetPasswordContract
         return $this->hasOne(UsuarioPreferencia::class, 'id_usuario', 'id_usuario');
     }
 
-    //Revisar o sistema para ver possível remoção
     public function agendamentos(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(

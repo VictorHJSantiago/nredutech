@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('usuario_preferencias', function (Blueprint $table) {
-            // CORREÇÃO: Altere 'notif_app' para 'notif_popup'
             $table->string('backup_frequency', 50)->default('daily')->after('notif_popup');
         });
     }

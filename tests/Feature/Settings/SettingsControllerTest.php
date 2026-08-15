@@ -22,7 +22,6 @@ class SettingsControllerTest extends TestCase
             'status_aprovacao' => 'ativo'
         ]);
         
-        // Criação manual das preferências iniciais do usuário
         UsuarioPreferencia::create([
             'id_usuario' => $this->user->id_usuario,
             'notif_email' => true,
@@ -49,7 +48,7 @@ class SettingsControllerTest extends TestCase
 
         $this->assertDatabaseHas('usuario_preferencias', [
             'id_usuario' => $this->user->id_usuario,
-            'notif_email' => 0, // false
+            'notif_email' => 0,
             'tema' => 'escuro',
             'tamanho_fonte' => 'grande'
         ]);
@@ -59,7 +58,6 @@ class SettingsControllerTest extends TestCase
     {
         $novoUsuario = Usuario::factory()->create(['status_aprovacao' => 'ativo']);
         
-        // Garante que o registro existe antes de tentar atualizar, simulando estado inicial
         UsuarioPreferencia::create([
             'id_usuario' => $novoUsuario->id_usuario,
             'tema' => 'claro',
@@ -68,12 +66,11 @@ class SettingsControllerTest extends TestCase
             'tamanho_fonte' => 'padrao'
         ]);
 
-        // Envia todos os campos necessários para passar na validação do Request
         $dados = [
             'tema' => 'escuro',
             'notif_email' => true,
-            'notif_popup' => true,      // Adicionado
-            'tamanho_fonte' => 'padrao' // Adicionado
+            'notif_popup' => true,
+            'tamanho_fonte' => 'padrao'
         ];
 
         $response = $this->actingAs($novoUsuario)
@@ -91,8 +88,8 @@ class SettingsControllerTest extends TestCase
     public function test_atualizacao_de_preferencias_retorna_erro_com_dados_invalidos()
     {
         $dados = [
-            'tema' => 'tema-inexistente', // Valor inválido
-            'tamanho_fonte' => 'extra-gigante' // Valor inválido
+            'tema' => 'tema-inexistente',
+            'tamanho_fonte' => 'extra-gigante'
         ];
 
         $response = $this->actingAs($this->user)
@@ -109,7 +106,6 @@ class SettingsControllerTest extends TestCase
 
         $admin = Usuario::factory()->create(['tipo_usuario' => 'administrador', 'status_aprovacao' => 'ativo']);
         
-        // Garante que o admin tenha preferências criadas
         UsuarioPreferencia::create([
             'id_usuario' => $admin->id_usuario,
             'tema' => 'claro',
@@ -136,8 +132,6 @@ class SettingsControllerTest extends TestCase
 
         $response = $this->actingAs($admin)->get(route('settings.backup.download.latest'));
 
-        // A aplicação retorna 200 (OK) mesmo quando não há backup (provavelmente com uma mensagem na view), 
-        // em vez de redirecionar (302).
         $response->assertStatus(200); 
     }
 }

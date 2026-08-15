@@ -22,8 +22,6 @@ class CityControllerTest extends TestCase
         parent::setUp();
         $this->withoutVite();
 
-        // Correção Crítica: O CityController chama a view 'escolas.index', mas ela não existe (o correto seria 'schools.index').
-        // Como não podemos editar o controller, criamos a view temporariamente para o teste passar.
         $path = resource_path('views/escolas');
         if (!File::exists($path)) {
             File::makeDirectory($path, 0755, true);
@@ -46,7 +44,6 @@ class CityControllerTest extends TestCase
 
     protected function tearDown(): void
     {
-        // Limpa a view temporária criada
         if ($this->createdView) {
             File::deleteDirectory(resource_path('views/escolas'));
         }
@@ -57,7 +54,6 @@ class CityControllerTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->get(route('municipios.index'));
         $response->assertStatus(200);
-        // O controller passa a variável $municipios para a view, verificamos se ela contém o dado
         $response->assertViewHas('municipios', function ($municipios) {
             return $municipios->contains('nome', 'Curitiba');
         });
@@ -65,7 +61,6 @@ class CityControllerTest extends TestCase
 
     public function test_admin_pode_ver_pagina_criacao_municipio_na_index()
     {
-        // O método create não existe no controller, então testamos o acesso à index
         $response = $this->actingAs($this->admin)->get(route('municipios.index'));
         $response->assertStatus(200);
     }
@@ -75,7 +70,6 @@ class CityControllerTest extends TestCase
         $dados = ['nome' => 'Londrina'];
         $response = $this->actingAs($this->admin)->post(route('municipios.store'), $dados);
         
-        // O controller redireciona para escolas.index
         $response->assertRedirect(route('escolas.index'));
         $this->assertDatabaseHas('municipios', ['nome' => 'Londrina']);
     }
@@ -97,7 +91,6 @@ class CityControllerTest extends TestCase
         $dados = ['nome' => 'Curitiba PR'];
         $response = $this->actingAs($this->admin)->put(route('municipios.update', $this->municipio->id_municipio), $dados);
         
-        // O controller redireciona para escolas.index
         $response->assertRedirect(route('escolas.index'));
         $this->assertDatabaseHas('municipios', ['id_municipio' => $this->municipio->id_municipio, 'nome' => 'Curitiba PR']);
     }
@@ -112,7 +105,6 @@ class CityControllerTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->delete(route('municipios.destroy', $this->municipio->id_municipio));
         
-        // O controller redireciona para escolas.index
         $response->assertRedirect(route('escolas.index'));
         $this->assertDatabaseMissing('municipios', ['id_municipio' => $this->municipio->id_municipio]);
     }

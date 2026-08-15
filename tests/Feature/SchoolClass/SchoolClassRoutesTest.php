@@ -48,7 +48,6 @@ class SchoolClassRoutesTest extends TestCase
         $this->diretor = Usuario::factory()->create(['tipo_usuario' => 'diretor', 'id_escola' => $escolaDiretor->id_escola]);
         $this->professor = Usuario::factory()->create(['tipo_usuario' => 'professor', 'id_escola' => $escolaDiretor->id_escola]);
 
-        // Adicionando dependências para a TurmaFactory (que depende da OfertaFactory)
         ComponenteCurricular::create([
             'nome' => 'Matemática',
             'status' => 'aprovado',

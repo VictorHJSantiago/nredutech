@@ -5,11 +5,8 @@ describe('Testes de Registro de Usuário', () => {
   });
 
   it('deve mostrar erros de validação para campos vazios', () => {
-    // Clica no botão registrar sem preencher nada
     cy.get('button[type="submit"]').click();
 
-    // Verifica as mensagens de erro de validação
-    //
     cy.contains('O campo nome é obrigatório');
     cy.contains('O campo email é obrigatório');
     cy.contains('O campo senha é obrigatório');
@@ -20,19 +17,14 @@ describe('Testes de Registro de Usuário', () => {
     cy.get('input[name="email"]').type('teste@cypress.io');
     cy.get('input[name="password"]').type('senha123');
     
-    // Digita uma senha de confirmação diferente
     cy.get('input[name="password_confirmation"]').type('senha456');
     
     cy.get('button[type="submit"]').click();
 
-    // Verifica a mensagem de erro específica
-    //
     cy.contains('O campo senha de confirmação não confere');
   });
 
   it('deve registrar um novo usuário com sucesso', () => {
-    // Gera um email único usando a data/hora atual para
-    // garantir que o teste possa rodar várias vezes sem falhar
     const email = `teste-${Date.now()}@cypress.io`;
     const senha = 'password123';
 
@@ -42,10 +34,8 @@ describe('Testes de Registro de Usuário', () => {
     cy.get('input[name="password_confirmation"]').type(senha);
     cy.get('button[type="submit"]').click();
     
-    // Deve ser redirecionado para a dashboard
     cy.url().should('eq', Cypress.config().baseUrl + '/');
     
-    // Verifica se o nome do novo usuário aparece na página
     cy.contains('Usuário Cypress');
   });
 

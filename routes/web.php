@@ -34,7 +34,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/configuracoes/backup/download-file/{filename}', [SettingsController::class, 'downloadFile'])->name('settings.backup.download-file');
         Route::get('/configuracoes/backup/download/latest', [SettingsController::class, 'downloadLatestBackup'])->name('settings.backup.download.latest');
 
-        // Rotas que exigem confirmação de senha
         Route::middleware(['password.confirm'])->group(function () {
             Route::get('/configuracoes/backup/initiate', [SettingsController::class, 'initiateBackup'])->name('settings.backup.initiate');
             Route::get('/configuracoes/backup/download/{filename}', [SettingsController::class, 'downloadBackup'])->name('settings.backup.download');
@@ -44,7 +43,6 @@ Route::middleware(['auth'])->group(function () {
     });
 
 
-    // Rotas de Recursos CRUD (Acesso Geral, controlado nos controllers)
     Route::get('/agendamentos/events', [AppointmentController::class, 'getCalendarEvents'])->name('appointments.events');
     Route::post('/agendamentos/availability', [AppointmentController::class, 'getAvailabilityForDate'])->name('appointments.availability');
     Route::resource('agendamentos', AppointmentController::class);

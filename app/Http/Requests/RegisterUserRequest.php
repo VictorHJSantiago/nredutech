@@ -32,7 +32,6 @@ class RegisterUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:80', 'unique:usuarios,username'],
-            // A linha abaixo foi corrigida para verificar apenas a tabela 'usuarios'
             'email' => ['required', 'string', 'email', 'max:255', 'unique:usuarios,email'],
             'password' => ['required', 'string', 'confirmed', Password::min(16)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
             'data_nascimento' => ['required', 'date_format:Y-m-d', 'after:1930-12-31', 'before_or_equal:' . now()->subYears(18)->format('Y-m-d')],

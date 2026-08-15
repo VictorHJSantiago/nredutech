@@ -78,7 +78,6 @@ class SchoolControllerTest extends TestCase
 
     public function test_admin_pode_ver_pagina_de_criacao_na_index()
     {
-        // O método create não existe, assume-se que o formulário está na index ou em modal
         $response = $this->actingAs($this->admin)->get(route('escolas.index'));
         $response->assertStatus(200);
     }
@@ -118,7 +117,6 @@ class SchoolControllerTest extends TestCase
 
     public function test_admin_pode_ver_detalhes_da_escola_na_index()
     {
-        // Método show não existe no controller, verificamos se a escola aparece na listagem
         $response = $this->actingAs($this->admin)->get(route('escolas.index'));
         $response->assertStatus(200);
         $response->assertSee($this->escola->nome);
@@ -156,7 +154,6 @@ class SchoolControllerTest extends TestCase
         $response = $this->actingAs($this->admin)->delete(route('escolas.destroy', $this->escola->id_escola));
         
         $response->assertRedirect(route('escolas.index'));
-        // Correção: A model Escola não usa SoftDeletes, então o registro é removido fisicamente
         $this->assertDatabaseMissing('escolas', ['id_escola' => $this->escola->id_escola]);
     }
 

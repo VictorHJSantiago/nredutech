@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('recursos_didaticos', function (Blueprint $table) {
             $table->foreignId('id_escola')->nullable()->after('status') 
                   ->constrained('escolas', 'id_escola')
-                  ->nullOnDelete(); // Se a escola for deletada, o recurso vira global
+                  ->nullOnDelete();
         });
     }
 

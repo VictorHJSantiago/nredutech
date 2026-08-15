@@ -6,7 +6,6 @@ use App\Models\Usuario;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-// use Illuminate\Support\Facades\Crypt; 
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Usuario>
@@ -31,7 +30,6 @@ class UsuarioFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'data_nascimento' => $this->faker->date(),
             
-            // 2. Passe os dados em texto puro (sem Crypt::encryptString)
             'cpf' => $this->faker->numerify('###########'),
             'rg' => $this->faker->numerify('#########'),
             'rco_siape' => $this->faker->unique()->numerify('#######'),

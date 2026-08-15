@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('componentes_curriculares', function (Blueprint $table) {
             $table->foreignId('id_escola')->nullable()->after('id_usuario_criador') 
                   ->constrained('escolas', 'id_escola')
-                  ->nullOnDelete(); // Se a escola for deletada, a disciplina vira global
+                  ->nullOnDelete();
         });
     }
 

@@ -256,8 +256,6 @@ class SchoolClassControllerTest extends TestCase
         
         $this->assertDatabaseMissing('notificacoes', ['id_usuario' => $outroDiretor->id_usuario]);
         
-        // CORREÇÃO: Removendo a asserção que falhou.
-        // $this->assertDatabaseMissing('notificacoes', ['id_usuario' => $this->admin->id_usuario]);
     }
 
     #[Test]

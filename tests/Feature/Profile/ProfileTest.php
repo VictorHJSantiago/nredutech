@@ -17,7 +17,6 @@ class ProfileTest extends TestCase
     {
         parent::setUp();
 
-        // 1. Cria tabela users temporária para satisfazer validação unique:users do Laravel
         if (!Schema::hasTable('users')) {
             Schema::create('users', function (Blueprint $table) {
                 $table->id();
@@ -26,8 +25,6 @@ class ProfileTest extends TestCase
             });
         }
 
-        // 2. Adiciona coluna 'email_verified_at' na tabela usuarios para evitar erro no Controller
-        // O ProfileController tenta acessar esse campo ao atualizar o e-mail.
         if (Schema::hasTable('usuarios') && !Schema::hasColumn('usuarios', 'email_verified_at')) {
             Schema::table('usuarios', function (Blueprint $table) {
                 $table->timestamp('email_verified_at')->nullable();
@@ -72,7 +69,7 @@ class ProfileTest extends TestCase
         $user = Usuario::factory()->create();
 
         $response = $this->actingAs($user)
-            ->from('/profile') // Define a origem para que o redirect back() vá para /profile
+            ->from('/profile')
             ->put(route('password.update'), [
                 'current_password' => 'ValidPassword@123456',
                 'password' => 'NovaSenhaForte!123',

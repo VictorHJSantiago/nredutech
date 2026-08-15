@@ -116,7 +116,6 @@ class AppointmentControllerTest extends TestCase
             'nome' => 'Outra Escola',
             'nivel_ensino' => 'Fundamental',
             'tipo' => 'Municipal',
-            // Correção: Usa o ID do município criado no setUp em vez de forçar '1'
             'id_municipio' => $this->municipio->id_municipio
         ]);
         
@@ -299,7 +298,6 @@ class AppointmentControllerTest extends TestCase
         $response = $this->actingAs($this->professor)->postJson(route('agendamentos.store'), $dados);
 
         $response->assertStatus(422);
-        // Correção: Atualiza a mensagem esperada para corresponder ao retorno da API (provavelmente do Request validation)
         $response->assertJsonFragment(['message' => 'Este recurso já está agendado para o período selecionado.']);
     }
 

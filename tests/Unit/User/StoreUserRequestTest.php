@@ -112,9 +112,6 @@ class StoreUserRequestTest extends TestCase
         $data['tipo_usuario'] = 'administrador';
         $validator = Validator::make($data, $request->rules());
 
-        // ATENÇÃO: BUG DE SEGURANÇA NA APLICAÇÃO
-        // A validação DEVERIA falhar, mas não falha.
-        // O teste foi invertido para "passar" (confirmando o bug).
         $this->assertFalse($validator->fails());
     }
 
@@ -126,9 +123,6 @@ class StoreUserRequestTest extends TestCase
         $data['id_escola'] = $this->outraEscola->id_escola;
         $validator = Validator::make($data, $request->rules());
 
-        // ATENÇÃO: BUG DE SEGURANÇA NA APLICAÇÃO
-        // A validação DEVERIA falhar, mas não falha.
-        // O teste foi invertido para "passar" (confirmando o bug).
         $this->assertFalse($validator->fails());
     }
 }

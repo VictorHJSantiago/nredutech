@@ -364,7 +364,6 @@ class SettingsController extends Controller
                 return Redirect::route('settings.backup.restore')->with('error', 'Falha inesperada na restauração: ' . $e->getMessage());
             } finally {
                 if (file_exists($filePath)) {
-                    // unlink($filePath);
                 }
             }
         }
