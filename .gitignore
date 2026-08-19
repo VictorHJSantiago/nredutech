@@ -23,3 +23,93 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# === Seguranca / segredos (auditoria OWASP) ===
+# Variaveis de ambiente (templates continuam versionados)
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+!.env.dist
+
+# Chaves privadas e certificados
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.ppk
+*.asc
+*.gpg
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
+# Credenciais de nuvem / IaC
+*.tfvars
+!*.tfvars.example
+terraform.tfstate
+terraform.tfstate.*
+.terraform/
+kubeconfig
+*.kubeconfig
+*-service-account*.json
+gha-creds-*.json
+.aws/
+.azure/
+
+# Credenciais de ferramentas
+.npmrc
+.pypirc
+.netrc
+_netrc
+
+# Segredos de aplicacao
+secrets.json
+credentials.json
+credentials.yml
+secrets.yml
+secrets.yaml
+*.secrets.json
+local.settings.json
+keystore.properties
+key.properties
+google-services.json
+GoogleService-Info.plist
+*.mobileprovision
+
+# Bancos locais e dumps
+*.sqlite
+*.sqlite3
+*.db
+dump.rdb
+*.bak
+*.sql.gz
+
+# Logs e temporarios
+*.log
+*.swp
+*.orig
+*~
+
+# SO / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vs/
+
+# Node
+node_modules/
+dist/
+build/
+coverage/
+.next/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+
+# PHP
+/vendor/
