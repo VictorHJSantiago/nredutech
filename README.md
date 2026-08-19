@@ -1,891 +1,1099 @@
 <div align="center">
-  <br />
-  <img src="https://raw.githubusercontent.com/victorhjsantiago/nredutech/main/public/images/nredutech.png" alt="NREduTech Logo" width="150" style="border-radius: 50%;">
-  
-  <h1 style="border-bottom: none; font-size: 2.5em; margin-bottom: 0;">NREduTech</h1>
-  
-  <strong style="font-size: 1.2em; color: #555;">
-    Academic Management and Educational Resource Scheduling System
-  </strong>
-  
-  <br />
-  <br />
 
-  <p style="font-size: 1.1em; max-width: 700px;">
-    A robust, centralized solution built on the <strong>Laravel MVC</strong> architecture, designed for the integrated management of schools, classes, educational resources, and scheduling for the <strong>Regional Education Center (NRE)</strong>.
-  </p>
+**🌐 Choose Language / Selecione o Idioma / Elija el Idioma**
 
-  <p>
-    <img src="https://img.shields.io/badge/status-under%20development-yellow?style=for-the-badge" alt="Project Status: Under Development">
-    <img src="https://img.shields.io/badge/PHP-8.4.11-777BB4?style=for-the-badge&logo=php" alt="PHP Version">
-    <img src="https://img.shields.io/badge/Laravel-12.28.1-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel Version">
-    <img src="https://img.shields.io/badge/MariaDB-11.8.3-003545?style=for-the-badge&logo=mariadb" alt="Database">
-  </p>
+[![🇺🇸 English](https://img.shields.io/badge/🇺🇸%20English-Current-005CA5?style=for-the-badge)](README.md)&nbsp;&nbsp;&nbsp;[![🇧🇷 Português](https://img.shields.io/badge/🇧🇷%20Português-README__PT.md-009C3B?style=for-the-badge)](README_PT.md)&nbsp;&nbsp;&nbsp;[![🇪🇸 Español](https://img.shields.io/badge/🇪🇸%20Español-README__ES.md-C60B1E?style=for-the-badge)](README_ES.md)
 
-  <p>
-    <strong>🇺🇸 English</strong>
-    ·
-    <a href="README.pt-BR.md">🇧🇷 Português</a>
-    ·
-    <a href="README.es.md">🇪🇸 Español</a>
-  </p>
 </div>
 
 ---
 
-## 📖 About the Project
+<div align="center">
 
-**NREduTech** is an Academic Management System (AMS) designed to serve as the central administration platform for the Regional Education Center. The application addresses the challenge of efficiently managing the allocation of educational resources, lab scheduling, and the organization of curriculum components across multiple educational institutions.
-
-From an academic standpoint, the project is a practical implementation of the principles of **Object-Oriented Software Development (OOP)** and the **Model-View-Controller (MVC)** architecture. It uses the Laravel framework to ensure rapid, secure, and scalable development, abstracting low-level complexities and allowing full focus on business rules.
-
-The platform is designed with a focus on different user profiles (Administrators, Principals, and Teachers), offering specific dashboards and features for each access level. The system incorporates essential features such as complex report generation, a proactive notification system, and automated backup routines, ensuring data integrity and availability.
-
-## ✨ Key Features
-
-The system is modularized to cover every educational management need:
-
-* **👥 User Management:** Granular access control with three permission levels (Administrator, Principal, Teacher).
-* **🏫 School and Municipality Management:** Centralized registration and administration of educational institutions and their locations.
-* **👨‍🎓 Class Management:** Organization of classes linked to each school.
-* **📂 Subject Management:** (Curriculum Components) Registration and association of taught subjects.
-* **📖 Educational Resource Management:** Catalog of all pedagogical and technological resources available for scheduling (e.g., labs, projectors, robotics kits).
-* **📅 Smart Scheduling:** Calendar interface (based on *FullCalendar*) for teachers to book resources for their classes, with availability validation.
-* **📊 Advanced Reports:** Generation of dynamic reports on resource usage, scheduling by school, and more, with export to **PDF** and **Excel**.
-* **🔔 Notification System:** Real-time in-app alerts and email notifications for critical actions (e.g., scheduling confirmations).
-* **🗃️ Backup and Restore:** Robust functionality for creating application and database *backups*, with automatic scheduling and restoration.
-* **♿ Accessibility:** Native integration with **VLibras** to ensure accessibility for people with disabilities.
+```
+███╗   ██╗██████╗ ███████╗██████╗ ██╗   ██╗████████╗███████╗ ██████╗██╗  ██╗
+████╗  ██║██╔══██╗██╔════╝██╔══██╗██║   ██║╚══██╔══╝██╔════╝██╔════╝██║  ██║
+██╔██╗ ██║██████╔╝█████╗  ██║  ██║██║   ██║   ██║   █████╗  ██║     ███████║
+██║╚██╗██║██╔══██╗██╔══╝  ██║  ██║██║   ██║   ██║   ██╔══╝  ██║     ██╔══██║
+██║ ╚████║██║  ██║███████╗██████╔╝╚██████╔╝   ██║   ███████╗╚██████╗██║  ██║
+╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝╚═════╝  ╚═════╝    ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝
+        School resource scheduling & reporting platform (Laravel 12)
+```
 
 ---
 
-## 🛠️ Requirements and Business Rules
+[![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/)
+[![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com/)
+[![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind](https://img.shields.io/badge/Tailwind-3.1-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Cypress](https://img.shields.io/badge/Cypress-15-17202C?style=for-the-badge&logo=cypress&logoColor=white)](https://www.cypress.io/)
+[![PHPUnit](https://img.shields.io/badge/PHPUnit-11-3776AB?style=for-the-badge&logo=php&logoColor=white)](https://phpunit.de/)
+[![License](https://img.shields.io/badge/License-MIT-8B5CF6?style=for-the-badge)]()
 
-The system logic was modeled to reflect the hierarchies and processes of a real educational environment.
+<br/>
 
-### Core Business Rules
+> **A Laravel platform that schedules didactic resources across a school network**
+> and reports on their usage, availability and conflicts.
 
-* 🔑 **User Approval:** Teachers and Principals can self-register, but their accounts are created with `pending` status. An `Administrator` must manually approve the registration before the user can access the system.
-* 🚦 **Permission Hierarchy:**
-    * **Administrator:** Has full control (CRUD) over all entities: Schools, Municipalities, Users, Classes, Resources, and Subjects. The only profile that can perform system backups and restorations.
-    * **Principal:** Has control (CRUD) over entities *only* from their own school (Classes, Teachers, Resources, Subjects). Can view reports related to their school.
-    * **Teacher:** The focus is on scheduling. Can schedule resources for their classes/subjects (Offerings) and manage (CRUD) the resources and subjects they themselves registered.
-* 🌍 **Resource Ownership:** Resources and Subjects can be "Global" (belonging to the NRE, `school_id = null`) and available to all schools, or belong to a specific school (visible only to users of that school).
-* ⏱️ **Scheduling Conflicts:** The system actively prevents the same resource (`recurso_didatico_id`) from being booked by two people for the same time slot (overlap validation of `data_inicio` and `data_fim`).
-* 🔗 **Data Integrity:** The system uses foreign key constraints (`FOREIGN KEY`) to ensure referential integrity. A School cannot be deleted if it has linked Classes or Users; a Municipality cannot be deleted if it has linked Schools.
+<br/>
 
-### Business Rules (BR)
-<div style="width: 100%; overflow-x: auto;">
-  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <thead style="background-color: #0169b4; color: white;">
-      <tr>
-        <th style="padding: 12px 15px; text-align: left;">ID</th>
-        <th style="padding: 12px 15px; text-align: left;">Affected Actor(s)</th>
-        <th style="padding: 12px 15px; text-align: left;">Rule Description</th>
-        <th style="padding: 12px 15px; text-align: left;">Justification/Origin</th>
-      </tr>
-    </thead>
-    <tbody style="background-color: #fff; color: #333;">
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-001</td>
-        <td style="padding: 12px 15px;">User (all)</td>
-        <td style="padding: 12px 15px;">When a user updates their email in their profile, the account must be marked as "unverified", requiring re-confirmation.</td>
-        <td style="padding: 12px 15px;">Ensure ownership and validity of the new email address.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-002</td>
-        <td style="padding: 12px 15px;">User (all)</td>
-        <td style="padding: 12px 15px;">To delete their own account, the user must confirm their current password.</td>
-        <td style="padding: 12px 15px;">Security measure to prevent accidental or malicious deletion.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-003</td>
-        <td style="padding: 12px 15px;">User (new)</td>
-        <td style="padding: 12px 15px;">Registration fields (username, email, CPF, RG, etc.) must be unique in the system.</td>
-        <td style="padding: 12px 15px;">Ensure the uniqueness of each user in the database.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-004</td>
-        <td style="padding: 12px 15px;">Administrator</td>
-        <td style="padding: 12px 15px;">Only administrators can view and manage users from all schools.</td>
-        <td style="padding: 12px 15px;">Centralization of access control and account management at the NRE.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-005</td>
-        <td style="padding: 12px 15px;">Principal, teacher</td>
-        <td style="padding: 12px 15px;">Principals and teachers can only view users from their own school.</td>
-        <td style="padding: 12px 15px;">Ensure data isolation (privacy) between institutions.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-006</td>
-        <td style="padding: 12px 15px;">Principal</td>
-        <td style="padding: 12px 15px;">Principals can only create users (e.g., teachers) for their own school.</td>
-        <td style="padding: 12px 15px;">Delegation of personnel management at the school level.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-007</td>
-        <td style="padding: 12px 15px;">Principal</td>
-        <td style="padding: 12px 15px;">Principals cannot create or promote users to the "administrator" level.</td>
-        <td style="padding: 12px 15px;">Maintain the permission hierarchy and system security.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-008</td>
-        <td style="padding: 12px 15px;">Administrator</td>
-        <td style="padding: 12px 15px;">An administrator (or any user) cannot delete their own account.</td>
-        <td style="padding: 12px 15px;">Prevent accidental system lockout.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-009</td>
-        <td style="padding: 12px 15px;">Administrator, principal</td>
-        <td style="padding: 12px 15px;">The system must prevent the deletion of users who have dependencies (created resources or offerings).</td>
-        <td style="padding: 12px 15px;">Ensure referential integrity and the history of actions.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-010</td>
-        <td style="padding: 12px 15px;">Administrator</td>
-        <td style="padding: 12px 15px;">Only Administrators can manage (CRUD) municipalities and schools.</td>
-        <td style="padding: 12px 15px;">Centralization of NRE infrastructure management.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-011</td>
-        <td style="padding: 12px 15px;">Administrator (when creating a school)</td>
-        <td style="padding: 12px 15px;">A School must mandatorily be associated with a municipality.</td>
-        <td style="padding: 12px 15px;">NRE structural organization requirement.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-012</td>
-        <td style="padding: 12px 15px;">Administrator (when creating a school)</td>
-        <td style="padding: 12px 15px;">The education level and type fields of a school must be predefined values (enum).</td>
-        <td style="padding: 12px 15px;">Ensure data standardization and consistency for reports.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-013</td>
-        <td style="padding: 12px 15px;">Principal, teacher</td>
-        <td style="padding: 12px 15px;">Principals and teachers can only manage (view, create, edit) classes from their own school.</td>
-        <td style="padding: 12px 15px;">Keep the management scope restricted to the institution itself.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-014</td>
-        <td style="padding: 12px 15px;">User (when creating a class)</td>
-        <td style="padding: 12px 15px;">The school year must be an integer within a valid range (e.g., 2000-2100).</td>
-        <td style="padding: 12px 15px;">Ensure the validity and consistency of school year data.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-015</td>
-        <td style="padding: 12px 15px;">User (when deleting a class)</td>
-        <td style="padding: 12px 15px;">The system must prevent the deletion of classes that have component offerings.</td>
-        <td style="padding: 12px 15px;">Protect the history of subject and teacher allocations.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-016</td>
-        <td style="padding: 12px 15px;">Administrator, principal, teacher</td>
-        <td style="padding: 12px 15px;">Subjects can be "global" or "specific" (linked to a school).</td>
-        <td style="padding: 12px 15px;">Allow curriculum components common to all schools as well as unique components.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-017</td>
-        <td style="padding: 12px 15px;">Administrator</td>
-        <td style="padding: 12px 15px;">Only administrators can create or edit global subjects.</td>
-        <td style="padding: 12px 15px;">Centralized control over the regional core curriculum.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-018</td>
-        <td style="padding: 12px 15px;">Principal, teacher</td>
-        <td style="padding: 12px 15px;">Principals and teachers view global subjects as well as those specific to their school.</td>
-        <td style="padding: 12px 15px;">Provide access to the curriculum relevant to the institution.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-019</td>
-        <td style="padding: 12px 15px;">User (when deleting a subject)</td>
-        <td style="padding: 12px 15px;">The system must prevent the deletion of subjects that have linked offerings.</td>
-        <td style="padding: 12px 15px;">Ensure the integrity of the class history.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-020</td>
-        <td style="padding: 12px 15px;">Teacher</td>
-        <td style="padding: 12px 15px;">Teachers can only create component offerings for themselves (not for other teachers).</td>
-        <td style="padding: 12px 15px;">Ensure that teachers only manage their own assignments.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-021</td>
-        <td style="padding: 12px 15px;">User (when deleting an offering)</td>
-        <td style="padding: 12px 15px;">The system must prevent the deletion of offerings that have linked appointments.</td>
-        <td style="padding: 12px 15px;">Protect the history of resource usage in appointments.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-022</td>
-        <td style="padding: 12px 15px;">User (when creating a resource)</td>
-        <td style="padding: 12px 15px;">The quantity of a resource must be an integer equal to or greater than 1.</td>
-        <td style="padding: 12px 15px;">Ensure that the resource inventory has valid values.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-023</td>
-        <td style="padding: 12px 15px;">User (when deleting a resource)</td>
-        <td style="padding: 12px 15px;">The system must prevent the deletion of resources that have linked appointments.</td>
-        <td style="padding: 12px 15px;">Ensure the integrity of the appointment history.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-024</td>
-        <td style="padding: 12px 15px;">User (when creating an appointment)</td>
-        <td style="padding: 12px 15px;">The end date/time of an appointment must mandatorily be after the start date/time.</td>
-        <td style="padding: 12px 15px;">Ensure temporal logic and the validity of the scheduled period.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-025</td>
-        <td style="padding: 12px 15px;">User (when creating an appointment)</td>
-        <td style="padding: 12px 15px;">The start date/time must be at least 10 minutes ahead of the moment of creation.</td>
-        <td style="padding: 12px 15px;">Avoid retroactive or instantaneous appointments that are impossible to fulfill.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-026</td>
-        <td style="padding: 12px 15px;">System</td>
-        <td style="padding: 12px 15px;">The system must not allow the same resource to be booked for overlapping (conflicting) time slots.</td>
-        <td style="padding: 12px 15px;">Prevention of allocation conflicts (double booking).</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-027</td>
-        <td style="padding: 12px 15px;">System</td>
-        <td style="padding: 12px 15px;">Appointments cannot be created at certain times (e.g., overnight, between 11:00 PM and 6:00 AM).</td>
-        <td style="padding: 12px 15px;">Security restriction and compliance with operating hours.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-028</td>
-        <td style="padding: 12px 15px;">User (when canceling an appointment)</td>
-        <td style="padding: 12px 15px;">An appointment cannot be canceled less than 10 minutes before it starts.</td>
-        <td style="padding: 12px 15px;">Avoid last-minute cancellations that disrupt resource allocation.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-029</td>
-        <td style="padding: 12px 15px;">System</td>
-        <td style="padding: 12px 15px;">Creating and canceling appointments must trigger notifications to everyone involved.</td>
-        <td style="padding: 12px 15px;">Keep users informed about changes to the calendar.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-030</td>
-        <td style="padding: 12px 15px;">Principal</td>
-        <td style="padding: 12px 15px;">Reports generated by principals must contain only data from their own school.</td>
-        <td style="padding: 12px 15px;">Ensure data isolation and privacy between institutions.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-031</td>
-        <td style="padding: 12px 15px;">Administrator</td>
-        <td style="padding: 12px 15px;">Only administrators can access the settings area (backups, etc.).</td>
-        <td style="padding: 12px 15px;">Restrict access to critical system features.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-032</td>
-        <td style="padding: 12px 15px;">System</td>
-        <td style="padding: 12px 15px;">The system must notify the administrator by email when a backup completes successfully.</td>
-        <td style="padding: 12px 15px;">Provide confirmation and monitoring of critical tasks.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-033</td>
-        <td style="padding: 12px 15px;">Administrator</td>
-        <td style="padding: 12px 15px;">The system must prevent the deletion of municipalities that have linked schools.</td>
-        <td style="padding: 12px 15px;">Ensure the referential integrity of school locations.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-034</td>
-        <td style="padding: 12px 15px;">Administrator</td>
-        <td style="padding: 12px 15px;">The system must prevent the deletion of schools that have linked classes or users.</td>
-        <td style="padding: 12px 15px;">Protect associated data (classes, users) of the institution.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-035</td>
-        <td style="padding: 12px 15px;">System</td>
-        <td style="padding: 12px 15px;">The system must prevent the creation of duplicate offerings (same subject, teacher, and class).</td>
-        <td style="padding: 12px 15px;">Avoid redundancy and inconsistency in pedagogical data.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-036</td>
-        <td style="padding: 12px 15px;">Administrator, principal, teacher</td>
-        <td style="padding: 12px 15px;">Editing a subject is permitted only by its creator, the school principal, or an administrator.</td>
-        <td style="padding: 12px 15px;">Control over who can change the data of a curriculum component.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-037</td>
-        <td style="padding: 12px 15px;">Administrator</td>
-        <td style="padding: 12px 15px;">Only administrators can change the school associated with a subject (or make it global).</td>
-        <td style="padding: 12px 15px;">Centralized control over the regional curriculum structure.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-038</td>
-        <td style="padding: 12px 15px;">System</td>
-        <td style="padding: 12px 15px;">New subjects registered by teachers or principals start with "Pending" status.</td>
-        <td style="padding: 12px 15px;">Ensure control and standardization of the component catalog.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-039</td>
-        <td style="padding: 12px 15px;">User (when creating a resource)</td>
-        <td style="padding: 12px 15px;">When registering a resource with a quantity greater than 1, the system must offer the option to create individual items or a single batch.</td>
-        <td style="padding: 12px 15px;">Facilitate bulk inventory registration (usability).</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-040</td>
-        <td style="padding: 12px 15px;">System</td>
-        <td style="padding: 12px 15px;">Newly registered users (Public Registration) start with "Pending" status and must be approved.</td>
-        <td style="padding: 12px 15px;">Security measure to validate new users before granting access.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-041</td>
-        <td style="padding: 12px 15px;">Administrator, principal</td>
-        <td style="padding: 12px 15px;">Principals can only delete users (who are not administrators) from their own school.</td>
-        <td style="padding: 12px 15px;">Maintain the permission hierarchy and management scope.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-042</td>
-        <td style="padding: 12px 15px;">Administrator, principal, teacher</td>
-        <td style="padding: 12px 15px;">An appointment can only be canceled by its creator (teacher), the school principal, or an administrator.</td>
-        <td style="padding: 12px 15px;">Define responsibility over booking cancellations.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-043</td>
-        <td style="padding: 12px 15px;">Administrator, principal</td>
-        <td style="padding: 12px 15px;">Access to the reports module is restricted to administrators and principals.</td>
-        <td style="padding: 12px 15px;">Protect access to analytical and consolidated data.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">BR-044</td>
-        <td style="padding: 12px 15px;">Administrator</td>
-        <td style="padding: 12px 15px;">Critical actions (running a backup, downloading a backup, restoring) require the administrator to confirm their current password.</td>
-        <td style="padding: 12px 15px;">Security measure (step-up authentication) for sensitive operations.</td>
-      </tr>
-      <tr style="background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">BR-045</td>
-        <td style="padding: 12px 15px;">User (when changing password)</td>
-        <td style="padding: 12px 15px;">User passwords must be at least 16 characters long.</td>
-        <td style="padding: 12px 15px;">Ensure a minimum level of complexity and security for passwords.</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+![Controllers](https://img.shields.io/badge/Controllers-14-FF2D20?style=flat-square)
+![Models](https://img.shields.io/badge/Eloquent%20Models-9-06B6D4?style=flat-square)
+![Feature Tests](https://img.shields.io/badge/Feature%20Tests-24%2B-10B981?style=flat-square)
+![E2E](https://img.shields.io/badge/Cypress%20E2E-3-8B5CF6?style=flat-square)
 
-### Functional Requirements (FR)
-<div style="width: 100%; overflow-x: auto;">
-  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <thead style="background-color: #0169b4; color: white;">
-      <tr>
-        <th style="padding: 12px 15px; text-align: left;">ID</th>
-        <th style="padding: 12px 15px; text-align: left;">Module</th>
-        <th style="padding: 12px 15px; text-align: left;">Requirement Name</th>
-        <th style="padding: 12px 15px; text-align: left;">Description</th>
-        <th style="padding: 12px 15px; text-align: left;">Priority</th>
-      </tr>
-    </thead>
-    <tbody style="background-color: #fff; color: #333;">
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-001</td>
-        <td style="padding: 12px 15px;">Authentication</td>
-        <td style="padding: 12px 15px;">User registration (public)</td>
-        <td style="padding: 12px 15px;">The system must allow users (teachers, principals) to register through a public form.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-002</td>
-        <td style="padding: 12px 15px;">Authentication</td>
-        <td style="padding: 12px 15px;">User login</td>
-        <td style="padding: 12px 15px;">The system must allow registered users to log in with email and password.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-003</td>
-        <td style="padding: 12px 15px;">Authentication</td>
-        <td style="padding: 12px 15px;">Password recovery</td>
-        <td style="padding: 12px 15px;">The system must allow users to recover their passwords through a "Forgot my password" flow.</td>
-        <td style="padding: 12px 15px;">High</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-004</td>
-        <td style="padding: 12px 15px;">Profile</td>
-        <td style="padding: 12px 15px;">Update profile information</td>
-        <td style="padding: 12px 15px;">The user must be able to view and update their profile information (name, email, phone).</td>
-        <td style="padding: 12px 15px;">Medium</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-005</td>
-        <td style="padding: 12px 15px;">Profile</td>
-        <td style="padding: 12px 15px;">Update password</td>
-        <td style="padding: 12px 15px;">The user must be able to update their password by providing their current password.</td>
-        <td style="padding: 12px 15px;">High</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-006</td>
-        <td style="padding: 12px 15px;">Profile</td>
-        <td style="padding: 12px 15px;">Delete account</td>
-        <td style="padding: 12px 15px;">A user's account can be deleted by themselves or by an administrator/principal.</td>
-        <td style="padding: 12px 15px;">Medium</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-007</td>
-        <td style="padding: 12px 15px;">User management</td>
-        <td style="padding: 12px 15px;">User CRUD</td>
-        <td style="padding: 12px 15px;">The system must support CRUD operations for users.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-008</td>
-        <td style="padding: 12px 15px;">User management</td>
-        <td style="padding: 12px 15px;">Filter users</td>
-        <td style="padding: 12px 15px;">The system must allow filtering the user list (by name, email, status, type, CPF, RG, education, etc.).</td>
-        <td style="padding: 12px 15px;">High</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-009</td>
-        <td style="padding: 12px 15px;">School management</td>
-        <td style="padding: 12px 15px;">Municipality CRUD</td>
-        <td style="padding: 12px 15px;">The system must support CRUD operations for municipalities.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-010</td>
-        <td style="padding: 12px 15px;">School management</td>
-        <td style="padding: 12px 15px;">School CRUD</td>
-        <td style="padding: 12px 15px;">The system must support CRUD operations for schools.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-011</td>
-        <td style="padding: 12px 15px;">Class management</td>
-        <td style="padding: 12px 15px;">Class CRUD</td>
-        <td style="padding: 12px 15px;">The system must support CRUD operations for classes.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-012</td>
-        <td style="padding: 12px 15px;">Class management</td>
-        <td style="padding: 12px 15px;">View class details (offerings)</td>
-        <td style="padding: 12px 15px;">The system must allow viewing the details of a class and its offerings.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-013</td>
-        <td style="padding: 12px 15px;">Subjects</td>
-        <td style="padding: 12px 15px;">Curriculum component CRUD</td>
-        <td style="padding: 12px 15px;">The system must support CRUD operations for curriculum components (subjects).</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-014</td>
-        <td style="padding: 12px 15px;">Subjects</td>
-        <td style="padding: 12px 15px;">Filter components</td>
-        <td style="padding: 12px 15px;">The system must allow filtering components (name/description, workload, status, school).</td>
-        <td style="padding: 12px 15px;">High</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-015</td>
-        <td style="padding: 12px 15px;">Component offerings</td>
-        <td style="padding: 12px 15px;">Offering CRUD</td>
-        <td style="padding: 12px 15px;">The system must support CRUD operations for offerings.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-016</td>
-        <td style="padding: 12px 15px;">Educational resources</td>
-        <td style="padding: 12px 15px;">Educational resource CRUD</td>
-        <td style="padding: 12px 15px;">The system must support CRUD operations for educational resources and labs.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-017</td>
-        <td style="padding: 12px 15px;">Scheduling</td>
-        <td style="padding: 12px 15px;">Manage scheduling</td>
-        <td style="padding: 12px 15px;">The system must allow users to create, view, and cancel appointments for educational resources.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-018</td>
-        <td style="padding: 12px 15px;">Scheduling</td>
-        <td style="padding: 12px 15px;">Scheduling calendar</td>
-        <td style="padding: 12px 15px;">The system must display appointments in an interactive calendar interface (FullCalendar).</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-019</td>
-        <td style="padding: 12px 15px;">Reports</td>
-        <td style="padding: 12px 15px;">View reports</td>
-        <td style="padding: 12px 15px;">The system must allow previewing analytical reports with advanced filters and charts.</td>
-        <td style="padding: 12px 15px;">High</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-020</td>
-        <td style="padding: 12px 15px;">Reports</td>
-        <td style="padding: 12px 15px;">Export reports</td>
-        <td style="padding: 12px 15px;">The system must allow exporting reports in multiple formats (PDF, XLSX, CSV, ODS, HTML).</td>
-        <td style="padding: 12px 15px;">High</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-021</td>
-        <td style="padding: 12px 15px;">Settings</td>
-        <td style="padding: 12px 15px;">Backup management</td>
-        <td style="padding: 12px 15px;">The system must allow backup management (manual creation, download, and deletion).</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-022</td>
-        <td style="padding: 12px 15px;">Settings</td>
-        <td style="padding: 12px 15px;">Backup restoration</td>
-        <td style="padding: 12px 15px;">The system must allow data restoration from a backup file.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-023</td>
-        <td style="padding: 12px 15px;">Notifications</td>
-        <td style="padding: 12px 15px;">Display notifications</td>
-        <td style="padding: 12px 15px;">The system must display notifications to users (via the interface and email) about relevant events.</td>
-        <td style="padding: 12px 15px;">High</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-024</td>
-        <td style="padding: 12px 15px;">Notifications</td>
-        <td style="padding: 12px 15px;">Mark notifications as read</td>
-        <td style="padding: 12px 15px;">The system must mark notifications as read (automatically when the list is viewed).</td>
-        <td style="padding: 12px 15px;">Medium</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-025</td>
-        <td style="padding: 12px 15px;">User management</td>
-        <td style="padding: 12px 15px;">User approval</td>
-        <td style="padding: 12px 15px;">The system must allow administrators and principals to approve or reject/block new pending registrations.</td>
-        <td style="padding: 12px 15px;">High</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-026</td>
-        <td style="padding: 12px 15px;">Subjects</td>
-        <td style="padding: 12px 15px;">Subject approval</td>
-        <td style="padding: 12px 15px;">The system must allow authorized users (administrator, principal) to approve or reject components with "Pending" status.</td>
-        <td style="padding: 12px 15px;">High</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-027</td>
-        <td style="padding: 12px 15px;">Scheduling</td>
-        <td style="padding: 12px 15px;">Check availability</td>
-        <td style="padding: 12px 15px;">The system must display resource availability (available and booked) for a specific day.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-028</td>
-        <td style="padding: 12px 15px;">Educational resources</td>
-        <td style="padding: 12px 15px;">Batch registration</td>
-        <td style="padding: 12px 15px;">The system must allow registering multiple individual resources from a single form (via a quantity checkbox).</td>
-        <td style="padding: 12px 15px;">Medium</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-029</td>
-        <td style="padding: 12px 15px;">Notifications</td>
-        <td style="padding: 12px 15px;">Clear notifications</td>
-        <td style="padding: 12px 15px;">The system must allow the user to delete notifications individually or clear the entire history.</td>
-        <td style="padding: 12px 15px;">Medium</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">FR-030</td>
-        <td style="padding: 12px 15px;">Scheduling</td>
-        <td style="padding: 12px 15px;">Check daily availability</td>
-        <td style="padding: 12px 15px;">The system must display resource availability (available and booked) for a specific selected day.</td>
-        <td style="padding: 12px 15px;">Essential</td>
-      </tr>
-      <tr style="background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">FR-031</td>
-        <td style="padding: 12px 15px;">Notifications</td>
-        <td style="padding: 12px 15px;">Delete notifications</td>
-        <td style="padding: 12px 15px;">The system must allow the user to delete notifications (individually or via "Clear All").</td>
-        <td style="padding: 12px 15px;">Medium</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-### Non-Functional Requirements (NFR)
-<div style="width: 100%; overflow-x: auto;">
-  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <thead style="background-color: #0169b4; color: white;">
-      <tr>
-        <th style="padding: 12px 15px; text-align: left;">ID</th>
-        <th style="padding: 12px 15px; text-align: left;">Quality Attribute</th>
-        <th style="padding: 12px 15px; text-align: left;">Requirement Description</th>
-        <th style="padding: 12px 15px; text-align: left;">Verification Metric</th>
-      </tr>
-    </thead>
-    <tbody style="background-color: #fff; color: #333;">
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">NFR-001</td>
-        <td style="padding: 12px 15px;">Security (access control)</td>
-        <td style="padding: 12px 15px;">The system must have robust role-based access control (administrator, principal, teacher).</td>
-        <td style="padding: 12px 15px;">Integration tests validating that each profile can only access allowed routes and data (HTTP 403 status tests).</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">NFR-002</td>
-        <td style="padding: 12px 15px;">Security (data)</td>
-        <td style="padding: 12px 15px;">User passwords must be stored using strong, modern hashing (Argon2id).</td>
-        <td style="padding: 12px 15px;">Code review and unit tests verifying that the hash is generated correctly.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">NFR-003</td>
-        <td style="padding: 12px 15px;">Security (data)</td>
-        <td style="padding: 12px 15px;">Sensitive personal data (such as CPF and RG) must be stored encrypted (e.g., AES-256-CBC).</td>
-        <td style="padding: 12px 15px;">Implementation audit and manual database verification to confirm data is not stored in plain text.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">NFR-004</td>
-        <td style="padding: 12px 15px;">Security (web)</td>
-        <td style="padding: 12px 15px;">The system must be protected against common attacks (CSRF, XSS, SQL Injection).</td>
-        <td style="padding: 12px 15px;">Code review (use of Eloquent ORM, Blade, middleware, CSRF) and basic penetration testing.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">NFR-005</td>
-        <td style="padding: 12px 15px;">Integrity</td>
-        <td style="padding: 12px 15px;">The system must ensure referential integrity, preventing the deletion of "parent" records that have "child" records.</td>
-        <td style="padding: 12px 15px;">Integration tests (Feature Tests) that attempt to delete records with dependencies and validate the resulting error.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">NFR-006</td>
-        <td style="padding: 12px 15px;">Reliability (backup)</td>
-        <td style="padding: 12px 15px;">The system must provide mechanisms for (manual) backup and database restoration.</td>
-        <td style="padding: 12px 15px;">Functional tests of the "Backup and Restore" interface. Verification that backup files are created on the server.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">NFR-007</td>
-        <td style="padding: 12px 15px;">Maintainability (testability)</td>
-        <td style="padding: 12px 15px;">The code must be testable, following unit and integration testing standards (PHPUnit).</td>
-        <td style="padding: 12px 15px;">Running the test suite and checking code coverage.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">NFR-008</td>
-        <td style="padding: 12px 15px;">Localization</td>
-        <td style="padding: 12px 15px;">The system's primary language must be set to Portuguese (Brazil).</td>
-        <td style="padding: 12px 15px;">Verification of language files and the user interface.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">NFR-009</td>
-        <td style="padding: 12px 15px;">Platform (technology)</td>
-        <td style="padding: 12px 15px;">The system must be built with the Laravel framework (PHP), MariaDB, and frontend tools such as Vite.js and Alpine.js.</td>
-        <td style="padding: 12px 15px;">Verification of the project's configuration files (e.g., composer.json, package.json).</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">NFR-010</td>
-        <td style="padding: 12px 15px;">Performance (interface)</td>
-        <td style="padding: 12px 15px;">The scheduling module must use AJAX (Axios) to load resource availability without reloading the page.</td>
-        <td style="padding: 12px 15px;">Functional test of the calendar (clicking on a day) and verification that a request is made.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">NFR-011</td>
-        <td style="padding: 12px 15px;">Usability (data visualization)</td>
-        <td style="padding: 12px 15px;">The reports module must use charts (e.g., Chart.js) for easier interpretation.</td>
-        <td style="padding: 12px 15px;">Functional test of the reports page and verification of the charts.</td>
-      </tr>
-      <tr style="background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">NFR-012</td>
-        <td style="padding: 12px 15px;">Usability (interaction)</td>
-        <td style="padding: 12px 15px;">The system must use modals (SweetAlert2) for destructive actions.</td>
-        <td style="padding: 12px 15px;">Functional test and verification that the confirmation modal is displayed.</td>
-      </tr>
-    </tbody>
-  </table>
 </div>
 
 ---
 
-## 💻 Development Environment
+## 📑 Table of Contents
 
-The project was developed with a modern set of tools, focused on security and productivity, in a hybrid environment.
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
 
-<div style="width: 100%; overflow-x: auto;">
-  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <thead style="background-color: #444; color: white;">
-      <tr>
-        <th style="padding: 12px 15px; text-align: left;">Category</th>
-        <th style="padding: 12px 15px; text-align: left;">Tool</th>
-        <th style="padding: 12px 15px; text-align: left;">Version</th>
-        <th style="padding: 12px 15px; text-align: left;">Purpose</th>
-      </tr>
-    </thead>
-    <tbody style="background-color: #fff; color: #333;">
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">Operating System</td>
-        <td style="padding: 12px 15px;"><strong>Windows 11 + WSL 2 (Ubuntu)</strong></td>
-        <td style="padding: 12px 15px;">-</td>
-        <td style="padding: 12px 15px;">Hybrid development environment, combining the Windows UI with a native Linux terminal (WSL) for performance.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">Operating System</td>
-        <td style="padding: 12px 15px;"><strong>Kali GNU/Linux Rolling</strong></td>
-        <td style="padding: 12px 15px;">2025.3</td>
-        <td style="padding: 12px 15px;">Used for security testing (pentesting) and validating the robustness of the application.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;">Code Editor</td>
-        <td style="padding: 12px 15px;"><strong>Visual Studio Code</strong></td>
-        <td style="padding: 12px 15px;">1.103.1</td>
-        <td style="padding: 12px 15px;">Main editor with extensions for PHP, Laravel, Blade, and Tailwind.</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;">Version Control</td>
-        <td style="padding: 12px 15px;"><strong>Git</strong></td>
-        <td style="padding: 12px 15px;">2.50.1</td>
-        <td style="padding: 12px 15px;">Source code management and versioning.</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<table>
+<tr>
+<td valign="top" width="50%">
 
----
+**🏗️ System**
+- [Overview](#-overview)
+- [System Architecture](#-system-architecture)
+- [Technology Stack](#-technology-stack)
+- [Design Patterns](#-design-patterns-applied)
+- [Project Structure](#-project-structure)
 
-## 🚀 Tech Stack and Academic Rationale
+**📦 Modules**
+- [System Modules](#-system-modules)
 
-The technology selection (the *stack*) for NREduTech was made deliberately, aiming to optimize performance, security, and development productivity.
+</td>
+<td valign="top" width="50%">
 
-<div style="width: 100%; overflow-x: auto;">
-  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <thead style="background-color: #444; color: white;">
-      <tr>
-        <th style="padding: 12px 15px; text-align: left;">Technology</th>
-        <th style="padding: 12px 15px; text-align: left;">Version</th>
-        <th style="padding: 12px 15px; text-align: left;">Why was it chosen? (Advantages over alternatives)</th>
-      </tr>
-    </thead>
-    <tbody style="background-color: #fff; color: #333;">
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;"><strong>PHP</strong></td>
-        <td style="padding: 12px 15px;">8.4.11</td>
-        <td style="padding: 12px 15px;">
-          <strong>Performance and Modernity:</strong> PHP 8.4 offers drastic performance improvements via the <strong>JIT (Just-In-Time)</strong> compiler. Its modern features (strict typing, Enums, Readonly Properties) make it more robust and less error-prone.<br>
-          <strong>Advantage vs. Alternatives (Python/Node.js):</strong> PHP's ease of deployment (hosting) is unmatched. Its learning curve is faster than frameworks like Django (Python), and its multi-process model is simpler to manage for traditional web applications than Node.js's event loop.
-        </td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;"><strong>Laravel</strong></td>
-        <td style="padding: 12px 15px;">12.28.1</td>
-        <td style="padding: 12px 15px;">
-          <strong>"Batteries-Included" Ecosystem:</strong> Chosen for its complete ecosystem. The <strong>Eloquent ORM</strong> is considered more elegant and productive than Doctrine (Symfony) or TypeORM (Node.js). The <strong>Blade</strong> template engine is simple and extensible. Built-in tools such as `artisan` and task scheduling abstract away complexities that more "agnostic" frameworks would require to be implemented manually.
-        </td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;"><strong>MariaDB (Server/Client)</strong></td>
-        <td style="padding: 12px 15px;">11.8.3 / 15.2</td>
-        <td style="padding: 12px 15px;">
-          <strong>Open-Source Performance:</strong> A community-maintained fork of MySQL focused on performance and openness. It offers full compatibility with MySQL (and Eloquent), but with performance optimizations (e.g., storage engines such as Aria) and a faster release cycle for new features. It is superior to MySQL in licensing and openness, and often outperforms MySQL on complex queries.
-        </td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;"><strong>Tailwind CSS</strong></td>
-        <td style="padding: 12px 15px;">3.x</td>
-        <td style="padding: 12px 15px;">
-          <strong>Productivity and Customization:</strong> Superior to component-based frameworks (such as Bootstrap). Instead of providing ready-made components (e.g., `.card`) that need to be overridden, Tailwind provides low-level utility classes. This makes it possible to build 100% custom, responsive designs without "fighting" predefined styles, resulting in a smaller final CSS bundle.
-        </td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;"><strong>Vite.js</strong></td>
-        <td style="padding: 12px 15px;">7.1.10</td>
-        <td style="padding: 12px 15px;">
-          <strong>Development Speed:</strong> Replaces Webpack/Mix. Its main advantage is near-instant <strong>Hot Module Replacement (HMR)</strong>. It uses ESBuild (written in Go) to pre-bundle dependencies, making builds and dev-server updates orders of magnitude faster than Webpack.
-        </td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;"><strong>Node.js / NPM</strong></td>
-        <td style="padding: 12px 15px;">20.19.2 / 9.2.0</td>
-        <td style="padding: 12px 15px;">
-          <strong>Frontend Ecosystem:</strong> The JavaScript runtime essential for the frontend build process (Vite, Tailwind). Version 20.x is the LTS (Long-Term Support) release, ensuring stability. NPM is used for frontend package management.
-        </td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;"><strong>Composer</strong></td>
-        <td style="padding: 12px 15px;">2.8.10</td>
-        <td style="padding: 12px 15px;">
-          <strong>PHP Dependency Manager:</strong> The de-facto standard, essential for managing Laravel's packages and their dependencies (Spatie, Maatwebsite, etc.).
-        </td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;"><strong>Maatwebsite/Excel</strong></td>
-        <td style="padding: 12px 15px;">3.1</td>
-        <td style="padding: 12px 15px;">
-          <strong>Report Export:</strong> The Laravel community standard for data export. It abstracts away the complexity of PHPOffice/PhpSpreadsheet, allowing Blade views or Eloquent collections to be exported directly to XLSX, CSV, ODS, or PDF.
-        </td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;"><strong>Spatie/laravel-backup</strong></td>
-        <td style="padding: 12px 15px;">8.x</td>
-        <td style="padding: 12px 15px;">
-          <strong>Backup Reliability:</strong> A solution superior to manual cron scripts, as it handles the entire backup lifecycle: scheduling, running the DB dump, compression, email notification, and cleanup of old backups.
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+**💼 Business**
+- [Business Rules](#-business-rules)
+- [Functional Requirements](#-functional-requirements)
+- [Non-Functional Requirements](#-non-functional-requirements)
+
+**📐 Design**
+- [Data Model](#-data-model)
+- [System Flows](#-system-flows)
+
+**🔐 Security & Ops**
+- [Security](#-security)
+- [Installation & Execution](#-installation--execution)
+- [Automated Tests](#-automated-tests)
+- [Metrics & Monitoring](#-metrics--monitoring)
+- [Known Limitations](#-known-limitations)
+
+</td>
+</tr>
+</table>
 
 ---
 
-## 🔒 Security and Encryption
+</details>
 
-Security is a core pillar of NREduTech, implementing modern standards for data protection.
+## 🌟 Overview
 
-<div style="width: 100%; overflow-x: auto;">
-  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <thead style="background-color: #444; color: white;">
-      <tr>
-        <th style="padding: 12px 15px; text-align: left;">Topic</th>
-        <th style="padding: 12px 15px; text-align: left;">Implementation</th>
-        <th style="padding: 12px 15px; text-align: left;">Justification (Why is it superior?)</th>
-      </tr>
-    </thead>
-    <tbody style="background-color: #fff; color: #333;">
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;"><strong>Password Hashing</strong></td>
-        <td style="padding: 12px 15px;"><strong>Argon2id</strong> (via <code>config/hashing.php</code>)</td>
-        <td style="padding: 12px 15px;">
-          <strong>Resistance to Specialized Hardware:</strong> Argon2id is the winner of the <strong>Password Hashing Competition (2015)</strong> and the standard recommended by OWASP.
-          <ul>
-            <li><strong>Superior to Bcrypt:</strong> Bcrypt resists brute-force attacks but is vulnerable to specialized hardware (GPUs).</li>
-            <li><strong>Superior to scrypt:</strong> scrypt pioneered being "memory-hard" (GPU-resistant), but Argon2id is more robust against a wider range of attacks.</li>
-            <li><strong>Superior to Argon2d/2i:</strong> The <strong>Argon2id</strong> variant is hybrid, combining the GPU resistance of Argon2d with the side-channel attack resistance of Argon2i, making it the safest choice.</li>
-          </ul>
-        </td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 12px 15px;"><strong>Session Encryption</strong></td>
-        <td style="padding: 12px 15px;"><strong>AES-256-CBC</strong></td>
-        <td style="padding: 12px 15px;">
-          <strong>Industry Standard:</strong> Uses strong symmetric encryption to protect session data and "remember me" cookies. This prevents an attacker from reading or forging the contents of a user's session, since they do not have the secret key (<code>APP_KEY</code>) needed to decrypt the data.
-        </td>
-      </tr>
-      <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-        <td style="padding: 12px 15px;"><strong>Form Protection</strong></td>
-        <td style="padding: 12px 15px;"><strong>CSRF Tokens</strong> (via <code>@csrf</code> and Middleware)</td>
-        <td style="padding: 12px 15px;">
-          <strong>Attack Prevention:</strong> Ensures that requests that modify data (<code>POST</code>, <code>PUT</code>, <code>DELETE</code>) can only originate from within the application itself. This prevents an external malicious site from tricking a logged-in user into performing unwanted actions (e.g., deleting an appointment).
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+**nredutech** is a Laravel 12 web application that manages the allocation of **didactic resources** (labs, equipment, rooms) across a network of schools belonging to municipalities (`Municipio` / `Escola`). It centers on `Agendamento` (Appointment): a booking of a `RecursoDidatico` (Didactic Resource) for a `OfertaComponente` (Course Offering), which links a `Turma` (School Class) to a `ComponenteCurricular` (Curricular Component).
+
+The system enforces availability rules so two course offerings cannot double-book the same resource in an overlapping time window, surfaces a calendar view of bookings, sends notifications on booking events, and produces exportable reports (Excel via `maatwebsite/excel`, PDF via `barryvdh/laravel-dompdf`) with charts and KPIs. Administrators can trigger and restore encrypted backups through `spatie/laravel-backup`.
+
+The frontend is server-rendered Blade with Tailwind CSS, Alpine.js for interactivity, FullCalendar for the scheduling calendar, and SweetAlert2 for confirmations.
+
+### 🎯 System Objectives
+
+| Objective | Description |
+|-----------|-------------|
+| 📅 **Resource booking** | Let staff schedule a didactic resource for a specific course offering and time window |
+| 🚫 **Conflict prevention** | Reject or flag bookings that overlap an already-booked resource |
+| 🏫 **School network management** | Model municipalities, schools, classes and curricular components |
+| 🔔 **Notifications** | Notify users of booking creation, updates and cancellations |
+| 📊 **Reporting** | Generate Excel/PDF reports with KPIs and charts on resource usage |
+| 👤 **Role-based access** | Restrict school and municipality management to `administrador` users |
+| 💾 **Backups** | Schedule, download and restore encrypted application backups |
+| 🌐 **Localization** | Serve the UI and validation messages in Brazilian Portuguese by default |
 
 ---
 
-## 💡 Architecture Notes and Trivia
+</details>
 
-* **Decoupled Validation:** The project makes extensive use of *Form Requests* (e.g., `StoreUserRequest`, `StoreAppointmentRequest`). This is a Laravel *best practice* that moves all data validation logic out of the Controllers, making them cleaner, more readable, and easier to test.
-* **Efficient Queries:** The Reports feature (`ReportController`) uses *Model Scopes* (e.g., `scopeFiltroRecursos`, `scopeFiltroUsuarios`) defined directly on the Models. This makes database queries dynamic, efficient, and reusable.
-* **Production-Ready Seeders:** The project includes *seeders* such as `NreIratiSeeder`, which populate the database with real data (municipalities and schools from the Irati NRE), demonstrating a focus on practical deployment.
-* **Development Time:**
-    * **Start:** July 31, 2025
-    * **Completion (v1.0):** November 26, 2025
-    * **Total Hours (approx.):** 250 hours
-    * **Total Elapsed Days:** 119 days
+## 🏗️ System Architecture
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+### Module Diagram
+
+```mermaid
+flowchart TB
+    subgraph UI["🖥️  BLADE + ALPINE.JS UI"]
+        direction LR
+        VIEWS["🪟 resources/views\n─────────────\nDashboard · Calendar\nCRUD forms · Reports"]
+        ASSETS["🎨 Vite + Tailwind\n─────────────\nFullCalendar\nSweetAlert2"]
+    end
+
+    subgraph HTTP["🚏  HTTP LAYER"]
+        direction TB
+        ROUTES["routes/web.php\nauth.php"]
+        CTRL["Controllers\n─────────────\nAppointmentController\nDidacticResourceController\nSchoolController · ..."]
+        REQ["Form Requests\n─────────────\nStore*Request\nUpdate*Request"]
+        RES["API Resources\n─────────────\n*Resource (JSON shaping)"]
+    end
+
+    subgraph DOMAIN["⚙️  DOMAIN"]
+        MODELS["Eloquent Models\n─────────────\nAgendamento · RecursoDidatico\nOfertaComponente · Turma\nEscola · Municipio · Usuario"]
+        RULES["Custom Rules\n─────────────\nRgValido"]
+        NOTIF["Notifications\n─────────────\nModelActionNotification\nNotifiableAction trait"]
+    end
+
+    subgraph EXPORT["📤  EXPORT & BACKUP"]
+        EXPORTS["Exports\n─────────────\nReportExport · KpiSheet\nChartDataSheet"]
+        BACKUP["spatie/laravel-backup\nRunScheduledBackup"]
+    end
+
+    subgraph DATA["💾  PERSISTENCE"]
+        DB[("🗄️ MySQL/MariaDB\nmigrations + seeders")]
+    end
+
+    VIEWS --> ROUTES --> CTRL
+    ASSETS -.->|assets| VIEWS
+    CTRL --> REQ
+    CTRL --> MODELS
+    CTRL --> RES --> VIEWS
+    MODELS --> RULES
+    CTRL --> NOTIF
+    CTRL --> EXPORTS
+    MODELS --> DB
+    BACKUP --> DB
+
+    style UI fill:#1e3a5f,color:#fff,stroke:#4a90d9
+    style HTTP fill:#1a3a1a,color:#fff,stroke:#4caf50
+    style DOMAIN fill:#3a1a1a,color:#fff,stroke:#e57373
+    style EXPORT fill:#3a2a1a,color:#fff,stroke:#ffb74d
+    style DATA fill:#2a1a3a,color:#fff,stroke:#ce93d8
+```
+
+### Architecture Layers
+
+```mermaid
+flowchart LR
+    subgraph L1["🖥️ Presentation"]
+        A1["Blade views + Alpine.js"]
+    end
+    subgraph L2["🚏 HTTP"]
+        B1["Controllers + Form Requests"]
+    end
+    subgraph L3["⚙️ Domain"]
+        C1["Eloquent Models + Rules"]
+    end
+    subgraph L4["💾 Infrastructure"]
+        D1["MySQL, Backups, Mail"]
+    end
+
+    L1 --> L2 --> L3 --> L4
+
+    style L1 fill:#1565C0,color:#fff
+    style L2 fill:#2E7D32,color:#fff
+    style L3 fill:#6A1B9A,color:#fff
+    style L4 fill:#BF360C,color:#fff
+```
 
 ---
 
-## 👨‍💻 Author
+</details>
 
-<div style="width: 100%; overflow-x: auto;">
-  <table width="100%" style="border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9;">
-    <tr>
-      <td style="padding: 20px; width: 100px; text-align: center;">
-        <img src="https://avatars.githubusercontent.com/u/142981329?v=4" width="90" alt="Victor's avatar" style="border-radius: 50%;">
-      </td>
-      <td style="padding: 20px; color: #333;">
-        <strong style="font-size: 1.3em; color: #0169b4;">Victor Henrique Jesus Santiago</strong><br>
-        Full Stack Developer<br><br>
-        📧 <a href="mailto:victorhenriquedejesussantiago@gmail.com" style="color: #0169b4; text-decoration: none;">victorhenriquedejesussantiago@gmail.com</a><br>
-        👔 <a href="https://www.linkedin.com/in/victor-henrique-de-jesus-santiago/" style="color: #0169b4; text-decoration: none;">LinkedIn/victorhjsantiago</a><br>
-        🐙 <a href="https://github.com/victorhjsantiago" style="color: #0169b4; text-decoration: none;">GitHub/victorhjsantiago</a>
-      </td>
-    </tr>
-  </table>
+## 🛠️ Technology Stack
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td rowspan="2"><strong>🧠 Language / Runtime</strong></td>
+<td>PHP</td>
+<td>^8.3</td>
+<td>Application language</td>
+</tr>
+<tr>
+<td>Composer</td>
+<td>—</td>
+<td>Dependency management (<code>composer.json</code>)</td>
+</tr>
+<tr>
+<td rowspan="3"><strong>🖥️ Backend Framework</strong></td>
+<td>Laravel</td>
+<td>^12.0</td>
+<td>MVC framework, routing, Eloquent ORM</td>
+</tr>
+<tr>
+<td>Laravel Breeze</td>
+<td>^2.0</td>
+<td>Authentication scaffolding</td>
+</tr>
+<tr>
+<td>Laravel Tinker</td>
+<td>^2.10</td>
+<td>REPL for debugging/seeding</td>
+</tr>
+<tr>
+<td rowspan="4"><strong>🎨 Frontend</strong></td>
+<td>Vite</td>
+<td>^7.0.4</td>
+<td>Asset bundling</td>
+</tr>
+<tr>
+<td>Tailwind CSS</td>
+<td>^3.1.0</td>
+<td>Utility-first styling</td>
+</tr>
+<tr>
+<td>Alpine.js</td>
+<td>^3.4.2</td>
+<td>Lightweight in-page interactivity</td>
+</tr>
+<tr>
+<td>FullCalendar (core, daygrid, timegrid, list, interaction, resource-timeline)</td>
+<td>^6.1.19</td>
+<td>Appointment calendar UI</td>
+</tr>
+<tr>
+<td rowspan="4"><strong>📦 App Packages</strong></td>
+<td>maatwebsite/excel</td>
+<td>^3.1</td>
+<td>Excel report generation (KPI + chart sheets)</td>
+</tr>
+<tr>
+<td>barryvdh/laravel-dompdf</td>
+<td>^3.0.0-beta2</td>
+<td>PDF report generation</td>
+</tr>
+<tr>
+<td>spatie/laravel-backup</td>
+<td>^9.3</td>
+<td>Scheduled/on-demand encrypted backups</td>
+</tr>
+<tr>
+<td>laravel-lang/lang + laravellegends/pt-br-validator</td>
+<td>^15.0 / dev-master</td>
+<td>Brazilian Portuguese translations and validation messages</td>
+</tr>
+<tr>
+<td rowspan="3"><strong>🧪 Testing</strong></td>
+<td>PHPUnit</td>
+<td>^11.0</td>
+<td>Feature and unit test runner</td>
+</tr>
+<tr>
+<td>Mockery</td>
+<td>^1.6</td>
+<td>Test doubles</td>
+</tr>
+<tr>
+<td>Cypress</td>
+<td>^15.6.0</td>
+<td>End-to-end browser tests (auth flows)</td>
+</tr>
+<tr>
+<td rowspan="2"><strong>🔧 Dev Tooling</strong></td>
+<td>Laravel Pint</td>
+<td>^1.13</td>
+<td>Code style fixer (PSR-12)</td>
+</tr>
+<tr>
+<td>Laravel Sail / Pail</td>
+<td>^1.26 / ^1.2</td>
+<td>Docker dev environment / log tailing</td>
+</tr>
+</tbody>
+</table>
+
+---
+
+</details>
+
+## 🎨 Design Patterns Applied
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+| Pattern | Where | Rationale |
+|---------|-------|-----------|
+| 🧱 **MVC** | `app/Http/Controllers`, `app/Models`, `resources/views` | Standard Laravel separation of concerns |
+| 📝 **Form Request Validation** | `app/Http/Requests/Store*Request.php`, `Update*Request.php` | Validation and authorization live outside the controller body |
+| 🎁 **Resource / DTO** | `app/Http/Resources/*Resource.php` | Shapes Eloquent models into consistent JSON for calendar/API consumers |
+| 🧩 **Trait Composition** | `app/Traits/NotifiableAction.php` | Shared notification-dispatch behavior mixed into multiple controllers |
+| 🔌 **Active Record** | Eloquent models (`Agendamento`, `RecursoDidatico`, ...) | Each model owns its own relationships and table mapping |
+| 🧪 **Custom Validation Rule** | `app/Rules/RgValido.php` | Domain-specific document validation (Brazilian RG) encapsulated as a rule object |
+| 📤 **Exporter Strategy** | `app/Exports/*.php` (`ReportExport`, `KpiSheet`, `ChartDataSheet`) | Each export concern implemented as its own `maatwebsite/excel` sheet class |
+| ⏰ **Scheduled Command** | `app/Console/Commands/RunScheduledBackup.php` | Backup logic isolated behind an Artisan command, wired into the scheduler |
+| 🔔 **Observer-like Notification** | `app/Notifications/ModelActionNotification.php` | Generic notification fired after model create/update/delete actions |
+
+---
+
+</details>
+
+## 📁 Project Structure
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+```
+nredutech/
+│
+├── 📄 composer.json                     # PHP dependencies (Laravel 12, PHP ^8.3)
+├── 📄 package.json                      # JS dependencies (Vite, Tailwind, FullCalendar)
+├── 📄 phpunit.xml                       # PHPUnit suite configuration
+├── 📄 vite.config.js                    # Vite build configuration
+├── 📄 tailwind.config.js                # Tailwind theme configuration
+├── 📄 cypress.config.js                 # Cypress E2E configuration
+├── 📄 artisan                           # Laravel CLI entry point
+│
+├── 📂 app/
+│   ├── 📂 Console/Commands/             # RunScheduledBackup.php
+│   ├── 📂 Exports/                      # ReportExport, KpiSheet, ChartDataSheet, AllReportsExport
+│   ├── 📂 Http/
+│   │   ├── 📂 Controllers/              # 14 controllers (Appointment, School, User, Report, ...)
+│   │   ├── 📂 Requests/                 # Store*/Update* form request classes
+│   │   └── 📂 Resources/                # *Resource.php JSON transformers
+│   ├── 📂 Mail/                         # BackupSuccessfulMail, CustomResetPasswordMail, NotificationMail
+│   ├── 📂 Models/                       # Agendamento, RecursoDidatico, Escola, Municipio, ...
+│   ├── 📂 Notifications/                # ModelActionNotification, CustomBackupWasSuccessfulNotification
+│   ├── 📂 Providers/                    # App/Auth/Event/Route service providers
+│   ├── 📂 Rules/                        # RgValido.php
+│   ├── 📂 Traits/                       # NotifiableAction.php
+│   └── 📂 View/Components/              # AppLayout, GuestLayout
+│
+├── 📂 database/
+│   ├── 📂 migrations/                   # Schema history (Portuguese table/column names)
+│   ├── 📂 factories/                    # Model factories for tests/seeding
+│   └── 📂 seeders/                      # Reference/demo data seeders
+│
+├── 📂 routes/
+│   ├── web.php                          # Authenticated app routes (resource controllers)
+│   └── auth.php                         # Breeze authentication routes
+│
+├── 📂 resources/
+│   ├── 📂 views/                        # Blade templates (dashboard, CRUD, calendar, reports)
+│   ├── 📂 css/ · 📂 js/                 # Tailwind entry + Alpine/FullCalendar wiring
+│   └── 📂 lang/                         # pt_BR translation strings
+│
+├── 📂 tests/
+│   ├── 📂 Feature/                      # Controller/route/schema tests per module
+│   └── 📂 Unit/                         # Model, Request and Resource unit tests
+│
+├── 📂 cypress/
+│   └── 📂 e2e/                          # login.cy.js, register.cy.js, password-reset.cy.js
+│
+├── 📄 README.md                         # 🇺🇸 English (primary)
+├── 📄 README_PT.md                      # 🇧🇷 Português
+└── 📄 README_ES.md                      # 🇪🇸 Español
+```
+
+---
+
+</details>
+
+## 📦 System Modules
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+### 📅 Appointment Scheduling (`Agendamento`)
+
+`AppointmentController` is the core of the system: it lists a FullCalendar-ready feed (`getCalendarEvents`), checks free slots for a resource on a given date (`getAvailabilityForDate`) and exposes the standard `Route::resource('agendamentos', ...)` CRUD.
+
+| Responsibility | Implementation |
+|-----------------|-----------------|
+| Calendar feed | `GET /agendamentos/events` → `AppointmentController::getCalendarEvents` |
+| Availability check | `POST /agendamentos/availability` → `getAvailabilityForDate` |
+| CRUD | `Route::resource('agendamentos', AppointmentController::class)` |
+| Validation | `StoreAppointmentRequest`, `UpdateAppointmentRequest` |
+| JSON shaping | `AppointmentResource` |
+| Model fields | `data_hora_inicio`, `data_hora_fim`, `status`, `id_recurso`, `id_oferta` |
+| Relations | `belongsTo RecursoDidatico`, `belongsTo OfertaComponente`, `hasOne Notificacao` |
+
+---
+
+### 🧰 Didactic Resources (`RecursoDidatico`)
+
+Represents a bookable asset (lab equipment, projector, room, etc.) owned by a school.
+
+| Field | Purpose |
+|-------|---------|
+| `nome`, `tipo`, `marca`, `numero_serie` | Identification and inventory data |
+| `quantidade` | Units available |
+| `status` | Current availability/condition state |
+| `data_aquisicao` | Acquisition date |
+| `id_escola` | Owning school (`belongsTo Escola`) |
+| `id_usuario_criador` | Creator (`belongsTo Usuario`) |
+| `agendamentos()` | `hasMany Agendamento` — full booking history |
+
+---
+
+### 🏫 School Network (`Escola`, `Municipio`, `Turma`)
+
+Models the organizational hierarchy: a `Municipio` (City) contains `Escola` (Schools), each with `Turma` (Classes). Management of `escolas` and `municipios` is restricted to `administrador` users via `Route::middleware(['can:administrador'])`.
+
+| Controller | Route prefix | Access |
+|------------|--------------|--------|
+| `SchoolController` | `/escolas` | `can:administrador` only |
+| `CityController` | `/municipios` | `can:administrador` only |
+| `SchoolClassController` | `/turmas` | Any authenticated user |
+
+---
+
+### 📚 Curriculum (`ComponenteCurricular`, `OfertaComponente`)
+
+`ComponenteCurricular` (Curricular Component, e.g. a subject) is offered in a specific `Turma` through `OfertaComponente` (Course Offering) — the entity an `Agendamento` actually books time against.
+
+| Controller | Route prefix | Route parameter alias |
+|------------|--------------|------------------------|
+| `CurricularComponentController` | `/componentes` | `componente` |
+| `CourseOfferingController` | `/ofertas` | `ofertaComponente` |
+
+---
+
+### 👤 Users & Profile
+
+| Controller | Responsibility |
+|------------|-----------------|
+| `UserController` | Admin-facing CRUD over `Usuario` |
+| `ProfileController` | Self-service profile edit/delete for the logged-in user |
+| `UserPreferenceController` | Persists per-user UI preferences (`UsuarioPreferencia`) |
+
+---
+
+### 🔔 Notifications
+
+| File | Responsibility |
+|------|-----------------|
+| `NotificationController` | Lists, deletes and bulk-clears in-app notifications |
+| `app/Notifications/ModelActionNotification.php` | Generic "an action happened on a model" notification |
+| `app/Traits/NotifiableAction.php` | Mixed into controllers to dispatch notifications after create/update/delete |
+| `app/Mail/NotificationMail.php` | Email transport for notifications |
+
+---
+
+### 📊 Reports & Exports
+
+| File | Responsibility |
+|------|-----------------|
+| `ReportController` | Serves `/relatorios` and builds report data |
+| `app/Exports/ReportExport.php`, `SingleReportSheet.php`, `AllReportsExport.php` | Excel workbook composition (`maatwebsite/excel`) |
+| `app/Exports/KpiSheet.php`, `ChartDataSheet.php` | KPI and chart data sheets embedded in the exported workbook |
+| PDF path | `barryvdh/laravel-dompdf` renders the same report data as PDF |
+
+---
+
+### 💾 Settings & Backup
+
+| Route | Access | Responsibility |
+|-------|--------|-----------------|
+| `PATCH /configuracoes/preferences` | Any user | Update UI preferences |
+| `PATCH /configuracoes/backup/schedule` | `administrador` | Update the backup schedule |
+| `GET /configuracoes/backup/initiate` | `administrador` + `password.confirm` | Trigger an on-demand backup |
+| `GET /configuracoes/backup/download/{filename}` | `administrador` + `password.confirm` | Download a specific backup archive |
+| `POST /configuracoes/backup/restore-upload` | `administrador` + `password.confirm` | Upload and restore a backup |
+| `app/Console/Commands/RunScheduledBackup.php` | Scheduler | Runs `spatie/laravel-backup` on a schedule |
+
+---
+
+</details>
+
+## 💼 Business Rules
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+### 📅 Scheduling Rules
+
+| # | Rule | Enforcement |
+|---|------|-------------|
+| BR-01 | A resource cannot be double-booked in an overlapping time window | Availability check in `AppointmentController::getAvailabilityForDate` / validated on store |
+| BR-02 | An appointment must reference an existing resource and course offering | Foreign keys `id_recurso`, `id_oferta` + `StoreAppointmentRequest` validation |
+| BR-03 | An appointment carries a `status` reflecting its lifecycle | `status` column on `agendamentos`, covered by `AppointmentDatabaseSchemaTest` |
+
+### 🏫 Organizational Rules
+
+| # | Rule | Enforcement |
+|---|------|-------------|
+| BR-04 | Only `administrador` users may manage schools and municipalities | `Route::middleware(['can:administrador'])` around `escolas` / `municipios` |
+| BR-05 | Sensitive backup operations require password re-confirmation | `Route::middleware(['password.confirm'])` on initiate/download/restore |
+| BR-06 | A didactic resource belongs to exactly one school | `id_escola` foreign key on `recursos_didaticos`, not nullable |
+
+### 🔔 Notification Rules
+
+| # | Rule | Enforcement |
+|---|------|-------------|
+| BR-07 | Notable model actions generate an in-app notification | `NotifiableAction` trait invoked from controllers |
+| BR-08 | Users can clear all their notifications at once | `POST /notificacoes/clear-all` → `NotificationController::clearAll` |
+
+---
+
+</details>
+
+## ✅ Functional Requirements
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| **RF-01** | The system shall allow authenticated users to register and log in | 🔴 High | ✅ Implemented |
+| **RF-02** | The system shall present a dashboard summarizing key activity | 🔴 High | ✅ Implemented |
+| **RF-03** | The system shall let users create, view, update and delete appointments | 🔴 High | ✅ Implemented |
+| **RF-04** | The system shall expose appointments as a FullCalendar-compatible feed | 🔴 High | ✅ Implemented |
+| **RF-05** | The system shall check resource availability before confirming a booking | 🔴 High | ✅ Implemented |
+| **RF-06** | The system shall manage didactic resources with inventory metadata | 🔴 High | ✅ Implemented |
+| **RF-07** | The system shall manage curricular components and course offerings | 🟡 Medium | ✅ Implemented |
+| **RF-08** | The system shall manage school classes (`turmas`) | 🟡 Medium | ✅ Implemented |
+| **RF-09** | The system shall restrict school and municipality management to administrators | 🔴 High | ✅ Implemented |
+| **RF-10** | The system shall manage application users | 🟡 Medium | ✅ Implemented |
+| **RF-11** | The system shall let a user edit or delete their own profile | 🟡 Medium | ✅ Implemented |
+| **RF-12** | The system shall persist per-user preferences | 🟢 Low | ✅ Implemented |
+| **RF-13** | The system shall list and let users manage notifications | 🟡 Medium | ✅ Implemented |
+| **RF-14** | The system shall generate Excel reports with KPIs and charts | 🟡 Medium | ✅ Implemented |
+| **RF-15** | The system shall generate PDF reports | 🟡 Medium | ✅ Implemented |
+| **RF-16** | The system shall allow administrators to schedule automatic backups | 🟡 Medium | ✅ Implemented |
+| **RF-17** | The system shall allow administrators to download and restore backups | 🟡 Medium | ✅ Implemented |
+| **RF-18** | The system shall require password re-confirmation for sensitive backup actions | 🔴 High | ✅ Implemented |
+| **RF-19** | The system shall validate Brazilian document numbers (RG) via a custom rule | 🟢 Low | ✅ Implemented |
+| **RF-20** | The system shall serve the UI in Brazilian Portuguese | 🟡 Medium | ✅ Implemented |
+| **RF-21** | The system shall send email notifications for relevant events | 🟢 Low | ✅ Implemented |
+| **RF-22** | The system shall cover authentication flows with end-to-end Cypress tests | 🟡 Medium | ✅ Implemented |
+
+---
+
+</details>
+
+## ⚡ Non-Functional Requirements
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+| ID | Category | Requirement | Target |
+|----|----------|-------------|--------|
+| **RNF-01** | 🔐 Security | CSRF protection on all state-changing requests | `VerifyCsrfToken` middleware |
+| **RNF-02** | 🔐 Security | Passwords hashed by Laravel's default hasher | Laravel `Hash` facade (bcrypt) |
+| **RNF-03** | 🔐 Access Control | Admin-only routes gated by a Laravel Gate/Policy | `can:administrador` middleware |
+| **RNF-04** | 🔐 Security | Backup downloads/restores require a recent password confirmation | `password.confirm` middleware |
+| **RNF-05** | 🧪 Testability | Every major module has controller, route and schema tests | `tests/Feature/<Module>/*Test.php` |
+| **RNF-06** | 🧪 Testability | Critical auth flows covered end-to-end | `cypress/e2e/*.cy.js` |
+| **RNF-07** | 🌍 Localization | UI and validation messages default to pt-BR | `laravel-lang/lang`, `pt-br-validator` |
+| **RNF-08** | 🧱 Maintainability | Code style enforced automatically | Laravel Pint (PSR-12) |
+| **RNF-09** | 💾 Reliability | Application state recoverable via backups | `spatie/laravel-backup` |
+| **RNF-10** | 📈 Observability | Backup outcomes reported by email | `BackupSuccessfulMail`, `CustomBackupWasSuccessfulNotification` |
+| **RNF-11** | ⚡ Performance | Frontend assets bundled and minified for production | `vite build` |
+| **RNF-12** | 📱 Usability | Calendar view supports day/week/list/resource-timeline layouts | FullCalendar plugin set in `package.json` |
+| **RNF-13** | 🔧 Portability | Dockerized local environment available | Laravel Sail dev dependency |
+
+---
+
+</details>
+
+## 🗄️ Data Model
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+### Entity-Relationship Diagram
+
+```mermaid
+erDiagram
+    MUNICIPIO ||--o{ ESCOLA : "contains"
+    ESCOLA ||--o{ TURMA : "has"
+    ESCOLA ||--o{ RECURSO_DIDATICO : "owns"
+    TURMA ||--o{ OFERTA_COMPONENTE : "offers"
+    COMPONENTE_CURRICULAR ||--o{ OFERTA_COMPONENTE : "is offered as"
+    OFERTA_COMPONENTE ||--o{ AGENDAMENTO : "is booked for"
+    RECURSO_DIDATICO ||--o{ AGENDAMENTO : "is scheduled in"
+    AGENDAMENTO ||--o| NOTIFICACAO : "triggers"
+    USUARIO ||--o{ RECURSO_DIDATICO : "registers"
+    USUARIO ||--o{ USUARIO_PREFERENCIA : "sets"
+
+    MUNICIPIO {
+        int id_municipio "primary key"
+        string nome
+    }
+
+    ESCOLA {
+        int id_escola "primary key"
+        string nome
+        int id_municipio "FK -> MUNICIPIO"
+    }
+
+    TURMA {
+        int id_turma "primary key"
+        string nome
+        int id_escola "FK -> ESCOLA"
+    }
+
+    COMPONENTE_CURRICULAR {
+        int id_componente "primary key"
+        string nome
+    }
+
+    OFERTA_COMPONENTE {
+        int id_oferta "primary key"
+        int id_turma "FK -> TURMA"
+        int id_componente "FK -> COMPONENTE_CURRICULAR"
+    }
+
+    RECURSO_DIDATICO {
+        int id_recurso "primary key"
+        string nome
+        string tipo
+        string marca
+        string numero_serie
+        int quantidade
+        string status
+        date data_aquisicao
+        int id_escola "FK -> ESCOLA"
+        int id_usuario_criador "FK -> USUARIO"
+    }
+
+    AGENDAMENTO {
+        int id_agendamento "primary key"
+        datetime data_hora_inicio
+        datetime data_hora_fim
+        string status
+        int id_recurso "FK -> RECURSO_DIDATICO"
+        int id_oferta "FK -> OFERTA_COMPONENTE"
+    }
+
+    NOTIFICACAO {
+        int id "primary key"
+        int id_agendamento "FK -> AGENDAMENTO"
+    }
+
+    USUARIO {
+        int id_usuario "primary key"
+        string nome
+        string email
+    }
+
+    USUARIO_PREFERENCIA {
+        int id "primary key"
+        int id_usuario "FK -> USUARIO"
+    }
+```
+
+### Key Table Columns
+
+| Table | Primary Key | Notable Columns |
+|-------|-------------|------------------|
+| `agendamentos` | `id_agendamento` | `data_hora_inicio`, `data_hora_fim`, `status`, `id_recurso`, `id_oferta` |
+| `recursos_didaticos` | `id_recurso` | `nome`, `tipo`, `marca`, `numero_serie`, `quantidade`, `status`, `data_aquisicao`, `id_escola`, `id_usuario_criador` |
+| `escolas` | `id_escola` | `nome`, `id_municipio` |
+| `municipios` | `id_municipio` | `nome` |
+
+### Migration & Seeding
+
+| Concern | File(s) |
+|---------|---------|
+| Schema history | `database/migrations/*.php` |
+| Reference/demo data | `database/seeders/*.php` |
+| Test data generation | `database/factories/*.php` |
+
+---
+
+</details>
+
+## 🔄 System Flows
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+### Appointment Creation Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as 👤 User
+    participant V as 🖥️ Calendar View
+    participant C as 🚏 AppointmentController
+    participant R as 📝 StoreAppointmentRequest
+    participant M as 🗄️ Agendamento
+    participant N as 🔔 NotifiableAction
+
+    U->>V: Select resource + time slot
+    V->>C: POST /agendamentos/availability
+    C-->>V: Available / conflicting slots
+    U->>V: Confirm booking
+    V->>C: POST /agendamentos
+    C->>R: Validate payload
+    alt Invalid or conflicting
+        R-->>C: Validation error
+        C-->>V: 422 with errors
+    else Valid
+        C->>M: Agendamento::create(...)
+        M-->>C: Persisted record
+        C->>N: notify(created)
+        N-->>U: In-app + email notification
+        C-->>V: Redirect with success message
+    end
+```
+
+### Backup & Restore Flow
+
+```mermaid
+flowchart TD
+    START([Admin opens Settings]) --> CONFIRM{Password\nconfirmed recently?}
+    CONFIRM -- No --> ASKPW[Prompt for password]
+    ASKPW --> CONFIRM
+    CONFIRM -- Yes --> ACTION{Action}
+    ACTION -- Initiate --> RUN[SettingsController::initiateBackup]
+    RUN --> BK[spatie/laravel-backup runs]
+    BK --> MAIL[BackupSuccessfulMail sent]
+    ACTION -- Download --> DL[downloadBackup / downloadLatestBackup]
+    ACTION -- Restore --> UP[uploadAndRestore]
+    UP --> RESTORE[Backup archive restored]
+
+    style START fill:#1565C0,color:#fff
+    style MAIL fill:#2E7D32,color:#fff
+    style RESTORE fill:#BF360C,color:#fff
+```
+
+### Report Generation Flow
+
+```mermaid
+flowchart LR
+    IN([GET /relatorios]) --> RC[ReportController::index]
+    RC --> AGG[Aggregate booking/resource data]
+    AGG --> FMT{Format?}
+    FMT -- Excel --> XLS[ReportExport + KpiSheet + ChartDataSheet]
+    FMT -- PDF --> PDF[barryvdh/laravel-dompdf render]
+    XLS --> OUT([Download])
+    PDF --> OUT
+
+    style IN fill:#1565C0,color:#fff
+    style OUT fill:#2E7D32,color:#fff
+```
+
+### Notification Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Created: Model action occurs
+    Created --> Delivered: ModelActionNotification sent
+    Delivered --> Read: User views /notificacoes
+    Delivered --> Deleted: DELETE /notificacoes/{id}
+    Read --> Deleted: DELETE /notificacoes/{id}
+    Delivered --> ClearedAll: POST /notificacoes/clear-all
+    Read --> ClearedAll: POST /notificacoes/clear-all
+    Deleted --> [*]
+    ClearedAll --> [*]
+```
+
+---
+
+</details>
+
+## 🔐 Security
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+### Implemented Controls
+
+| Control | Implementation | Effect |
+|---------|---------------|--------|
+| 🔐 **Authentication** | Laravel Breeze (`auth.php` routes) | Session-based login, registration, password reset |
+| 🛡️ **CSRF protection** | `VerifyCsrfToken` middleware | Rejects state-changing requests without a valid token |
+| 🔑 **Password re-confirmation** | `password.confirm` middleware on backup routes | High-impact actions require a recent password check |
+| 🚦 **Role gating** | `can:administrador` middleware | Only administrators reach school/municipality/backup management |
+| 🧾 **Server-side validation** | `Store*Request` / `Update*Request` classes | Every write path validates before touching the database |
+| 🧬 **Custom document validation** | `app/Rules/RgValido.php` | Rejects malformed Brazilian RG numbers |
+| 💾 **Encrypted backups** | `spatie/laravel-backup` | Application state can be recovered without exposing plaintext archives if encryption is configured |
+| 📧 **Password reset via signed mail** | `CustomResetPasswordMail` | Reset links are time-limited and signed |
+
+### Known Security Limitations
+
+> [!WARNING]
+> The following are inherent to the current design and should be understood before broader production use.
+
+| Limitation | Risk | Mitigation path |
+|------------|------|-----------------|
+| 🗄️ **Primary keys use Portuguese, table-specific names** (`id_agendamento`, `id_recurso`) | Increases coupling between raw SQL/reports and schema naming | Acceptable for a single-team codebase; document if the schema is exposed externally |
+| 🔓 **No visible rate limiting on auth routes in `web.php`** | Brute-force risk on login/registration | Add Laravel's built-in `throttle` middleware to `auth.php` routes if not already inherited from Breeze defaults |
+| 📤 **Report exports may include personally identifiable data** | Excel/PDF reports could leak student/staff data if shared broadly | Restrict report access to `administrador` and audit `ReportController::index` authorization |
+| 🔁 **Backup restore accepts an uploaded file** | A malicious archive could be uploaded by a compromised admin account | Combine with strong admin account hygiene (2FA is not currently implemented) |
+| 🌍 **No 2FA** | Account takeover risk if a password leaks | Add Laravel Fortify or similar two-factor support |
+
+---
+
+</details>
+
+## 🚀 Installation & Execution
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+### Prerequisites
+
+```bash
+# PHP 8.3+ with common extensions (pdo_mysql, mbstring, xml, ...)
+php -v
+
+# Composer
+composer -V
+
+# Node.js 18+ and npm
+node -v
+
+# A MySQL/MariaDB database (or Laravel Sail's bundled container)
+```
+
+### Build
+
+```bash
+# Install PHP dependencies
+composer install
+
+# Install JS dependencies
+npm install
+
+# Copy environment file and generate the app key
+cp .env.example .env
+php artisan key:generate
+
+# Configure DB_* variables in .env, then run migrations + seeders
+php artisan migrate --seed
+
+# Build frontend assets for production
+npm run build
+```
+
+### Execution
+
+```bash
+# Local development (Laravel dev server)
+php artisan serve
+
+# Local development (Vite dev server with HMR, in a second terminal)
+npm run dev
+
+# Or, with Laravel Sail (Docker)
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan migrate --seed
+```
+
+### Scripts & Targets
+
+| Command | Purpose |
+|---------|---------|
+| `php artisan serve` | Run the built-in PHP dev server |
+| `npm run dev` | Start the Vite dev server with hot module reload |
+| `npm run build` | Build production frontend assets |
+| `php artisan migrate --seed` | Apply migrations and seed reference data |
+| `php artisan backup:run` | Trigger a `spatie/laravel-backup` backup manually |
+| `php artisan schedule:run` | Run due scheduled commands (e.g. `RunScheduledBackup`) |
+| `./vendor/bin/pint` | Apply Laravel Pint code style fixes |
+
+### Environment Configuration
+
+| Variable group | Purpose |
+|-----------------|---------|
+| `APP_*` | App name, environment, debug mode, key |
+| `DB_*` | Database connection (MySQL/MariaDB) |
+| `MAIL_*` | SMTP settings for notification and backup emails |
+| `BACKUP_*` | Backup destination and encryption settings for `spatie/laravel-backup` |
+
+---
+
+</details>
+
+## 🧪 Automated Tests
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+### Test Architecture
+
+```mermaid
+flowchart TB
+    subgraph FEAT["🧪 Feature Tests — tests/Feature"]
+        F1["Appointments/*\nController · Routes · Schema"]
+        F2["School/*, SchoolClass/*\nController · Routes · Schema"]
+        F3["CourseOffering/*, Disciplines/*"]
+        F4["DidacticResource/*"]
+        F5["Auth/*\nAuthentication, Registration, PasswordReset"]
+        F6["Reports/*, Settings/*, User/*, Dashboard/*, Profile/*"]
+    end
+    subgraph UNIT["🔬 Unit Tests — tests/Unit"]
+        U1["Model tests\nAgendamentoModelTest"]
+        U2["Resource tests\n*ResourceTest"]
+        U3["Request tests\nStore*/Update*RequestTest"]
+    end
+    subgraph E2E["🌐 Cypress E2E"]
+        E1["login.cy.js"]
+        E2["register.cy.js"]
+        E3["password-reset.cy.js"]
+    end
+
+    style FEAT fill:#1e3a5f,color:#fff
+    style UNIT fill:#1a3a1a,color:#fff
+    style E2E fill:#3a2a1a,color:#fff
+```
+
+| Suite | Location | Focus |
+|-------|----------|-------|
+| Appointments | `tests/Feature/Appointments/` | Controller, routes, DB schema for `agendamentos` |
+| School network | `tests/Feature/School/`, `tests/Feature/SchoolClass/` | Schools, cities, classes |
+| Curriculum | `tests/Feature/CourseOffering/`, `tests/Feature/Disciplines/` | Course offerings, curricular components |
+| Didactic resources | `tests/Feature/DidacticResource/` | Controller, routes, schema |
+| Auth | `tests/Feature/Auth/` | Authentication, registration, password reset |
+| Users & profile | `tests/Feature/User/`, `tests/Feature/Profile/` | User CRUD, notifications, profile self-service |
+| Reports & settings | `tests/Feature/Reports/`, `tests/Feature/Settings/`, `tests/Feature/Dashboard/` | Report generation and settings/backup routes |
+| Unit | `tests/Unit/` | Model, Resource and Request classes in isolation |
+| E2E | `cypress/e2e/` | Login, registration, password reset happy paths in a real browser |
+
+### Running the Tests
+
+```bash
+# PHPUnit feature + unit suite
+php artisan test
+# or
+./vendor/bin/phpunit
+
+# Cypress E2E (requires the app running, e.g. via `php artisan serve`)
+npx cypress open      # interactive
+npx cypress run       # headless
+```
+
+### Manual Acceptance Checklist
+
+| # | Scenario | Expected result |
+|---|----------|-----------------|
+| 1 | Register and log in | Account created, redirected to dashboard |
+| 2 | Book a resource for an available slot | Appointment created, calendar updated |
+| 3 | Attempt to book an already-booked slot | Booking rejected with a conflict message |
+| 4 | Non-admin visits `/escolas` | Access denied (403) |
+| 5 | Admin creates a school and a municipality | Records created and listed |
+| 6 | Generate an Excel report | File downloads with KPI and chart sheets |
+| 7 | Generate a PDF report | PDF downloads with the same underlying data |
+| 8 | Trigger a manual backup as admin | Backup created, confirmation email sent |
+| 9 | Clear all notifications | Notification list empties |
+
+---
+
+</details>
+
+## 📊 Metrics & Monitoring
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+### Codebase Metrics
+
+| Metric | Value |
+|--------|-------|
+| Controllers | 14 |
+| Eloquent models | 9 |
+| Form Request classes | 20 |
+| API Resource classes | 8 |
+| Export classes | 5 |
+| Feature test directories | 10 modules |
+| Unit test files | 10+ (models, resources, requests) |
+| Cypress E2E specs | 3 |
+| Notification classes | 2 |
+
+### Runtime Signals
+
+| Signal | Source | Where to observe |
+|--------|--------|------------------|
+| Backup success/failure | `spatie/laravel-backup` events | `BackupSuccessfulMail`, `CustomBackupWasSuccessfulNotification` |
+| Scheduled job runs | Laravel scheduler | `php artisan schedule:list`, log output |
+| Application errors | Laravel exception handler | `storage/logs/laravel.log` |
+| Request-level logs | `php artisan pail` | Real-time log tailing in development |
+
+### Useful Diagnostic Commands
+
+```bash
+# Tail application logs live
+php artisan pail
+
+# List scheduled commands and their next run time
+php artisan schedule:list
+
+# Check current backup status/destinations
+php artisan backup:list
+
+# Clear cached config/routes/views after a deploy
+php artisan optimize:clear
+```
+
+### Standardized Response Codes
+
+| Code | Meaning | Where |
+|------|---------|-------|
+| `200` | OK | Successful GET requests |
+| `302` | Redirect | Post-create/update redirects with flash messages |
+| `403` | Forbidden | `can:administrador` gate rejection |
+| `404` | Not Found | Missing resource route-model binding |
+| `422` | Unprocessable Entity | Form Request validation failure |
+| `500` | Internal Server Error | Uncaught exception, logged to `laravel.log` |
+
+---
+
+</details>
+
+## ⚠️ Known Limitations
+
+<details>
+<summary>▶️ <strong>Click to expand / collapse this section</strong></summary>
+
+> [!IMPORTANT]
+> This project was built for a real school-network scheduling use case; some polish items below are known and tracked rather than accidental gaps.
+
+| Category | Issue | Status |
+|----------|-------|--------|
+| 🌍 **Database naming is Portuguese** | Table/column names (`agendamentos`, `id_recurso`) mix with English class names | ➕ Intentional — matches the domain's native language |
+| 🔐 **No two-factor authentication** | Single-factor login only | ⚠️ Open — consider Laravel Fortify 2FA |
+| 🚦 **No visible explicit rate limiting on auth routes** | Potential brute-force exposure | ⚠️ Open — add `throttle` middleware explicitly if not covered by Breeze defaults |
+| 📊 **Report performance not benchmarked** | Large datasets could slow Excel/PDF generation | ⚠️ Open — add queued export generation for large report ranges |
+| 🧪 **Dusk test case present but browser tests not confirmed wired to CI** | `tests/DuskTestCase.php` exists alongside Cypress | ⚠️ Open — confirm which E2E tool is the source of truth going forward |
+| 🔁 **Availability check and store validation could diverge** | Two code paths (`getAvailabilityForDate` and store validation) must agree on conflict rules | ⚠️ Open — consolidate into a single service method |
+| 📧 **Mail delivery depends on correctly configured SMTP** | Misconfiguration silently drops notification/backup emails | ⚠️ Open — add a mail delivery health check |
+| 💾 **Backup encryption depends on `.env` configuration** | An unencrypted backup could be created if `BACKUP_*` is misconfigured | ⚠️ Open — validate backup config on `RunScheduledBackup` startup |
+
+> [!TIP]
+> The single highest-value improvement is consolidating **availability checking and appointment validation** into one service class, removing the risk of the calendar's "available" view drifting from what the store endpoint actually accepts.
+
+</details>
+
+---
+
+<div align="center">
+
+---
+
+### 🏫 nredutech
+
+*One resource, one time slot, no double-booking*
+
+![Laravel](https://img.shields.io/badge/Built%20with-Laravel%2012-FF2D20?style=flat-square&logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=flat-square&logo=php&logoColor=white)
+![Tested](https://img.shields.io/badge/Tested%20with-PHPUnit%20%2B%20Cypress-3776AB?style=flat-square)
+![pt--BR](https://img.shields.io/badge/Locale-pt--BR-009C3B?style=flat-square)
+
+<br/>
+
+```
+"A school calendar is a promise to every classroom —
+ the system's only job is to keep that promise conflict-free."
+```
+
 </div>
